@@ -1,5 +1,9 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css");
 
+body{
+    font-family: 'pretendard-Medium';
+}
+
 /* 스크롤바 임시 디자인 */
 *::-webkit-scrollbar {
     width: 10px;
