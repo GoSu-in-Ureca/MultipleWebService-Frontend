@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
-import { selectedCategoryState } from "../recoil/atoms";
+import { selectedCategoryState } from "../../recoil/atoms";
 
 const CategoryItem = ({category}) => {
     const [selectedCategory, setSelectedCategory] = useRecoilState(selectedCategoryState);

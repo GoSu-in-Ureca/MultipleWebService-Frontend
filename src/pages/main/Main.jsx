@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import UploadButton from "../../components/UploadButton";
-import Navigation from "../../components/Navigation";
-import CategoryList from "../../components/CategoryList";
-import HotPostList from "../../components/HotPostList";
-import SortFilter from "../../components/SortFilter";
-import PostList from "../../components/PostList";
+import UploadButton from "../../components/main/UploadButton";
+import Navigation from "../../components/main/Navigation";
+import CategoryList from "../../components/main/CategoryList";
+import HotPostList from "../../components/main/HotPostList";
+import SortFilter from "../../components/main/SortFilter";
+import PostList from "../../components/main/PostList";
 import logo from "/assets/branding/logo.svg"
 
 const Main = () => {
