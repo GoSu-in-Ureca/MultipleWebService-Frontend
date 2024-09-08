@@ -1,6 +1,6 @@
 import React from "react";
 
-const UserBookmarkList = () => {
+const UserInterestList = () => {
     return (
         <>
             사용자가 찜한 목록
@@ -8,4 +8,4 @@ const UserBookmarkList = () => {
     );
 }
 
-export default UserBookmarkList;
+export default UserInterestList;
