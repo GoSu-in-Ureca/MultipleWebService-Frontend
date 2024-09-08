@@ -13,7 +13,7 @@ import UploadForm from "./pages/form/UploadForm.jsx";
 import Main from "./pages/main/Main.jsx";
 import Post from "./pages/main/Post.jsx";
 import UserMain from "./pages/user/UserMain.jsx";
-import UserBookmarkList from "./pages/user/UserBookmarkList.jsx";
+import UserInterestList from "./pages/user/UserInterestList.jsx";
 import UserUploadList from "./pages/user/UserUploadList.jsx";
 import WrongPath from "./pages/Etc/WrongPath.jsx";
 
@@ -70,8 +70,8 @@ export const RouterList = () => [
         element: <UserUploadList />,
       },
       {
-        path: "bookmark",
-        element: <UserBookmarkList />,
+        path: "interest",
+        element: <UserInterestList />,
       },
     ],
   },
