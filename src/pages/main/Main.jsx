@@ -37,8 +37,9 @@ export default Main;
 const Wrapper = styled.div`
     font-family: "Pretendard-Medium";
     width: 390px;
-    height: 2000px;
+    height: 1800px;
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
