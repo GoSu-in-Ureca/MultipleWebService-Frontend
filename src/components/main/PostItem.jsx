@@ -34,6 +34,11 @@ const Wrapper = styled.div`
     display: flex;
     padding: 15px 18px;
     border-bottom: 1px solid #F5F5F5;
+    
+    &:hover{
+        background-color: #fcfcfc;
+        cursor: pointer;
+    }
 `;
 
 const Image = styled.img.attrs({

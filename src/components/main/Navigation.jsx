@@ -1,60 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import homeIcon from "/assets/Icon/Home.svg";
-import homeDisableIcon from "/assets/Icon/HomeDisable.svg";
-import chatIcon from "/assets/Icon/Chat.svg";
-import chatDisableIcon from "/assets/Icon/ChatDisable.svg";
-import userIcon from "/assets/Icon/User.svg";
-import userDisableIcon from "/assets/Icon/UserDisable.svg";
+import home from "/assets/Icon/Home.svg";
+import chat from "/assets/Icon/Chat.svg";
+import user from "/assets/Icon/UserDisable.svg";
 
 const Navigation = () => {
+  const navigate = useNavigate();
 
-    const [selected, setSelected] = useState("main");
-    const navigate = useNavigate();
+  const handleNavigation = (page) => {
+    navigate(`/${page}`);
+  };
 
-    const handleNavigation = (page) => {
-        setSelected(page);
-        navigate(`/${page}`);
-      };
+  return (
+    <>
+      <Wrapper>
+        <NavItem onClick={() => handleNavigation("main")}>
+          <NavIcon src={home} alt="Home Icon" />
+          <PlainText>홈</PlainText>
+        </NavItem>
 
-      return (
-        <Wrapper>
-          <NavItem
-            onClick={() => handleNavigation("main")}
-            isSelected={selected === "main"}
-          >
-            <NavIcon
-              src={selected === "main" ? homeIcon : homeDisableIcon}
-              alt="Home Icon"
-            />
-            <PlainText>홈</PlainText>
-          </NavItem>
-    
-          <NavItem
-            onClick={() => handleNavigation("chats")}
-            isSelected={selected === "chat"}
-          >
-            <NavIcon
-              src={selected === "chat" ? chatIcon : chatDisableIcon}
-              alt="Chat Icon"
-            />
-            <PlainText>채팅</PlainText>
-          </NavItem>
-    
-          <NavItem
-            onClick={() => handleNavigation("user/main")}
-            isSelected={selected === "user"}
-          >
-            <NavIcon
-              src={selected === "user" ? userIcon : userDisableIcon}
-              alt="User Icon"
-            />
-            <PlainText>내 정보</PlainText>
-          </NavItem>
-        </Wrapper>
-      );
-    };
+        <NavItem onClick={() => handleNavigation("chats")}>
+          <NavIcon src={chat} alt="Chat Icon" />
+          <PlainText>채팅</PlainText>
+        </NavItem>
+
+        <NavItem onClick={() => handleNavigation("user/main")}>
+          <NavIcon src={user} alt="User Icon" />
+          <PlainText>내 정보</PlainText>
+        </NavItem>
+      </Wrapper>
+    </>
+  );
+};
 
 export default Navigation;
 
@@ -90,4 +68,5 @@ const PlainText = styled.div`
   font-size: 13px;
   font-weight: bold;
   margin-top: 9px;
+  color: #000;
 `;
