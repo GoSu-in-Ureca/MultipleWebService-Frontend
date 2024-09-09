@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import Navigation from "../../components/main/Navigation";
 import CategoryList from "../../components/main/CategoryList";
 import HotPostList from "../../components/main/HotPostList";
@@ -9,6 +10,12 @@ import logo from "/assets/branding/logo.svg"
 import upload from "/assets/Icon/UploadButton.svg";
 
 const Main = () => {
+    const navigate = useNavigate();
+
+    const handleUploadFormNavigate = () => {
+        navigate('/upload');
+    }
+
     return (
         <>
             <Wrapper>
@@ -24,7 +31,7 @@ const Main = () => {
                     <PostList></PostList>
                 </TotalPostArea>
             </Wrapper>
-            <UploadIcon />
+            <UploadIcon onClick={handleUploadFormNavigate}/>
             <Navigation />
         </>
     );
@@ -81,5 +88,8 @@ const UploadIcon = styled.img.attrs({
     width: 55px;
     height: 55px;
     transform: translateX(120px);
+
+    &:hover{
+        cursor: pointer;
+    }
   `
-  
