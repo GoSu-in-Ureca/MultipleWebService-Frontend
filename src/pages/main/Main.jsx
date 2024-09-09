@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import UploadButton from "../../components/UploadButton";
-import Navigation from "../../components/Navigation";
-import CategoryList from "../../components/CategoryList";
-import HotPostList from "../../components/HotPostList";
-import SortFilter from "../../components/SortFilter";
-import PostList from "../../components/PostList";
+import UploadButton from "../../components/main/UploadButton";
+import Navigation from "../../components/main/Navigation";
+import CategoryList from "../../components/main/CategoryList";
+import HotPostList from "../../components/main/HotPostList";
+import SortFilter from "../../components/main/SortFilter";
+import PostList from "../../components/main/PostList";
 import logo from "/assets/branding/logo.svg"
 
 const Main = () => {
@@ -37,8 +37,9 @@ export default Main;
 const Wrapper = styled.div`
     font-family: "Pretendard-Medium";
     width: 390px;
-    height: 2000px;
+    height: 1800px;
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
