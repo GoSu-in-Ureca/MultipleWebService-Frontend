@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import PostItem from "./PostItem";
-import data from "../../data.json";
+import data from "../../postData.json";
 
 const PostList = () => {
     return (

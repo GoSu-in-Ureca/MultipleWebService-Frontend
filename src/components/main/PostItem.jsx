@@ -1,13 +1,18 @@
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const PostItem = ({post}) => {
-
+    const navigate = useNavigate();
     const deadLineDate = new Date(post.deadline);
     const leftDays = Math.ceil((deadLineDate-Date.now()) / (1000*60*60*24));
 
+    const handlePostClick = () => {
+        navigate(`/main/${post.id}`);
+      };
+
     return (
         <>
-            <Wrapper>
+            <Wrapper onClick={handlePostClick}>
                 <Image></Image>
                 <TextArea>
                     <Top>
