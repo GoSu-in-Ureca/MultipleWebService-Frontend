@@ -53,7 +53,7 @@ const Wrapper = styled.div`
     border-bottom: 1px solid #F5F5F5;
     
     &:hover{
-        background-color: #fcfcfc;
+        background-color: #f7f7f7;
         cursor: pointer;
     }
 `;
