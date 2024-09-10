@@ -1,19 +1,36 @@
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const PostItem = ({post}) => {
-
+    const navigate = useNavigate();
     const deadLineDate = new Date(post.deadline);
     const leftDays = Math.ceil((deadLineDate-Date.now()) / (1000*60*60*24));
 
+    const handlePostClick = () => {
+        navigate(`/main/${post.id}`);
+      };
+
+    const getTimeDifference = (createdAt) => {
+        const postDate = new Date(createdAt);
+        const now = new Date();
+        const diff = (now - postDate) / 1000;
+
+        if(diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+        if(diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+        return `${Math.floor(diff / 86400)}일 전`;
+    }
+
     return (
         <>
-            <Wrapper>
+            <Wrapper onClick={handlePostClick}>
                 <Image></Image>
                 <TextArea>
                     <Top>
-                        <DayItem>D-{leftDays}</DayItem>
-                        <CategoryItem>{post.category}</CategoryItem>
-                        <TimeIndicator>{post.uploadAt}</TimeIndicator>
+                        <InfoWrapper>
+                            <DayItem>D-{leftDays}</DayItem>
+                            <CategoryItem>{post.category}</CategoryItem>
+                        </InfoWrapper>
+                        <TimeIndicator>{getTimeDifference(post.created_at)}</TimeIndicator>
                     </Top>
                     <Middle>{post.title}</Middle>
                     <Bottom>
@@ -34,6 +51,11 @@ const Wrapper = styled.div`
     display: flex;
     padding: 15px 18px;
     border-bottom: 1px solid #F5F5F5;
+    
+    &:hover{
+        background-color: #fcfcfc;
+        cursor: pointer;
+    }
 `;
 
 const Image = styled.img.attrs({
@@ -54,10 +76,15 @@ const TextArea = styled.div`
 
 const Top = styled.div`
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     margin-top: 7px;
     height: 17px;
     white-space: nowrap;
+`;
+
+const InfoWrapper = styled.div`
+    display: flex;
+    width: 200px;
 `;
 
 const DayItem = styled.div`
@@ -89,13 +116,22 @@ const CategoryItem = styled.div`
 `;
 
 const TimeIndicator = styled.div`
-    
+    color: #BCBEC0;
+    font-size: 11px;
+
 `;
 
 const Middle = styled.div`
     font-size: 16px;
     font-weight: bold;
     margin-top: 10px;
+    width: 240px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
 `;
 
 const Bottom = styled.div`

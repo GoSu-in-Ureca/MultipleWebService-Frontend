@@ -19,11 +19,11 @@ export default CategoryList;
 
 const Wrapper = styled.div`
     width: 372px;
-    height: 39px;
+    height: 30px;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    margin: 25px 0 30px 18px;
+    margin: 25px 0 25px 18px;
 
     &::-webkit-scrollbar{
         display: none;

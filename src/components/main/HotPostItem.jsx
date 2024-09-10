@@ -1,14 +1,19 @@
 import styled from "styled-components";
 import heart from "/assets/Icon/heart.svg"
+import { useNavigate } from "react-router-dom";
 
 const HotPostItem = ({HotPost}) => {
-
+    const navigate = useNavigate();
     const deadLineDate = new Date(HotPost.deadline);
     const leftDays = Math.ceil((deadLineDate-Date.now()) / (1000*60*60*24));
 
+    const handleHotPostClick = () => {
+        navigate(`/main/${HotPost.id}`);
+    }
+
     return (
         <>
-            <Wrapper>
+            <Wrapper onClick={handleHotPostClick}>
                 <HeadArea>
                     <HeadItem>D-{leftDays}</HeadItem>
                     <HeadItem>{HotPost.category}</HeadItem>
@@ -94,9 +99,8 @@ const InterestCount = styled.div`
     font-size: 8px;
     color: white;
     display: flex;
-    align-items: center;
     justify-content: center;
-    margin-left: 1px;
+    margin-left: 3px;
 `;
 
 const Title = styled.div`

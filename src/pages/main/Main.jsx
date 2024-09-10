@@ -1,14 +1,21 @@
 import React from "react";
 import styled from "styled-components";
-import UploadButton from "../../components/main/UploadButton";
-import Navigation from "../../components/main/Navigation";
+import { useNavigate } from "react-router-dom";
+import NavigationHome from "../../components/main/NavigationHome";
 import CategoryList from "../../components/main/CategoryList";
 import HotPostList from "../../components/main/HotPostList";
 import SortFilter from "../../components/main/SortFilter";
 import PostList from "../../components/main/PostList";
 import logo from "/assets/branding/logo.svg"
+import upload from "/assets/Icon/UploadButton.svg";
 
 const Main = () => {
+    const navigate = useNavigate();
+
+    const handleUploadFormNavigate = () => {
+        navigate('/upload');
+    }
+
     return (
         <>
             <Wrapper>
@@ -23,9 +30,9 @@ const Main = () => {
                     </HeadArea>
                     <PostList></PostList>
                 </TotalPostArea>
-                <UploadButton />
             </Wrapper>
-            <Navigation />
+            <UploadIcon onClick={handleUploadFormNavigate}/>
+            <NavigationHome />
         </>
     );
 }
@@ -37,7 +44,6 @@ export default Main;
 const Wrapper = styled.div`
     font-family: "Pretendard-Medium";
     width: 390px;
-    height: 1800px;
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
@@ -62,8 +68,6 @@ const Title = styled.div`
 `;
 
 const TotalPostArea = styled.div`
-    display: flex;
-    flex-direction: column;
     justify-content: flex-start;
     width: 100%;
     margin-top: 30px;
@@ -73,3 +77,19 @@ const HeadArea = styled.div`
     display: flex;
     justify-content: space-between;
 `;
+
+const UploadIcon = styled.img.attrs({
+    src: upload,
+    alt: "Upload Button"
+  })`
+    position: fixed;
+    bottom: 128px;
+    left: 50%;
+    width: 55px;
+    height: 55px;
+    transform: translateX(120px);
+
+    &:hover{
+        cursor: pointer;
+    }
+  `

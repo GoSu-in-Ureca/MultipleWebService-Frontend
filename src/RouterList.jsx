@@ -49,7 +49,7 @@ export const RouterList = () => [
       },
       {
         path: "main/:postId",
-        element: <Post />,
+        element: <Post />,  // Post 컴포넌트가 :postId 파라미터를 사용함
       },
       {
         path: "upload",
