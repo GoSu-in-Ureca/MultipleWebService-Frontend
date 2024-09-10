@@ -10,7 +10,7 @@ import userDisableIcon from "/assets/Icon/UserDisable.svg";
 
 const Navigation = () => {
 
-    const [selected, setSelected] = useState("home");
+    const [selected, setSelected] = useState("main");
     const navigate = useNavigate();
 
     const handleNavigation = (page) => {
@@ -21,11 +21,11 @@ const Navigation = () => {
       return (
         <Wrapper>
           <NavItem
-            onClick={() => handleNavigation("home")}
-            isSelected={selected === "home"}
+            onClick={() => handleNavigation("main")}
+            isSelected={selected === "main"}
           >
             <NavIcon
-              src={selected === "home" ? homeIcon : homeDisableIcon}
+              src={selected === "main" ? homeIcon : homeDisableIcon}
               alt="Home Icon"
             />
             <PlainText>홈</PlainText>
