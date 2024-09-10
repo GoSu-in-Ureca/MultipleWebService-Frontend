@@ -43,7 +43,7 @@ export const RouterList = () => [
         element: <Main />,
       },
       {
-        path: "main/:postId",
+        path: "main/post",
         element: <Post />,
       },
       {
