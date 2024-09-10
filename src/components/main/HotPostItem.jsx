@@ -39,6 +39,8 @@ export default HotPostItem;
 // styled components
 
 const Wrapper = styled.div`
+    background-image: url("/assets/BG/BackGroundExample.png");
+    background-size: cover;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
