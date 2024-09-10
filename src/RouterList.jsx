@@ -6,6 +6,7 @@ import UserLayout from "./layout/UserLayout.jsx";
 import ChatLayout from "./layout/ChatLayout.jsx";
 import Chat from "./pages/chat/Chat.jsx";
 import ChatList from "./pages/chat/ChatList.jsx";
+import IntroForm from "./pages/form/IntroForm.jsx";
 import LoginForm from "./pages/form/LoginForm.jsx";
 import SignUpForm from "./pages/form/SignUpForm.jsx";
 import UpdateForm from "./pages/form/UpdateForm.jsx";
@@ -24,11 +25,15 @@ export const RouterList = () => [
     element: <LoginLayout />,
     children: [
       {
+        path: "intro",
+        element: <IntroForm />,
+      },
+      {
         path: "login",
         element: <LoginForm />,
       },
       {
-        path: "Signup",
+        path: "signup",
         element: <SignUpForm />,
       },
     ],
@@ -44,14 +49,14 @@ export const RouterList = () => [
       },
       {
         path: "main/:postId",
-        element: <Post />,
+        element: <Post />,  // Post 컴포넌트가 :postId 파라미터를 사용함
       },
       {
-        path: "uploadForm",
+        path: "upload",
         element: <UploadForm />,
       },
       {
-        path: "updateForm",
+        path: "update",
         element: <UpdateForm />,
       },
     ],

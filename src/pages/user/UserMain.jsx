@@ -3,8 +3,8 @@ import styled from "styled-components";
 import UserStats from "../../components/user/UserStats";
 import InterestList from "../../components/user/InterestList";
 import UploadList from "../../components/user/UploadList";
-import Navigation from "../../components/main/Navigation";
 import profileExample from "/assets/BG/ProfileExample.svg";
+import NavigationUser from "../../components/main/NavigationUser";
 
 const UserMain = () => {
     return (
@@ -21,7 +21,7 @@ const UserMain = () => {
                 <InterestList></InterestList>
                 <UploadList></UploadList>
             </Wrapper>
-            <Navigation />
+            <NavigationUser />
         </>
     );
 }

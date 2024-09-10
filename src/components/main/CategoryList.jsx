@@ -19,11 +19,11 @@ export default CategoryList;
 
 const Wrapper = styled.div`
     width: 372px;
-    height: 39px;
+    height: 30px;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    margin: 25px 0 30px 18px;
+    margin: 25px 0 25px 18px;
 
     &::-webkit-scrollbar{
         display: none;
@@ -34,5 +34,5 @@ const Wrapper = styled.div`
 const categories = [
     "전체", "운동", "문화생활",
     "공구", "맛집탐방", "여행",
-    "쇼핑", "택시", "스터디"
+    "쇼핑", "택시", "스터디", "기타"
 ];
