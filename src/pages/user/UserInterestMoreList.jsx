@@ -76,7 +76,7 @@ const BackButton = styled.img.attrs({
 const Title = styled.div`
     font-size: 16px;
     font-weight: bold;
-    margin-left: 132px;
+    margin-left: 125px;
 `;
 
 const FilterWrapper = styled.div`

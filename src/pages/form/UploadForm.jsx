@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import backbutton from "/assets/Icon/navigate_before.svg";
-import CategoryList from "../../components/form/CategoryList";
 import { useNavigate } from "react-router-dom";
+import CategoryItem from "../../components/form/CategoryItem";
+import backbutton from "/assets/Icon/navigate_before.svg";
 
 const UploadForm = () => {
     const navigate = useNavigate();
+    const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPictures, setSelectedPictures] = useState([]);
     const [selectedPictureAlert, setSelectedPictureAlert] = useState("");
     const [totalPrice, setTotalPrice] = useState(0);
@@ -14,6 +15,10 @@ const UploadForm = () => {
     const handleIntroNavigate = () => {
         navigate('/main');
     }
+
+    const handleCategorySelect = (category) => {
+        setSelectedCategory(category);
+      };
 
     const handlePictureUpload = (event) => {
         const files = Array.from(event.target.files);
@@ -46,7 +51,16 @@ const UploadForm = () => {
                 </Header>
                 <Form>
                     <SettingSubject>카테고리</SettingSubject>
-                    <CategoryList />
+                    <CategoryList>
+                        {categories.map((category, index) => (
+                            <CategoryItem
+                            key={index}
+                            category={category}
+                            selectedCategory={selectedCategory}
+                            onCategorySelect={handleCategorySelect}
+                            />
+                        ))}
+                    </CategoryList>
                     <SettingSubject>사진 등록
                         <PictureLengthAlert>{selectedPictureAlert}</PictureLengthAlert>
                     </SettingSubject>
@@ -126,6 +140,19 @@ const BackButton = styled.img.attrs({
 
     &:hover{
         cursor: pointer;
+    }
+`;
+
+const CategoryList = styled.div`
+    width: 372px;
+    height: 30px;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 25px 0 0 18px;
+
+    &::-webkit-scrollbar{
+        display: none;
     }
 `;
 
@@ -352,3 +379,10 @@ const EstimatePricePerMember = styled.div`
     font-size: 14px;
     font-weight: 700;
 `;
+
+// categoryList
+const categories = [
+    "문화생활", "운동",
+    "공구", "맛집탐방", "여행",
+    "쇼핑", "택시", "스터디", "기타"
+];
