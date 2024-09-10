@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Navigation from "../../components/main/Navigation";
+import NavigationChat from "../../components/main/NavigationChat";
 import ChatItem from "../../components/chat/ChatItem";
 import data from "../../postData.json"
 
@@ -16,7 +16,7 @@ const ChatList = () => {
                     ))}
                 </ChatListWrapper>
             </Wrapper>
-            <Navigation />
+            <NavigationChat />
         </>
     );
 }
@@ -34,6 +34,7 @@ const Wrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
     background-color: white;
+    margin-bottom: 90px;
 `;
 
 const Title = styled.div`
@@ -52,4 +53,5 @@ const ChatListWrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
     background-color: white;
+    width: 100%;
 `;

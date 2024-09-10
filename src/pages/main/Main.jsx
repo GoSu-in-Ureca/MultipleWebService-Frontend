@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import Navigation from "../../components/main/Navigation";
+import NavigationHome from "../../components/main/NavigationHome";
 import CategoryList from "../../components/main/CategoryList";
 import HotPostList from "../../components/main/HotPostList";
 import SortFilter from "../../components/main/SortFilter";
@@ -32,7 +32,7 @@ const Main = () => {
                 </TotalPostArea>
             </Wrapper>
             <UploadIcon onClick={handleUploadFormNavigate}/>
-            <Navigation />
+            <NavigationHome />
         </>
     );
 }

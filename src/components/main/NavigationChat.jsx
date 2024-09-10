@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import home from "/assets/Icon/Home.svg";
-import chat from "/assets/Icon/Chat.svg";
-import user from "/assets/Icon/User.svg";
+import notHome from "/assets/Icon/notHome.svg";
+import chat from "/assets/Icon/chat.svg";
+import notUser from "/assets/Icon/notUser.svg";
 
-const Navigation = () => {
+const NavigationChat = () => {
   const navigate = useNavigate();
 
   const handleNavigation = (page) => {
@@ -16,7 +16,7 @@ const Navigation = () => {
     <>
       <Wrapper>
         <NavItem onClick={() => handleNavigation("main")}>
-          <NavIcon src={home} alt="Home Icon" />
+          <NavIcon src={notHome} alt="Home Icon" />
           <PlainText>홈</PlainText>
         </NavItem>
 
@@ -26,7 +26,7 @@ const Navigation = () => {
         </NavItem>
 
         <NavItem onClick={() => handleNavigation("user/main")}>
-          <NavIcon src={user} alt="User Icon" />
+          <NavIcon src={notUser} alt="User Icon" />
           <PlainText>내 정보</PlainText>
         </NavItem>
       </Wrapper>
@@ -34,7 +34,7 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;
+export default NavigationChat;
 
 // styled components
 

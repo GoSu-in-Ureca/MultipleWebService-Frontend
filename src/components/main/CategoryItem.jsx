@@ -33,8 +33,8 @@ const Wrapper = styled.div`
     border-radius: 19.5px;
     margin-right: 10px;
     text-align: center;
-    font-size: 16px;
-    padding: 10px 22px;
+    font-size: 12px;
+    padding: 8px 20px;
     white-space: nowrap;
 
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;

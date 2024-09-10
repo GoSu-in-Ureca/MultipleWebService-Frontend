@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import more from "/assets/Icon/More.svg";
+import profile from "/assets/BG/ProfileExample.svg";
 
 const ChatItem = ({chat}) => {
     return (
@@ -7,12 +8,14 @@ const ChatItem = ({chat}) => {
             <Wrapper>
                 <ProfileImage />
                 <MainArea>
-                    <Title>{chat.title}</Title>
+                    <TextArea>
+                    <span>{chat.title}</span>
+                    </TextArea>
                     <ChatContent>가장 최근 대화 내용</ChatContent>
                 </MainArea>
                 <InfoArea>
                     <MoreIcon />
-                    <LatestTime></LatestTime>
+                    <LatestTime>2분 전</LatestTime>
                 </InfoArea>
             </Wrapper>
         </>
@@ -28,22 +31,25 @@ const Wrapper = styled.div`
     display:  flex;
     flex-direction: row;
     justify-content: flex-start;
-    width: 390px;
-    padding: 23px 20px;
+    width: 100%;
+    padding: 23px 0 23px 0;
     border-bottom: 1px solid #F5F5F5;
 
     &:hover{
         background-color: #FCFCFC;
+        cursor: pointer;
     }
 `;
 
 const ProfileImage = styled.img.attrs({
-
+    src: profile,
+    alt: "Profile Image"
 })`
     width: 34px;
     height: 34px;
     border-radius: 34px;
     background-color: gray;
+    margin-left: 20px;
     margin-right: 13px;
     align-self: center;
 `;
@@ -54,9 +60,13 @@ const MainArea = styled.div`
     justify-content: space-between;
 `;
 
-const Title = styled.div`
+const TextArea = styled.div`
     font-size: 13px;
     font-weight: bold;
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const ChatContent = styled.div`
@@ -67,6 +77,9 @@ const ChatContent = styled.div`
 const InfoArea = styled.div`
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-left: 20px;
 `;
 
 const MoreIcon = styled.img.attrs({
@@ -78,5 +91,6 @@ const MoreIcon = styled.img.attrs({
 `;
 
 const LatestTime = styled.div`
-    
+    font-size: 11px;
+    color: #DADADA;
 `;
