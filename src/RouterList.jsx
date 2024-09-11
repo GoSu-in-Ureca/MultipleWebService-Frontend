@@ -1,5 +1,6 @@
 // src/RouterList.js
 import { createBrowserRouter } from "react-router-dom";
+import PrivateRoute from "./PrivateRoute.jsx";
 import LoginLayout from "./layout/LoginLayout.jsx";
 import MainLayout from "./layout/MainLayout.jsx";
 import UserLayout from "./layout/UserLayout.jsx";
@@ -42,7 +43,7 @@ export const RouterList = () => [
   {
     // Main
     path: "/",
-    element: <MainLayout />,
+    element: <PrivateRoute><MainLayout /></PrivateRoute>,
     children: [
       {
         path: "main",
@@ -57,7 +58,7 @@ export const RouterList = () => [
   {
     // Form
     path: "/",
-    element: <FormLayout />,
+    element: <PrivateRoute><FormLayout /></PrivateRoute>,
     children: [
       {
         path: "upload",
@@ -72,7 +73,7 @@ export const RouterList = () => [
   {
     // User
     path: "user",
-    element: <UserLayout />,
+    element: <PrivateRoute><UserLayout /></PrivateRoute>,
     children: [
       {
         path: "main",
@@ -91,7 +92,7 @@ export const RouterList = () => [
   {
     // Chat Routes
     path: "chats",
-    element: <ChatLayout />,
+    element: <PrivateRoute><ChatLayout /></PrivateRoute>,
     children: [
       {
         index: true,

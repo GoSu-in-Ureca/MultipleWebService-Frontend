@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { addDoc, collection } from "firebase/firestore";
 import {db, auth} from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const SignUpForm = () => {
     const navigate = useNavigate();
@@ -45,13 +46,22 @@ const SignUpForm = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
+            let profileImageUrl = "";
+            if (profileImage) {
+                const imageRef = ref(storage, `profileImages/${user.uid}`);
+                await uploadBytes(imageRef, profileImage);
+                profileImageUrl = await getDownloadURL(imageRef);
+            }
+
             await addDoc(collection(db, "users"), {
                 user_id: user.uid,
                 user_email: email,
                 user_name: name,
                 user_department: selectDepartment,
                 user_onoffline: selectOnOff,
+                profile_image_url: profileImageUrl
             });
+            
             navigate('/main');
             setSignupError("");
           } catch (error) {
