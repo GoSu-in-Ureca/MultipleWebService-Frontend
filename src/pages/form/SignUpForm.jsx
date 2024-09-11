@@ -4,7 +4,8 @@ import backbutton from "/assets/Icon/navigate_before.svg";
 import { useNavigate } from "react-router-dom";
 
 import { addDoc, collection } from "firebase/firestore";
-import {db} from "../../firebase";
+import {db, auth} from "../../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignUpForm = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const SignUpForm = () => {
     const [emailFormatAlert, setEmailFormatAlert] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [rePasswordError, setRePasswordError] = useState("");
+    const [signupError, setSignupError] = useState("");
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
 
@@ -36,23 +38,24 @@ const SignUpForm = () => {
         setSelectOnOff(onoff);
     }
 
-    async function handleUpload() {
-        const postUserData = {
-            useremail: email,
-            username: name,
-            password: password,
-            userdepartment: selectDepartment,
-            useronoffline: selectOnOff,
-            userprofile: profileImage
-        }
+    async function handleSignUp(event) {
+        event.preventDefault();
 
         try {
-            await addDoc(collection(db, "users"), postUserData);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            await addDoc(collection(db, "users"), {
+                user_id: user.uid,
+                user_email: email,
+                user_name: name,
+                user_department: selectDepartment,
+                user_onoffline: selectOnOff,
+            });
             navigate('/main');
-            alert("회원가입에 성공했습니다!");
+            setSignupError("");
           } catch (error) {
-            navigate("/intro");
-            console.error("회원가입 실패!");
+            setSignupError("회원가입 제출 양식이 올바르지 않습니다.");
           }
     }
 
@@ -120,93 +123,96 @@ const SignUpForm = () => {
                     <BackButton onClick={handleIntroNavigate}/>
                     <Title>회원가입</Title>
                 </Header>
-                <ProfileImageArea
-                    onClick={() => document.getElementById('fileInput').click()}
-                    style={{
-                        backgroundImage: profileImage ? `url(${profileImage})` : 'none',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                    }}
-                >
-                    <input
-                        id="fileInput"
-                        type="file"
-                        style={{ display: "none" }}
-                        accept=".png, .jpg, .jpeg"
-                        onChange={handleProfileImageChange}
-                    />
-                </ProfileImageArea>
-
-                <ChangeProfileButton
+                <Form onSubmit={handleSignUp}>
+                    <ProfileImageArea
                         onClick={() => document.getElementById('fileInput').click()}
-                    >프로필 사진 변경하기
-                </ChangeProfileButton>
-                <FileValidation>{fileSizeAlert}</FileValidation>
-                <InputGuideText>
-                    이메일
-                    <EmailValidation>{emailFormatAlert}</EmailValidation>
-                </InputGuideText>
-                <InputEmail 
-                    value={email} 
-                    onChange={handleEmailChange} 
-                />
-                <InputGuideText>이름</InputGuideText>
-                <InputName value={name} onChange={(e) => setName(e.target.value)}/>
-                <InputGuideText>
-                    비밀번호
-                    {passwordError && <PasswordValidation>{passwordError}</PasswordValidation>}
-                </InputGuideText>
-                <InputPassword
-                    value={password}
-                    onChange={handlePasswordChange}
-                />
-                <InputGuideText>
-                    비밀번호 확인
-                    {rePasswordError && (
-                    <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
-                        {rePasswordError}
-                    </RePasswordValidation>
-                )}
-                </InputGuideText>
-                <InputRePassword
-                    value={rePassword}
-                    onChange={handleRePasswordChange}
-                />
-                <InputDepartmentArea>
-                    <InputGuideText>소속</InputGuideText>
-                    <SubTitle>분야</SubTitle>
-                    <SelectArea>
-                        <Item
-                            $isSelected={selectDepartment === '프론트엔드'}
-                            onClick={() => handleDepartmentClick('프론트엔드')}
-                        >
-                            프론트엔드
-                        </Item>
-                        <Item
-                            $isSelected={selectDepartment === '백엔드'}
-                            onClick={() => handleDepartmentClick('백엔드')}
-                        >
-                            백엔드
-                        </Item>
-                    </SelectArea>
-                    <SubTitle>대면 여부</SubTitle>
-                    <SelectArea>
-                        <Item
-                            $isSelected={selectOnOff === '대면'}
-                            onClick={() => handleOnOffClick('대면')}
-                        >
-                            대면
-                        </Item>
-                        <Item
-                            $isSelected={selectOnOff === '비대면'}
-                            onClick={() => handleOnOffClick('비대면')}
-                        >
-                            비대면
-                        </Item>
-                    </SelectArea>
-                </InputDepartmentArea>
+                        style={{
+                            backgroundImage: profileImage ? `url(${profileImage})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                        }}
+                    >
+                        <input
+                            id="fileInput"
+                            type="file"
+                            style={{ display: "none" }}
+                            accept=".png, .jpg, .jpeg"
+                            onChange={handleProfileImageChange}
+                        />
+                    </ProfileImageArea>
 
-                <SignUpButton onClick={handleUpload}>가입하기</SignUpButton>
+                    <ChangeProfileButton
+                            onClick={() => document.getElementById('fileInput').click()}
+                        >프로필 사진 변경하기
+                    </ChangeProfileButton>
+                    <FileValidation>{fileSizeAlert}</FileValidation>
+                    <InputGuideText>
+                        이메일
+                        <EmailValidation>{emailFormatAlert}</EmailValidation>
+                    </InputGuideText>
+                    <InputEmail 
+                        value={email} 
+                        onChange={handleEmailChange} 
+                    />
+                    <InputGuideText>이름</InputGuideText>
+                    <InputName value={name} onChange={(e) => setName(e.target.value)}/>
+                    <InputGuideText>
+                        비밀번호
+                        {passwordError && <PasswordValidation>{passwordError}</PasswordValidation>}
+                    </InputGuideText>
+                    <InputPassword
+                        value={password}
+                        onChange={handlePasswordChange}
+                    />
+                    <InputGuideText>
+                        비밀번호 확인
+                        {rePasswordError && (
+                        <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
+                            {rePasswordError}
+                        </RePasswordValidation>
+                    )}
+                    </InputGuideText>
+                    <InputRePassword
+                        value={rePassword}
+                        onChange={handleRePasswordChange}
+                    />
+                    <InputDepartmentArea>
+                        <InputGuideText>소속</InputGuideText>
+                        <SubTitle>분야</SubTitle>
+                        <SelectArea>
+                            <Item
+                                $isSelected={selectDepartment === '프론트엔드'}
+                                onClick={() => handleDepartmentClick('프론트엔드')}
+                            >
+                                프론트엔드
+                            </Item>
+                            <Item
+                                $isSelected={selectDepartment === '백엔드'}
+                                onClick={() => handleDepartmentClick('백엔드')}
+                            >
+                                백엔드
+                            </Item>
+                        </SelectArea>
+                        <SubTitle>대면 여부</SubTitle>
+                        <SelectArea>
+                            <Item
+                                $isSelected={selectOnOff === '대면'}
+                                onClick={() => handleOnOffClick('대면')}
+                            >
+                                대면
+                            </Item>
+                            <Item
+                                $isSelected={selectOnOff === '비대면'}
+                                onClick={() => handleOnOffClick('비대면')}
+                            >
+                                비대면
+                            </Item>
+                        </SelectArea>
+                    </InputDepartmentArea>
+
+                    <SignUpButton>가입하기</SignUpButton>
+                    <ResultMessage>{signupError}</ResultMessage>
+                </Form>
             </Wrapper>
         </>
     );
@@ -254,6 +260,14 @@ const Title = styled.div`
     margin-left: 132px;
 `;
 
+const Form = styled.form.attrs({
+
+})`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
 const ProfileImageArea = styled.div`
     margin-top: 30px;
     width: 67px;
@@ -296,7 +310,7 @@ const InputGuideText = styled.div`
 
 const InputEmail = styled.input.attrs({
     type: "text",
-    name: "email"
+    name: "email",
 })`
     width: 330px;
     height: 40px;
@@ -411,9 +425,12 @@ const Item = styled.div`
     }
 `;
 
-const SignUpButton = styled.div`
+const SignUpButton = styled.button.attrs({
+    type: "submit"
+})`
     width: 345px;
     height: 42px;
+    border: hidden;
     border-radius: 8px;
     background-color: #7F52FF;
     color: white;
@@ -427,4 +444,10 @@ const SignUpButton = styled.div`
     &:hover{
         cursor: pointer;
     }
+`;
+
+const ResultMessage = styled.div`
+    font-size: 12px;
+    color: #FF3838;
+    margin-top: 10px
 `;

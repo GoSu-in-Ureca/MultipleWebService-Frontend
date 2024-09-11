@@ -210,10 +210,7 @@ const Title = styled.div`
     margin-left: 132px;
 `;
 
-const Form = styled.form.attrs({
-    action: "#",
-    method: "POST"
-})``;
+const Form = styled.form``;
 
 const SettingSubject = styled.div`
     font-size: 14px;
