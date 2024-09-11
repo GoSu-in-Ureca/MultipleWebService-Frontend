@@ -6,7 +6,6 @@ import UploadMoreItem from "../../components/user/UploadMoreItem";
 import NavigationUser from "../../components/main/NavigationUser";
 import post from "../../postData.json";
 
-
 const UserUploadList = () => {
     const navigate = useNavigate();
 
