@@ -4,7 +4,7 @@ import backbutton from "/assets/Icon/navigate_before.svg";
 import { useNavigate } from "react-router-dom";
 
 import { addDoc, collection } from "firebase/firestore";
-import {db, auth} from "../../firebase";
+import {db, auth, storage} from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -42,6 +42,29 @@ const SignUpForm = () => {
     async function handleSignUp(event) {
         event.preventDefault();
 
+        if (!email || !name || !password || !rePassword) {
+            setSignupError("모든 필드를 입력해주세요.");
+            return;
+        }
+    
+        // 이메일 형식 검사
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(email)) {
+            setSignupError("유효한 이메일 형식을 입력해주세요.");
+            return;
+        }
+    
+        // 비밀번호 길이 및 일치 검사
+        if (password.length < 8 || password.length > 20) {
+            setSignupError("비밀번호는 8-20자 이내로 설정해주세요.");
+            return;
+        }
+    
+        if (password !== rePassword) {
+            setSignupError("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
@@ -65,6 +88,7 @@ const SignUpForm = () => {
             navigate('/main');
             setSignupError("");
           } catch (error) {
+            console.log(error);
             setSignupError("회원가입 제출 양식이 올바르지 않습니다.");
           }
     }
