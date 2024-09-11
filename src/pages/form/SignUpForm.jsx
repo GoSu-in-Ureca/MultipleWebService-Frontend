@@ -16,6 +16,12 @@ const SignUpForm = () => {
     const [passwordError, setPasswordError] = useState("");
     const [rePasswordError, setRePasswordError] = useState("");
 
+    const allowedExtensions = ["jpg", "jpeg", "png"];
+
+    const validateFile = (file) => {
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        return allowedExtensions.includes(fileExtension);
+    }
     const handleIntroNavigate = () => {
         navigate('/intro');
     }
@@ -29,7 +35,6 @@ const SignUpForm = () => {
         setSelectOnOff(onoff);
     }
 
-    // 프로필 이미지 변경마다 업데이트
     const handleProfileImageChange = (event) => {
         const file = event.target.files[0];
         const maxSize = 2 * 1024 * 1024; // 2MB
@@ -39,10 +44,14 @@ const SignUpForm = () => {
             return;
         }
     
-        if (file) {
-            setFileSizeAlert("");
-            setProfileImage(URL.createObjectURL(file));
+        if (file && !validateFile(file)) {
+            setFileSizeAlert("유효한 파일 형식이 아닙니다");
+            event.target.value = "";
+            return;
         }
+
+        setFileSizeAlert("");
+        setProfileImage(URL.createObjectURL(file));
     };
 
     // 이메일 입력마다 업데이트

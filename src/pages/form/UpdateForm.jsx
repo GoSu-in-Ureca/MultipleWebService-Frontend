@@ -12,6 +12,13 @@ const UpdateForm = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [participants, setParticipants] = useState(0);
 
+    const allowedExtensions = ["jpg", "jpeg", "png"];
+
+    const validateFile = (file) => {
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        return allowedExtensions.includes(fileExtension);
+    }
+
     const handleIntroNavigate = () => {
         navigate('/main');
     }
@@ -22,8 +29,15 @@ const UpdateForm = () => {
 
     const handlePictureUpload = (event) => {
         const files = Array.from(event.target.files);
-        if (selectedPictures.length + files.length > 7) {
-            setSelectedPictureAlert("파일은 최대 5개까지 업로드 가능합니다.")
+
+        const invalidFiles = files.filter((file) => !validateFile(file));
+        if (invalidFiles.length > 0) {
+            setSelectedPictureAlert("유효한 파일 형식이 아닙니다");
+            return;
+        }
+
+        if (selectedPictures.length + files.length > 5) {
+            setSelectedPictureAlert("파일은 최대 5개까지 업로드 가능합니다")
           return;
         }
         setSelectedPictures((prevPictures) => [...prevPictures, ...files]);
@@ -149,7 +163,7 @@ const CategoryList = styled.div`
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    margin: 25px 0 0 18px;
+    margin: 13px 0 0 18px;
 
     &::-webkit-scrollbar{
         display: none;
