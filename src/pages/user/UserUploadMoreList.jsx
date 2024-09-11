@@ -7,6 +7,7 @@ import NavigationUser from "../../components/main/NavigationUser";
 import post from "../../postData.json";
 
 const UserUploadList = () => {
+    
     const navigate = useNavigate();
 
     const groupByDate = (data) => {
