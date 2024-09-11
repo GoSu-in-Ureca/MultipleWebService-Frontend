@@ -56,7 +56,7 @@ const GuideText = styled.div`
     font-size: 14px;
     color: #BCBEC0;
     text-align: left;
-    margin-bottom: 22px;
+    margin-bottom: 8px;
 `;
 
 const InputId = styled.div`
@@ -68,6 +68,7 @@ const IdField = styled.input.attrs({
     name: "Id"
 })`
     width: 330px;
+    height: 40px;
     border: none;
     border-bottom: 1px #BCBEC0 solid;
     outline: none;
@@ -87,6 +88,7 @@ const PasswordField = styled.input.attrs({
     name: "Password"
 })`
     width: 330px;
+    height: 40px;
     border: none;
     border-bottom: 1px #BCBEC0 solid;
     outline: none;
