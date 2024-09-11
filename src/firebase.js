@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,6 +20,6 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 // firestore 객체 생성
 const db = getFirestore(app);
-
+const auth = getAuth(app);
 // firestore exort
-export {db};
+export {db, auth};
