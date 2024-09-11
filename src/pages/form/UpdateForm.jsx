@@ -195,6 +195,7 @@ const PictureUploadInput = styled.input.attrs({
     id: "pictureUploadInput",
     type: "file",
     multiple: "multiple",
+    accept: ".jpg, .jpeg, .png"
 })`
     display: none;
 `;
