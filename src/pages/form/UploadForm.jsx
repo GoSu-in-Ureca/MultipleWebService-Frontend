@@ -4,13 +4,21 @@ import { useNavigate } from "react-router-dom";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../../firebase";
+
+const TEMP_USER_ID = 'tempjunsu';
+
 const UploadForm = () => {
     const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPictures, setSelectedPictures] = useState([]);
     const [selectedPictureAlert, setSelectedPictureAlert] = useState("");
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [deadline, setDeadline] = useState("");
     const [totalPrice, setTotalPrice] = useState(0);
-    const [participants, setParticipants] = useState(0);
+    const [participants, setParticipants] = useState(2);
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
 
@@ -54,6 +62,32 @@ const UploadForm = () => {
         );
       };
 
+    const handleUpload = async (e) => {
+    e.preventDefault();
+
+    try {
+            // Firestore에 게시글 데이터 추가
+            await addDoc(collection(db, 'posts'), {
+                userId: TEMP_USER_ID,
+                category: selectedCategory,
+                title: title,
+                content: content,
+                images: selectedPictures.map(file => URL.createObjectURL(file)),
+                totalPrice: totalPrice,
+                participants: participants,
+                estimatePerMember: participants > 0 ? Math.ceil(totalPrice / participants) : 0,
+                deadline: deadline,
+                createdAt: new Date()
+            });
+
+            alert('게시글이 성공적으로 등록되었습니다!');
+            navigate('/main');
+        } catch (error) {
+            console.error('게시글 등록 중 오류 발생:', error);
+            alert('게시글 등록에 실패했습니다.');
+        }
+    };
+
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
 
     return (
@@ -63,15 +97,15 @@ const UploadForm = () => {
                     <BackButton onClick={handleIntroNavigate}/>
                     <Title>게시글 작성</Title>
                 </Header>
-                <Form>
+                <Form onSubmit={handleUpload}>
                     <SettingSubject>카테고리</SettingSubject>
                     <CategoryList>
                         {categories.map((category, index) => (
                             <CategoryItem
-                            key={index}
-                            category={category}
-                            selectedCategory={selectedCategory}
-                            onCategorySelect={handleCategorySelect}
+                                key={index}
+                                category={category}
+                                selectedCategory={selectedCategory}
+                                onCategorySelect={handleCategorySelect}
                             />
                         ))}
                     </CategoryList>
@@ -93,11 +127,11 @@ const UploadForm = () => {
                         </SelectedPictureWrapper>
                     </PictureInputArea>
                     <SettingSubject>제목</SettingSubject>
-                    <TitleInputArea />
+                    <TitleInputArea value={title} onChange={(e) => setTitle(e.target.value)}/>
                     <SettingSubject>내용</SettingSubject>
-                    <ContentInputArea />
+                    <ContentInputArea value={content} onChange={(e) => setContent(e.target.value)}/>
                     <SettingSubject>마감 기한 설정</SettingSubject>
-                    <DeadLineInput />
+                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}/>
                     <SettingSubject>가격 및 모집 인원</SettingSubject>
                     <PPInputArea>
                         <EstimatePriceArea value={totalPrice}
@@ -376,7 +410,7 @@ const ParticipantsInputArea = styled.input.attrs({
     id: "participants",
     name: "participants",
     required: "required",
-    min: "0"
+    min: "2"
 })`
     width: 160px;
     height: 30px;
