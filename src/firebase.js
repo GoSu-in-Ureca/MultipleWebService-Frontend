@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,12 +15,11 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-// 변수 app을 생성하고 설정값으로 초기화
+// 파이어베이스 인스턴스 생성
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-// firestore 객체 생성
 const db = getFirestore(app);
 const auth = getAuth(app);
-// firestore exort
+const storage = getStorage(app);
+
 export {db, auth};

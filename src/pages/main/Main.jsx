@@ -15,11 +15,14 @@ const Main = () => {
     const handleUploadFormNavigate = () => {
         navigate('/upload');
     }
+    const handleLogoClick = () => {
+        navigate('/main', {replace: true});
+    }
 
     return (
         <>
             <Wrapper>
-                <Logo />
+                <Logo onClick={handleLogoClick}/>
                 <CategoryList />
                 <Title>인기 게시글</Title>
                 <HotPostList></HotPostList>
@@ -58,6 +61,10 @@ const Logo = styled.img.attrs({
 })`
     width : 100px;
     margin-top: 30px;
+
+    &:hover{
+        cursor: pointer;
+    }
 `;
 
 const Title = styled.div`

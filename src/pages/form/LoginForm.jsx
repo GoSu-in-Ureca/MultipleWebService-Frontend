@@ -152,4 +152,6 @@ const ResultMessage = styled.div`
     font-size: 12px;
     color: #FF3838;
     margin-top: 10px;
+    width: 100%;
+    text-align: center;
 `;
