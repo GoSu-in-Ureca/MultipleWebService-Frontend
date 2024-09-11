@@ -3,10 +3,14 @@ import styled from "styled-components";
 import backbutton from "/assets/Icon/navigate_before.svg";
 import { useNavigate } from "react-router-dom";
 
+import { addDoc, collection } from "firebase/firestore";
+import {db} from "../../firebase";
+
 const SignUpForm = () => {
     const navigate = useNavigate();
     const [profileImage, setProfileImage] = useState(null);
     const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [rePassword, setRePassword] = useState("");
     const [selectDepartment, setSelectDepartment] = useState("프론트엔드");
@@ -25,14 +29,31 @@ const SignUpForm = () => {
     const handleIntroNavigate = () => {
         navigate('/intro');
     }
-    const handleMainNavigate = () => {
-        navigate('/main');
-    }
     const handleDepartmentClick = (department) => {
         setSelectDepartment(department)
     }
     const handleOnOffClick = (onoff) => {
         setSelectOnOff(onoff);
+    }
+
+    async function handleUpload() {
+        const postUserData = {
+            useremail: email,
+            username: name,
+            password: password,
+            userdepartment: selectDepartment,
+            useronoffline: selectOnOff,
+            userprofile: profileImage
+        }
+
+        try {
+            await addDoc(collection(db, "users"), postUserData);
+            navigate('/main');
+            alert("회원가입에 성공했습니다!");
+          } catch (error) {
+            navigate("/intro");
+            console.error("회원가입 실패!");
+          }
     }
 
     const handleProfileImageChange = (event) => {
@@ -130,7 +151,7 @@ const SignUpForm = () => {
                     onChange={handleEmailChange} 
                 />
                 <InputGuideText>이름</InputGuideText>
-                <InputName></InputName>
+                <InputName value={name} onChange={(e) => setName(e.target.value)}/>
                 <InputGuideText>
                     비밀번호
                     {passwordError && <PasswordValidation>{passwordError}</PasswordValidation>}
@@ -142,7 +163,7 @@ const SignUpForm = () => {
                 <InputGuideText>
                     비밀번호 확인
                     {rePasswordError && (
-                    <RePasswordValidation isMatch={rePasswordError === "비밀번호가 일치합니다"}>
+                    <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
                         {rePasswordError}
                     </RePasswordValidation>
                 )}
@@ -156,13 +177,13 @@ const SignUpForm = () => {
                     <SubTitle>분야</SubTitle>
                     <SelectArea>
                         <Item
-                            isSelected={selectDepartment === '프론트엔드'}
+                            $isSelected={selectDepartment === '프론트엔드'}
                             onClick={() => handleDepartmentClick('프론트엔드')}
                         >
                             프론트엔드
                         </Item>
                         <Item
-                            isSelected={selectDepartment === '백엔드'}
+                            $isSelected={selectDepartment === '백엔드'}
                             onClick={() => handleDepartmentClick('백엔드')}
                         >
                             백엔드
@@ -171,13 +192,13 @@ const SignUpForm = () => {
                     <SubTitle>대면 여부</SubTitle>
                     <SelectArea>
                         <Item
-                            isSelected={selectOnOff === '대면'}
+                            $isSelected={selectOnOff === '대면'}
                             onClick={() => handleOnOffClick('대면')}
                         >
                             대면
                         </Item>
                         <Item
-                            isSelected={selectOnOff === '비대면'}
+                            $isSelected={selectOnOff === '비대면'}
                             onClick={() => handleOnOffClick('비대면')}
                         >
                             비대면
@@ -185,7 +206,7 @@ const SignUpForm = () => {
                     </SelectArea>
                 </InputDepartmentArea>
 
-                <SignUpButton onClick={handleMainNavigate}>가입하기</SignUpButton>
+                <SignUpButton onClick={handleUpload}>가입하기</SignUpButton>
             </Wrapper>
         </>
     );
@@ -351,7 +372,7 @@ const InputRePassword = styled.input.attrs({
 
 const RePasswordValidation = styled.div`
     font-size: 10px;
-    color: ${({ isMatch }) => (isMatch ? '#7F52FF' : '#FF3838')};
+    color: ${({ $isMatch }) => ($isMatch ? '#7F52FF' : '#FF3838')};
     margin-left: 18px;
 `;
 
@@ -381,8 +402,8 @@ const Item = styled.div`
     width: auto;
     font-size: 11px;
     border-radius: 13px;
-    background-color: ${({ isSelected }) => (isSelected ? 'black' : '#E2E2E2')};
-    color: ${({ isSelected }) => (isSelected ? 'white' : '#808284')};
+    background-color: ${({ $isSelected }) => ($isSelected ? 'black' : '#E2E2E2')};
+    color: ${({ $isSelected }) => ($isSelected ? 'white' : '#808284')};
     cursor: pointer;
 
     &:hover {

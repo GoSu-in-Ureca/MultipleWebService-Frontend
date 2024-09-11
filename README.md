@@ -6,10 +6,9 @@
 3. react_dom
 4. react-router-dom
 5. recoil
-6. socket.io
-7. socket.io-client
 8. styled-componenets
 9. intersection-observer
+10. firebase
 ---
 ### 실행 명령어
 ###### 내 pc에서만 접속 가능
