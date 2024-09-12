@@ -24,6 +24,10 @@ const LoginForm = () => {
             setLoginError("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
     }
+    
+    const handleBackClick = () => {
+        navigate('/intro');
+    }
 
     return (
         <>
@@ -41,6 +45,7 @@ const LoginForm = () => {
                     </InputPassword>
                     <LoginButton>로그인</LoginButton>
                     <ResultMessage>{loginError}</ResultMessage>
+                    <BackButton onClick={handleBackClick}>처음으로 돌아가기</BackButton>
                 </Form>
             </Wrapper>
         </>
@@ -154,4 +159,16 @@ const ResultMessage = styled.div`
     margin-top: 10px;
     width: 100%;
     text-align: center;
+`;
+
+const BackButton = styled.div`
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    color: #c7c5c5;
+    text-decoration: underline;
+
+    &:hover{
+        cursor: pointer;
+    }
 `;
