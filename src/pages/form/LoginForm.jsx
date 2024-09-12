@@ -1,22 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import logo from "/assets/branding/logo.svg";
+import { useNavigate } from "react-router-dom";
+
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 
 const LoginForm = () => {
+
+    const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loginError, setLoginError] = useState("");
+
+    const handleLogin = async (event) => {
+        event.preventDefault();
+
+        try{
+            await signInWithEmailAndPassword(auth, email, password);
+            setLoginError("");
+            navigate("/main");
+        } catch (error) {
+            setLoginError("이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
+    }
+
     return (
         <>
             <Wrapper>
                 <Logo />
                 <SubTitle>파티원 모집 플랫폼 서비스</SubTitle>
-                <InputId>
-                    <GuideText>이메일</GuideText>
-                    <IdField></IdField>
-                </InputId>
-                <InputPassword>
-                    <GuideText>비밀번호</GuideText>
-                    <PasswordField></PasswordField>
-                </InputPassword>
-                <LoginButton>로그인</LoginButton>
+                <Form onSubmit={handleLogin}>
+                    <InputEmail>
+                        <GuideText>이메일</GuideText>
+                        <EmailField onChange={(e) => setEmail(e.target.value)}/>
+                    </InputEmail>
+                    <InputPassword>
+                        <GuideText>비밀번호</GuideText>
+                        <PasswordField onChange={(e) => setPassword(e.target.value)}/>
+                    </InputPassword>
+                    <LoginButton>로그인</LoginButton>
+                    <ResultMessage>{loginError}</ResultMessage>
+                </Form>
             </Wrapper>
         </>
     );
@@ -52,22 +77,27 @@ const SubTitle = styled.div`
     margin-bottom: 56px;
 `;
 
+const Form = styled.form`
+
+`;
+
 const GuideText = styled.div`
     font-size: 14px;
     color: #BCBEC0;
     text-align: left;
-    margin-bottom: 22px;
+    margin-bottom: 8px;
 `;
 
-const InputId = styled.div`
+const InputEmail = styled.div`
     
 `;
 
-const IdField = styled.input.attrs({
+const EmailField = styled.input.attrs({
     type: "text",
     name: "Id"
 })`
     width: 330px;
+    height: 40px;
     border: none;
     border-bottom: 1px #BCBEC0 solid;
     outline: none;
@@ -87,6 +117,7 @@ const PasswordField = styled.input.attrs({
     name: "Password"
 })`
     width: 330px;
+    height: 40px;
     border: none;
     border-bottom: 1px #BCBEC0 solid;
     outline: none;
@@ -97,10 +128,13 @@ const PasswordField = styled.input.attrs({
     }
 `;
 
-const LoginButton = styled.div`
+const LoginButton = styled.button.attrs({
+    type: "submit"
+})`
     width: 345px;
     height: 42px;
     border-radius: 8px;
+    border: hidden;
     background-color: #7F52FF;
     color: white;
     font-size: 14px;
@@ -112,4 +146,12 @@ const LoginButton = styled.div`
     &:hover{
         cursor: pointer;
     }
+`;
+
+const ResultMessage = styled.div`
+    font-size: 12px;
+    color: #FF3838;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
 `;

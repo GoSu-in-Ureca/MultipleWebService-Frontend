@@ -1,9 +1,11 @@
 // src/RouterList.js
 import { createBrowserRouter } from "react-router-dom";
+import PrivateRoute from "./PrivateRoute.jsx";
 import LoginLayout from "./layout/LoginLayout.jsx";
 import MainLayout from "./layout/MainLayout.jsx";
 import UserLayout from "./layout/UserLayout.jsx";
 import ChatLayout from "./layout/ChatLayout.jsx";
+import FormLayout from "./layout/FormLayout.jsx";
 import Chat from "./pages/chat/Chat.jsx";
 import ChatList from "./pages/chat/ChatList.jsx";
 import IntroForm from "./pages/form/IntroForm.jsx";
@@ -14,8 +16,8 @@ import UploadForm from "./pages/form/UploadForm.jsx";
 import Main from "./pages/main/Main.jsx";
 import Post from "./pages/main/Post.jsx";
 import UserMain from "./pages/user/UserMain.jsx";
-import UserInterestList from "./pages/user/UserInterestList.jsx";
-import UserUploadList from "./pages/user/UserUploadList.jsx";
+import UserInterestMoreList from "./pages/user/UserInterestMoreList.jsx";
+import UserUploadMoreList from "./pages/user/UserUploadMoreList.jsx";
 import WrongPath from "./pages/Etc/WrongPath.jsx";
 
 export const RouterList = () => [
@@ -41,7 +43,7 @@ export const RouterList = () => [
   {
     // Main
     path: "/",
-    element: <MainLayout />,
+    element: <PrivateRoute><MainLayout /></PrivateRoute>,
     children: [
       {
         path: "main",
@@ -51,6 +53,13 @@ export const RouterList = () => [
         path: "main/:postId",
         element: <Post />,  // Post 컴포넌트가 :postId 파라미터를 사용함
       },
+    ],
+  },
+  {
+    // Form
+    path: "/",
+    element: <PrivateRoute><FormLayout /></PrivateRoute>,
+    children: [
       {
         path: "upload",
         element: <UploadForm />,
@@ -64,7 +73,7 @@ export const RouterList = () => [
   {
     // User
     path: "user",
-    element: <UserLayout />,
+    element: <PrivateRoute><UserLayout /></PrivateRoute>,
     children: [
       {
         path: "main",
@@ -72,18 +81,18 @@ export const RouterList = () => [
       },
       {
         path: "upload",
-        element: <UserUploadList />,
+        element: <UserUploadMoreList />,
       },
       {
         path: "interest",
-        element: <UserInterestList />,
+        element: <UserInterestMoreList />,
       },
     ],
   },
   {
     // Chat Routes
     path: "chats",
-    element: <ChatLayout />,
+    element: <PrivateRoute><ChatLayout /></PrivateRoute>,
     children: [
       {
         index: true,
