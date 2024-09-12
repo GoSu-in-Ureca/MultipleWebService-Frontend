@@ -82,7 +82,9 @@ const SignUpForm = () => {
                 user_name: name,
                 user_department: selectDepartment,
                 user_onoffline: selectOnOff,
-                profile_image_url: profileImageUrl
+                profile_image_url: profileImageUrl,
+                user_level: 1,
+                user_createdAt: new Date(),
             });
             
             navigate('/main');
