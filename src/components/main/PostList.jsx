@@ -10,19 +10,26 @@ const PostList = () => {
     const [sortedData, setSortedData] = useState(data);
 
     useEffect(() => {
-        let sortedArray = [...data];
+        let posts = [...data];
+
+        posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        let activePosts = posts.filter((post) => new Date(post.deadline) >= new Date());
+        let expiredPosts = posts.filter((post) => new Date(post.deadline) < new Date());
+
         if (sort === "최신순") {
-            sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         } else if (sort === "시간임박순") {
-            sortedArray.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+            activePosts.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
         } else if (sort === "인원임박순") {
-            sortedArray.sort((a, b) => {
+            activePosts.sort((a, b) => {
                 let subA = a.maxParticipants - a.currentParticipants;
                 let subB = b.maxParticipants - b.currentParticipants;
                 return subA - subB;
             });
         }
-        setSortedData(sortedArray);
+
+        const combinedPosts = [...activePosts, ...expiredPosts];
+        setSortedData(combinedPosts);
     }, [sort]);
 
     return (
