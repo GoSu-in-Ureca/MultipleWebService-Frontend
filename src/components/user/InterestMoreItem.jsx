@@ -20,7 +20,7 @@ const InterestMoreItem = ({post}) => {
                         <DotIcon />
                         <SubText>{post.author}</SubText>
                         <DotIcon />
-                        <PartyStatus>참여 인원 <span style={{color: "#7F52FF"}}>3</span> / 4</PartyStatus>
+                        <PartyStatus>참여 인원 <span style={{color: "#7F52FF"}}>{post.currentParticipants}</span> / {post.maxParticipants}</PartyStatus>
                     </InfoArea>
                 </MainArea>
             </Wrapper>

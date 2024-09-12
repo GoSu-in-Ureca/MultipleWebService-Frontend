@@ -6,8 +6,29 @@ import NavigationUser from "../../components/main/NavigationUser";
 import InterestMoreItem from "../../components/user/InterestMoreItem";
 import data from "../../hotPostData.json"
 import SortFilter from "../../components/main/SortFilter";
+import { useRecoilState } from "recoil";
+import { useState, useEffect } from "react";
+import { selectedSortState } from "../../recoil/atoms";
 
 const UserInterestMoreList = () => {
+    const [sort, setSort] = useRecoilState(selectedSortState);
+    const [sortedData, setSortedData] = useState(data);
+
+    useEffect(() => {
+        let sortedArray = [...data];
+        if (sort === "최신순") {
+            sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        } else if (sort === "시간임박순") {
+            sortedArray.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        } else if (sort === "인원임박순") {
+            sortedArray.sort((a, b) => {
+                let subA = a.maxParticipants - a.currentParticipants;
+                let subB = b.maxParticipants - b.currentParticipants;
+                return subA - subB;
+            });
+        }
+        setSortedData(sortedArray);
+    }, [sort]);
 
     const navigate = useNavigate();
 
@@ -26,7 +47,7 @@ const UserInterestMoreList = () => {
                     <SortFilter />
                 </FilterWrapper>
                 <InterestList>
-                    {data.map((post, index) => (
+                    {sortedData.map((post, index) => (
                         <InterestMoreItem post={post} key={index} />
                     ))}
                 </InterestList>
