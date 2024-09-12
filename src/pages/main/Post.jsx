@@ -1,12 +1,10 @@
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import PrevButton from "../../../public/assets/Icon/navigate_before.svg";
-import Heart from "../../../public/assets/Icon/heart-color.svg";
-import More from "../../../public/assets/Icon/More.svg";
-import Profile from "../../../public/assets/BG/ProfileExample.svg";
-import leftArrow from "../../../public/assets/Icon/photoArrowL.svg";
-import rightArrow from "../../../public/assets/Icon/photoArrowR.svg";
-import data from "../../photoData";
+import PrevButton from "/assets/Icon/navigate_before.svg";
+import Heart from "/assets/Icon/heart-color.svg";
+import More from "/public/assets/Icon/More.svg";
+import leftArrow from "/assets/Icon/photoArrowL.svg";
+import rightArrow from "/assets/Icon/photoArrowR.svg";
 
 const Post = () => {
     const scrollRef = useRef(null);

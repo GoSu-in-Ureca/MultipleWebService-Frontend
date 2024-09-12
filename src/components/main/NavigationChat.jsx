@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import notHome from "/assets/Icon/notHome.svg";
-import chat from "/assets/Icon/Chat.svg";
+import chat from "/assets/Icon/chat.svg";
 import notUser from "/assets/Icon/notUser.svg";
 
 const NavigationChat = () => {

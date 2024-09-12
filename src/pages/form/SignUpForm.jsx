@@ -130,9 +130,9 @@ const SignUpForm = () => {
         const passwordInput = event.target.value;
         setPassword(passwordInput);
 
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,20}$/;
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\W_]{8,20}$/;
         if (!passwordPattern.test(passwordInput)) {
-            setPasswordError("비밀번호는 8-20자 이내에서 설정 가능합니다");
+            setPasswordError("비밀번호는 8-20자 이내, 영어와 숫자를 반드시 포함");
         } else {
             setPasswordError("");
         }
@@ -399,7 +399,7 @@ const InputPassword = styled.input.attrs({
 const PasswordValidation = styled.div`
     font-size: 10px;
     color: #FF3838;
-    margin-left: 18px;
+    margin-left: 10px;
 `;
 
 const InputRePassword = styled.input.attrs({
@@ -421,7 +421,7 @@ const InputRePassword = styled.input.attrs({
 const RePasswordValidation = styled.div`
     font-size: 10px;
     color: ${({ $isMatch }) => ($isMatch ? '#7F52FF' : '#FF3838')};
-    margin-left: 18px;
+    margin-left: 10px;
 `;
 
 const SubTitle = styled.div`
