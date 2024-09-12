@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import home from "/assets/Icon/home.svg";
+import home from "/assets/Icon/Home.svg";
 import notChat from "/assets/Icon/notChat.svg";
 import notUser from "/assets/Icon/notUser.svg";
 
