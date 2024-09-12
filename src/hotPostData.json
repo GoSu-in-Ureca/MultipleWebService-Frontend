@@ -7,7 +7,10 @@
     "author": "김지산",
     "deadline": "2024-09-15",
     "category": "야외활동",
-    "image": "/assets/images/camping.jpg"
+    "image": "/assets/images/camping.jpg",
+    "currentParticipants": 5,
+    "maxParticipants": 10,
+    "created_at": "2024-09-10T09:05:32"
   },
   {
     "id": 2,
@@ -17,7 +20,10 @@
     "author": "이수민",
     "deadline": "2024-09-20",
     "category": "언어",
-    "image": "/assets/images/french.jpg"
+    "image": "/assets/images/french.jpg",
+    "currentParticipants": 3,
+    "maxParticipants": 6,
+    "created_at": "2024-09-09T15:12:20"
   },
   {
     "id": 3,
@@ -27,7 +33,10 @@
     "author": "박현우",
     "deadline": "2024-09-18",
     "category": "사진",
-    "image": "/assets/images/photography.jpg"
+    "image": "/assets/images/photography.jpg",
+    "currentParticipants": 8,
+    "maxParticipants": 15,
+    "created_at": "2024-09-09T16:45:08"
   },
   {
     "id": 4,
@@ -37,7 +46,10 @@
     "author": "정윤아",
     "deadline": "2024-09-19",
     "category": "요리",
-    "image": "/assets/images/vegan.jpg"
+    "image": "/assets/images/vegan.jpg",
+    "currentParticipants": 4,
+    "maxParticipants": 10,
+    "created_at": "2024-09-08T17:02:45"
   },
   {
     "id": 5,
@@ -47,7 +59,10 @@
     "author": "최준혁",
     "deadline": "2024-09-17",
     "category": "운동",
-    "image": "/assets/images/running.jpg"
+    "image": "/assets/images/running.jpg",
+    "currentParticipants": 7,
+    "maxParticipants": 12,
+    "created_at": "2024-09-08T18:10:50"
   },
   {
     "id": 6,
@@ -57,7 +72,10 @@
     "author": "오수진",
     "deadline": "2024-09-22",
     "category": "독서",
-    "image": "/assets/images/classicbooks.jpg"
+    "image": "/assets/images/classicbooks.jpg",
+    "currentParticipants": 9,
+    "maxParticipants": 20,
+    "created_at": "2024-09-08T19:22:13"
   },
   {
     "id": 7,
@@ -67,7 +85,10 @@
     "author": "김태훈",
     "deadline": "2024-09-16",
     "category": "스터디",
-    "image": "/assets/images/math.jpg"
+    "image": "/assets/images/math.jpg",
+    "currentParticipants": 6,
+    "maxParticipants": 10,
+    "created_at": "2024-09-08T20:35:42"
   },
   {
     "id": 8,
@@ -77,7 +98,10 @@
     "author": "이소영",
     "deadline": "2024-09-23",
     "category": "미식",
-    "image": "/assets/images/cafe.jpg"
+    "image": "/assets/images/cafe.jpg",
+    "currentParticipants": 8,
+    "maxParticipants": 10,
+    "created_at": "2024-09-07T21:48:37"
   },
   {
     "id": 9,
@@ -87,7 +111,10 @@
     "author": "장서연",
     "deadline": "2024-09-21",
     "category": "운동",
-    "image": "/assets/images/meditation.jpg"
+    "image": "/assets/images/meditation.jpg",
+    "currentParticipants": 5,
+    "maxParticipants": 10,
+    "created_at": "2024-09-07T22:15:29"
   },
   {
     "id": 10,
@@ -97,6 +124,9 @@
     "author": "박정민",
     "deadline": "2024-09-25",
     "category": "야외활동",
-    "image": "/assets/images/cycling.jpg"
+    "image": "/assets/images/cycling.jpg",
+    "currentParticipants": 4,
+    "maxParticipants": 8,
+    "created_at": "2024-09-11T23:05:48"
   }
 ]

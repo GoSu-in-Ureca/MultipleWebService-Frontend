@@ -1,12 +1,34 @@
 import styled from "styled-components";
 import PostItem from "./PostItem";
 import data from "../../postData.json";
+import { selectedSortState } from "../../recoil/atoms";
+import { useRecoilState } from "recoil";
+import { useState, useEffect } from "react";
 
 const PostList = () => {
+    const [sort, setSort] = useRecoilState(selectedSortState);
+    const [sortedData, setSortedData] = useState(data);
+
+    useEffect(() => {
+        let sortedArray = [...data];
+        if (sort === "최신순") {
+            sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        } else if (sort === "시간임박순") {
+            sortedArray.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        } else if (sort === "인원임박순") {
+            sortedArray.sort((a, b) => {
+                let subA = a.maxParticipants - a.currentParticipants;
+                let subB = b.maxParticipants - b.currentParticipants;
+                return subA - subB;
+            });
+        }
+        setSortedData(sortedArray);
+    }, [sort]);
+
     return (
         <>
             <Wrapper>
-                {data.map((PostData, index) => (
+                {sortedData.map((PostData, index) => (
                     <PostItem key={index} post={PostData}/>
                 ))}
             </Wrapper>

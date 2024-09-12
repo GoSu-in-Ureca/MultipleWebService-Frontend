@@ -126,12 +126,9 @@ const Middle = styled.div`
     font-weight: bold;
     margin-top: 10px;
     width: 240px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: normal;
+    white-space: nowrap;
 `;
 
 const Bottom = styled.div`
