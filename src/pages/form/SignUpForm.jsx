@@ -4,7 +4,7 @@ import backbutton from "/assets/Icon/navigate_before.svg";
 import { useNavigate } from "react-router-dom";
 
 import { addDoc, collection } from "firebase/firestore";
-import {db, auth, storage} from "../../firebase";
+import { db, auth, storage } from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -130,7 +130,7 @@ const SignUpForm = () => {
         const passwordInput = event.target.value;
         setPassword(passwordInput);
 
-        const passwordPattern = /^.{8,20}$/;
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,20}$/;
         if (!passwordPattern.test(passwordInput)) {
             setPasswordError("비밀번호는 8-20자 이내에서 설정 가능합니다");
         } else {
