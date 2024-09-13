@@ -1,12 +1,40 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useState, useEffect } from "react";
+
+import { db } from "../../firebase";
+import { doc, updateDoc, increment } from "firebase/firestore";
 
 const PostItem = ({post}) => {
     const navigate = useNavigate();
     const deadLineDate = new Date(post.deadline);
-    const leftDays = Math.ceil((deadLineDate-Date.now()) / (1000*60*60*24));
+    
+    const calculateLeftDays = () => {
+        const now = new Date();
+        const difference = (deadLineDate - now) / (1000*60*60*24);
+        
+        return difference >= 0 ? Math.floor(difference) : "마감";
+    }
+    
+    const [leftDays, setLeftDays] = useState(calculateLeftDays);
+    
+    useEffect(() => {
+        setLeftDays(calculateLeftDays());
+    }, [Date.now()]);
+
+    const incrementViewCount = async (postId) => {
+        try{
+            const postDocRef = doc(db, "posts", postId);
+            await updateDoc(postDocRef, {
+                post_view: increment(1),
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const handlePostClick = () => {
+        incrementViewCount(post.id);
         navigate(`/main/${post.id}`);
       };
 
@@ -27,7 +55,7 @@ const PostItem = ({post}) => {
                 <TextArea>
                     <Top>
                         <InfoWrapper>
-                            <DayItem>D-{leftDays}</DayItem>
+                            <DayItem $isexpired={leftDays === '마감'}>{leftDays === "마감" ? "마감" : `D-${leftDays}`}</DayItem>
                             <CategoryItem>{post.category}</CategoryItem>
                         </InfoWrapper>
                         <TimeIndicator>{getTimeDifference(post.created_at)}</TimeIndicator>
@@ -84,7 +112,6 @@ const Top = styled.div`
 
 const InfoWrapper = styled.div`
     display: flex;
-    width: 200px;
 `;
 
 const DayItem = styled.div`
@@ -96,9 +123,9 @@ const DayItem = styled.div`
     font-weight: bold;
     color: white;
     padding: 0 9.5px 0 9.5px;
-    border: 1px solid #7f52ff;
+    border: 1px solid ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     border-radius: 19.5px;
-    background-color: #7F52FF;
+    background-color: ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
 `;
 
 const CategoryItem = styled.div`
@@ -126,12 +153,9 @@ const Middle = styled.div`
     font-weight: bold;
     margin-top: 10px;
     width: 240px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: normal;
+    white-space: nowrap;
 `;
 
 const Bottom = styled.div`

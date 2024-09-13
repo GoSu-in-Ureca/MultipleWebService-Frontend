@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavigationHome from "../../components/main/NavigationHome";
 import CategoryList from "../../components/main/CategoryList";
 import HotPostList from "../../components/main/HotPostList";
 import SortFilter from "../../components/main/SortFilter";
 import PostList from "../../components/main/PostList";
+import Toggle from "../../components/main/Toggle";
 import logo from "/assets/branding/logo.svg"
 import upload from "/assets/Icon/UploadButton.svg";
 
 const Main = () => {
     const navigate = useNavigate();
+    const [toggleState, setToggleState] = useState(false);
 
     const handleUploadFormNavigate = () => {
         navigate('/upload');
@@ -27,11 +30,12 @@ const Main = () => {
                 <Title>인기 게시글</Title>
                 <HotPostList></HotPostList>
                 <TotalPostArea>
+                    <Title>게시글 목록</Title>
                     <HeadArea>
-                        <Title>게시글 목록</Title>
+                        <Toggle toggleState={toggleState} setToggleState={setToggleState}/>
                         <SortFilter />
                     </HeadArea>
-                    <PostList></PostList>
+                    <PostList toggleState={toggleState}></PostList>
                 </TotalPostArea>
             </Wrapper>
             <UploadIcon onClick={handleUploadFormNavigate}/>
@@ -83,6 +87,8 @@ const TotalPostArea = styled.div`
 const HeadArea = styled.div`
     display: flex;
     justify-content: space-between;
+    margin-left: 18px;
+    margin-top: 14px;
 `;
 
 const UploadIcon = styled.img.attrs({

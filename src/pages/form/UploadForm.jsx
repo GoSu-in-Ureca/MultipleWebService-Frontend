@@ -5,9 +5,8 @@ import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
 import { addDoc, collection } from "firebase/firestore";
-import { db } from "../../firebase";
-
-const TEMP_USER_ID = 'tempjunsu';
+import { db, storage, auth } from "../../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const UploadForm = () => {
     const navigate = useNavigate();
@@ -63,21 +62,39 @@ const UploadForm = () => {
       };
 
     const handleUpload = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
+        const uploadedImageUrls = [];
+        const currentUser = auth.currentUser;
 
-    try {
-            // Firestore에 게시글 데이터 추가
+        for (const file of selectedPictures) {
+            const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
+            try {
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+                uploadedImageUrls.push(downloadURL);
+            } catch (error) {
+                console.error('이미지 업로드 중 오류 발생:', error);
+                return;
+            }
+        }
+
+        try {
             await addDoc(collection(db, 'posts'), {
-                userId: TEMP_USER_ID,
-                category: selectedCategory,
-                title: title,
-                content: content,
-                images: selectedPictures.map(file => URL.createObjectURL(file)),
+                post_user_id: currentUser.uid,
+                post_user_name: currentUser.uid,
+                post_category: selectedCategory,
+                post_title: title,
+                post_content: content,
+                post_createdAt: new Date(),
+                post_status: true,
+                post_deadline: deadline,
                 totalPrice: totalPrice,
-                participants: participants,
-                estimatePerMember: participants > 0 ? Math.ceil(totalPrice / participants) : 0,
-                deadline: deadline,
-                createdAt: new Date()
+                post_maxparti: participants,
+                post_currentparti: 1,
+                post_cost: participants > 0 ? Math.ceil(totalPrice / participants) : 0,
+                post_interest: 0,
+                post_images: uploadedImageUrls,
+                post_view: 0,
             });
 
             alert('게시글이 성공적으로 등록되었습니다!');

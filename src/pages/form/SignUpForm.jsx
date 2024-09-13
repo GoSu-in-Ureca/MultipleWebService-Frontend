@@ -4,7 +4,7 @@ import backbutton from "/assets/Icon/navigate_before.svg";
 import { useNavigate } from "react-router-dom";
 
 import { addDoc, collection } from "firebase/firestore";
-import {db, auth} from "../../firebase";
+import { db, auth, storage } from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -42,6 +42,29 @@ const SignUpForm = () => {
     async function handleSignUp(event) {
         event.preventDefault();
 
+        if (!email || !name || !password || !rePassword) {
+            setSignupError("모든 필드를 입력해주세요.");
+            return;
+        }
+    
+        // 이메일 형식 검사
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(email)) {
+            setSignupError("유효한 이메일 형식을 입력해주세요.");
+            return;
+        }
+    
+        // 비밀번호 길이 및 일치 검사
+        if (password.length < 8 || password.length > 20) {
+            setSignupError("비밀번호는 8-20자 이내로 설정해주세요.");
+            return;
+        }
+    
+        if (password !== rePassword) {
+            setSignupError("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
@@ -59,12 +82,15 @@ const SignUpForm = () => {
                 user_name: name,
                 user_department: selectDepartment,
                 user_onoffline: selectOnOff,
-                profile_image_url: profileImageUrl
+                profile_image_url: profileImageUrl,
+                user_level: 1,
+                user_createdAt: new Date(),
             });
             
             navigate('/main');
             setSignupError("");
           } catch (error) {
+            console.log(error);
             setSignupError("회원가입 제출 양식이 올바르지 않습니다.");
           }
     }
@@ -106,9 +132,9 @@ const SignUpForm = () => {
         const passwordInput = event.target.value;
         setPassword(passwordInput);
 
-        const passwordPattern = /^.{8,20}$/;
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\W_]{8,20}$/;
         if (!passwordPattern.test(passwordInput)) {
-            setPasswordError("비밀번호는 8-20자 이내에서 설정 가능합니다");
+            setPasswordError("비밀번호는 8-20자 이내, 영어와 숫자를 반드시 포함");
         } else {
             setPasswordError("");
         }
@@ -375,7 +401,7 @@ const InputPassword = styled.input.attrs({
 const PasswordValidation = styled.div`
     font-size: 10px;
     color: #FF3838;
-    margin-left: 18px;
+    margin-left: 10px;
 `;
 
 const InputRePassword = styled.input.attrs({
@@ -397,7 +423,7 @@ const InputRePassword = styled.input.attrs({
 const RePasswordValidation = styled.div`
     font-size: 10px;
     color: ${({ $isMatch }) => ($isMatch ? '#7F52FF' : '#FF3838')};
-    margin-left: 18px;
+    margin-left: 10px;
 `;
 
 const SubTitle = styled.div`
