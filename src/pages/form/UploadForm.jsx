@@ -94,6 +94,7 @@ const UploadForm = () => {
                 post_cost: participants > 0 ? Math.ceil(totalPrice / participants) : 0,
                 post_interest: 0,
                 post_images: uploadedImageUrls,
+                post_view: 0,
             });
 
             alert('게시글이 성공적으로 등록되었습니다!');
