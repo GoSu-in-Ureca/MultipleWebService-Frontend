@@ -2,21 +2,39 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 
+import { db } from "../../firebase";
+import { doc, updateDoc, increment } from "firebase/firestore";
+
 const PostItem = ({post}) => {
     const navigate = useNavigate();
     const deadLineDate = new Date(post.deadline);
-    const [leftDays, setLeftDays] = useState(
-        Math.ceil((deadLineDate - Date.now()) / (1000 * 60 * 60 * 24))
-      );
-
-    useEffect(() => {
-    if (leftDays < 0) {
-        setLeftDays("마감");
-    }
-    }, [leftDays]);
     
+    const calculateLeftDays = () => {
+        const now = new Date();
+        const difference = (deadLineDate - now) / (1000*60*60*24);
+        
+        return difference >= 0 ? Math.floor(difference) : "마감";
+    }
+    
+    const [leftDays, setLeftDays] = useState(calculateLeftDays);
+    
+    useEffect(() => {
+        setLeftDays(calculateLeftDays());
+    }, [Date.now()]);
+
+    const incrementViewCount = async (postId) => {
+        try{
+            const postDocRef = doc(db, "posts", postId);
+            await updateDoc(postDocRef, {
+                post_view: increment(1),
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const handlePostClick = () => {
+        incrementViewCount(post.id);
         navigate(`/main/${post.id}`);
       };
 

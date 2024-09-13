@@ -33,9 +33,10 @@ const Wrapper = styled.div`
 const Select = styled.select`
     border: none;
     outline: none;
+    font-family: "Pretendard-Medium";
+    font-size: 11px;
 `;
 
 const Option = styled.option`
-    font-size: 12px;
     text-align: center;
 `;
