@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { addDoc, collection } from "firebase/firestore";
 import { db, auth, storage } from "../../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const SignUpForm = () => {
@@ -76,10 +76,14 @@ const SignUpForm = () => {
                 profileImageUrl = await getDownloadURL(imageRef);
             }
 
+            await updateProfile(user, {
+                displayName: name,
+            })
+
             await addDoc(collection(db, "users"), {
                 user_id: user.uid,
                 user_email: email,
-                user_name: name,
+                user_name: user.displayName,
                 user_department: selectDepartment,
                 user_onoffline: selectOnOff,
                 profile_image_url: profileImageUrl,

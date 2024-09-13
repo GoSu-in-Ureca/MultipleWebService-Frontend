@@ -10,7 +10,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const UploadForm = () => {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("문화생활");
     const [selectedPictures, setSelectedPictures] = useState([]);
     const [selectedPictureAlert, setSelectedPictureAlert] = useState("");
     const [title, setTitle] = useState("");
@@ -65,6 +65,7 @@ const UploadForm = () => {
         e.preventDefault();
         const uploadedImageUrls = [];
         const currentUser = auth.currentUser;
+        const userName = currentUser.displayName;
 
         for (const file of selectedPictures) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
@@ -78,14 +79,16 @@ const UploadForm = () => {
             }
         }
 
+        const currentDateTime = new Date().toISOString();
+
         try {
             await addDoc(collection(db, 'posts'), {
                 post_user_id: currentUser.uid,
-                post_user_name: currentUser.uid,
+                post_user_name: userName,
                 post_category: selectedCategory,
                 post_title: title,
                 post_content: content,
-                post_createdAt: new Date(),
+                post_createdAt: currentDateTime,
                 post_status: true,
                 post_deadline: deadline,
                 totalPrice: totalPrice,
@@ -424,7 +427,8 @@ const ParticipantsInputArea = styled.input.attrs({
     id: "participants",
     name: "participants",
     required: "required",
-    min: "2"
+    min: "2",
+    max: "10",
 })`
     width: 160px;
     height: 30px;

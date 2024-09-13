@@ -1,13 +1,16 @@
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { db } from "../../firebase";
 import { doc, updateDoc, increment } from "firebase/firestore";
+import { auth, storage } from "../../firebase";
+import { getDownloadURL, ref } from "firebase/storage";
 
 const PostItem = ({post}) => {
     const navigate = useNavigate();
-    const deadLineDate = new Date(post.deadline);
+    const deadLineDate = new Date(post.post_deadline);
+    const [profileImageUrl, setProfileImageUrl] = useState("");
     
     const calculateLeftDays = () => {
         const now = new Date();
@@ -21,6 +24,20 @@ const PostItem = ({post}) => {
     useEffect(() => {
         setLeftDays(calculateLeftDays());
     }, [Date.now()]);
+
+    const fetchProfileImage = async () => {
+        try {
+            const imageRef = ref(storage, `profileImages/qaq72k6IH1Niprzn72pgeQloiC52`);
+            const url = await getDownloadURL(imageRef);
+            setProfileImageUrl(url);
+        } catch (error) {
+            console.error("프로필 이미지 불러오기 중 오류 발생:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProfileImage();
+    }, [post.post_user_id]);
 
     const incrementViewCount = async (postId) => {
         try{
@@ -56,14 +73,15 @@ const PostItem = ({post}) => {
                     <Top>
                         <InfoWrapper>
                             <DayItem $isexpired={leftDays === '마감'}>{leftDays === "마감" ? "마감" : `D-${leftDays}`}</DayItem>
-                            <CategoryItem>{post.category}</CategoryItem>
+                            <CategoryItem>{post.post_category}</CategoryItem>
+                            <PartyStatus><span style={{color: "#7F52FF"}}>{post.post_currentparti}</span> / {post.post_maxparti}</PartyStatus>
                         </InfoWrapper>
-                        <TimeIndicator>{getTimeDifference(post.created_at)}</TimeIndicator>
+                        <TimeIndicator>{getTimeDifference(post.post_createdAt)}</TimeIndicator>
                     </Top>
-                    <Middle>{post.title}</Middle>
+                    <Middle>{post.post_title}</Middle>
                     <Bottom>
-                        <Profile></Profile>
-                        <Author>{post.author}</Author>
+                        <Profile src={profileImageUrl} alt="Profile Image"></Profile>
+                        <Author>{post.post_user_name}</Author>
                     </Bottom>
                 </TextArea>
             </Wrapper>
@@ -112,6 +130,7 @@ const Top = styled.div`
 
 const InfoWrapper = styled.div`
     display: flex;
+    align-items: center;
 `;
 
 const DayItem = styled.div`
@@ -142,10 +161,14 @@ const CategoryItem = styled.div`
     border-radius: 19.5px;
 `;
 
+const PartyStatus = styled.div`
+    font-size: 11px;
+    margin-left: 8px;
+`;
+
 const TimeIndicator = styled.div`
     color: #BCBEC0;
     font-size: 11px;
-
 `;
 
 const Middle = styled.div`
@@ -164,7 +187,7 @@ const Bottom = styled.div`
     margin-top: 14px;
 `;
 
-const Profile = styled.div`
+const Profile = styled.img`
     width: 20px;
     height: 20px;
     border-radius: 20px;
