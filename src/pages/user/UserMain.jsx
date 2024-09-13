@@ -5,8 +5,15 @@ import InterestList from "../../components/user/InterestList";
 import UploadList from "../../components/user/UploadList";
 import profileExample from "/assets/BG/ProfileExample.svg";
 import NavigationUser from "../../components/main/NavigationUser";
+import { useNavigate } from 'react-router-dom';
 
 const UserMain = () => {
+    const navigate = useNavigate();
+
+    const handleLogoutNavigate = () => {
+        navigate('/intro')
+    }
+
     return (
         <>
             <Wrapper>
@@ -18,15 +25,15 @@ const UserMain = () => {
                             <EditProfileButton >프로필 사진 변경하기</EditProfileButton>
                             <UserName>윤준수</UserName>
                             <Department>프론트엔드/대면</Department>
-                            <LogoutButton>로그아웃</LogoutButton>
+                            <LogoutButton onClick={handleLogoutNavigate}>로그아웃</LogoutButton>
                         </ProfileAreaLeft>
                         <ProfileAreaRight>
                             <UserStats />
                         </ProfileAreaRight>
                     </ProfileArea>
                 </InfoBox>
-                <InterestList></InterestList>
-                <UploadList></UploadList>
+                <InterestList/>
+                <UploadList/>
             </Wrapper>
             <NavigationUser />
         </>
@@ -40,7 +47,7 @@ export default UserMain;
 const Wrapper = styled.div`
     /* font-family: "Pretendard-Medium"; */
     width: 390px;
-    height: 1800px;
+    /* height: 1800px; */
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
@@ -52,7 +59,7 @@ const Wrapper = styled.div`
 const InfoBox = styled.div`
     width: 100%;
     border-bottom: 4px solid #F4F4F4;
-    padding: 0px 0px 32px 10px;
+    padding: 0px 0px 20px 10px;
 `;
 
 const Title = styled.div`
@@ -118,6 +125,7 @@ const LogoutButton = styled.div`
     align-items: center;
     color: #808284;
     margin-top: 15px;
+    cursor: pointer;
 `;
 
 const ProfileAreaRight = styled.div`
