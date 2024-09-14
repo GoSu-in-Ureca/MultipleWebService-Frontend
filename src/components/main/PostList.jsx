@@ -1,13 +1,37 @@
 import styled from "styled-components";
 import PostItem from "./PostItem";
-import data from "../../postData.json";
 import { selectedSortState } from "../../recoil/atoms";
 import { useRecoilState } from "recoil";
 import { useState, useEffect } from "react";
 
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
+
 const PostList = ({toggleState}) => {
     const [sort, setSort] = useRecoilState(selectedSortState);
-    const [sortedData, setSortedData] = useState(data);
+    // 파이어 베이스에서 불러온 데이터
+    const [firePosts, setFirePosts] = useState([]);
+    const [sortedData, setSortedData] = useState(firePosts);
+
+    const fetchPosts = async () => {
+        try{
+            const postsCollection = collection(db, "posts");
+            const querySnapshot = await getDocs(postsCollection);
+
+            const resultposts = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            setFirePosts(resultposts);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchPosts();
+    }, []);
 
     // 배열 정렬 메서드
     const timeOrder = (targetArr) => {
@@ -24,7 +48,7 @@ const PostList = ({toggleState}) => {
     }
 
     useEffect(() => {
-        let posts = [...data];
+        let posts = firePosts;
 
         posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -56,7 +80,7 @@ const PostList = ({toggleState}) => {
     return (
         <>
             <Wrapper>
-                {sortedData.map((PostData, index) => (
+                {firePosts.map((PostData, index) => (
                     <PostItem key={index} post={PostData}/>
                 ))}
             </Wrapper>

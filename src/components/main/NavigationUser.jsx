@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import home from "/assets/Icon/notHome.svg";
 import notChat from "/assets/Icon/notChat.svg";
-import notUser from "/assets/Icon/User.svg";
+import notUser from "/assets/Icon/user.svg";
 
 const NavigationUser = () => {
   const navigate = useNavigate();

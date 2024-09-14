@@ -7,12 +7,21 @@ import profileExample from "/assets/BG/ProfileExample.svg";
 import NavigationUser from "../../components/main/NavigationUser";
 import { useNavigate } from 'react-router-dom';
 
+import { auth } from "../../firebase";
+import { signOut } from "firebase/auth";
+
 const UserMain = () => {
     const navigate = useNavigate();
 
-    const handleLogoutNavigate = () => {
-        navigate('/intro')
-    }
+    const handleLogout = async () => {
+        try {
+          await signOut(auth);
+          navigate("/intro");
+          console.log('로그아웃 성공');
+        } catch (error) {
+          console.error('로그아웃 중 오류 발생:', error);
+        }
+      };
 
     return (
         <>
@@ -25,7 +34,7 @@ const UserMain = () => {
                             <EditProfileButton >프로필 사진 변경하기</EditProfileButton>
                             <UserName>윤준수</UserName>
                             <Department>프론트엔드/대면</Department>
-                            <LogoutButton onClick={handleLogoutNavigate}>로그아웃</LogoutButton>
+                            <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
                         </ProfileAreaLeft>
                         <ProfileAreaRight>
                             <UserStats />
