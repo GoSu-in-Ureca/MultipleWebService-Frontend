@@ -1,18 +1,17 @@
 import styled from "styled-components";
 import PostItem from "./PostItem";
-import data from "../../postData.json";
 import { selectedSortState } from "../../recoil/atoms";
 import { useRecoilState } from "recoil";
 import { useState, useEffect } from "react";
 
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 
 const PostList = ({toggleState}) => {
     const [sort, setSort] = useRecoilState(selectedSortState);
-    const [sortedData, setSortedData] = useState(data);
-
+    // 파이어 베이스에서 불러온 데이터
     const [firePosts, setFirePosts] = useState([]);
+    const [sortedData, setSortedData] = useState(firePosts);
 
     const fetchPosts = async () => {
         try{

@@ -4,38 +4,48 @@ import { useState, useEffect } from "react";
 
 import { db } from "../../firebase";
 import { doc, updateDoc, increment } from "firebase/firestore";
-import { auth, storage } from "../../firebase";
+import { storage } from "../../firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 
 const PostItem = ({post}) => {
     const navigate = useNavigate();
     const deadLineDate = new Date(post.post_deadline);
     const [profileImageUrl, setProfileImageUrl] = useState("");
+    const [presentImageUrl, setPresentImageUrl] = useState("");
     
+    // 마감일 계산
     const calculateLeftDays = () => {
         const now = new Date();
         const difference = (deadLineDate - now) / (1000*60*60*24);
         
         return difference >= 0 ? Math.floor(difference) : "마감";
     }
-    
     const [leftDays, setLeftDays] = useState(calculateLeftDays);
-    
     useEffect(() => {
         setLeftDays(calculateLeftDays());
     }, [Date.now()]);
 
+    // 게시자 프로필 사진 불러오기
     const fetchProfileImage = async () => {
         try {
-            const imageRef = ref(storage, `profileImages/qaq72k6IH1Niprzn72pgeQloiC52`);
+            const imageRef = ref(storage, `profileImages/${post.post_user_id}`);
             const url = await getDownloadURL(imageRef);
             setProfileImageUrl(url);
         } catch (error) {
             console.error("프로필 이미지 불러오기 중 오류 발생:", error);
+            setProfileImageUrl("/defaultImage/profile.png");
         }
     };
+    // 게시글 대표 사진 불러오기
+    const fetchPostThumbnail = (post) => {
+        // post_images 배열에서 첫 번째 이미지를 가져옵니다. 없으면 기본 이미지를 사용.
+        const thumbnailUrl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/default-thumbnail.png";
+        return thumbnailUrl;
+    };
+    const thumbnailUrl = fetchPostThumbnail(post);
 
     useEffect(() => {
+        if(post.post_user_id)
         fetchProfileImage();
     }, [post.post_user_id]);
 
@@ -50,6 +60,7 @@ const PostItem = ({post}) => {
         }
     }
 
+    // 게시글 클릭 시 라우팅
     const handlePostClick = () => {
         incrementViewCount(post.id);
         navigate(`/main/${post.id}`);
@@ -68,7 +79,7 @@ const PostItem = ({post}) => {
     return (
         <>
             <Wrapper onClick={handlePostClick}>
-                <Image></Image>
+                <Image src={thumbnailUrl} alt="Post Prensent Image"/>
                 <TextArea>
                     <Top>
                         <InfoWrapper>
@@ -104,13 +115,13 @@ const Wrapper = styled.div`
     }
 `;
 
-const Image = styled.img.attrs({
-    
-})`
+const Image = styled.img`
     width: 96px;
     height: 96px;
     border-radius: 11px;
     background-color: lightgray;
+    object-fit: cover;
+    object-position: center;
 `;
 
 const TextArea = styled.div`
@@ -190,6 +201,8 @@ const Bottom = styled.div`
 const Profile = styled.img`
     width: 20px;
     height: 20px;
+    object-fit: cover;
+    object-position: center;
     border-radius: 20px;
     background-color: gray;
     justify-content: flex-start;
