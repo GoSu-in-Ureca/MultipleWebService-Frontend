@@ -99,6 +99,8 @@ const SignUpForm = () => {
                 user_level: 1,
                 user_exp: 0,
                 user_createdAt: new Date(),
+                user_recruit: 0,
+                user_join: 0,
             });
 
             navigate('/main');

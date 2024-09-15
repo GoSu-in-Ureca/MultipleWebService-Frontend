@@ -11,7 +11,6 @@ const PostItem = ({post}) => {
     const navigate = useNavigate();
     const deadLineDate = new Date(post.post_deadline);
     const [profileImageUrl, setProfileImageUrl] = useState("");
-    const [presentImageUrl, setPresentImageUrl] = useState("");
     
     // 마감일 계산
     const calculateLeftDays = () => {
@@ -38,12 +37,10 @@ const PostItem = ({post}) => {
     };
     // 게시글 대표 사진 불러오기
     const fetchPostThumbnail = (post) => {
-        // post_images 배열에서 첫 번째 이미지를 가져옵니다. 없으면 기본 이미지를 사용.
         const thumbnailUrl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/default-thumbnail.png";
         return thumbnailUrl;
     };
     const thumbnailUrl = fetchPostThumbnail(post);
-
     useEffect(() => {
         if(post.post_user_id)
         fetchProfileImage();
@@ -66,6 +63,7 @@ const PostItem = ({post}) => {
         navigate(`/main/${post.id}`);
       };
 
+      // 작성 시간 계산 메서드
     const getTimeDifference = (createdAt) => {
         const postDate = new Date(createdAt);
         const now = new Date();
@@ -211,6 +209,7 @@ const Profile = styled.img`
 const Author = styled.div`
     display: flex;
     justify-content: flex-start;
+    align-items: center;
     margin-left: 7px;
     font-size: 12px;
     color: #404040;

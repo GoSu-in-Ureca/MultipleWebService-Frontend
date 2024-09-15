@@ -16,6 +16,8 @@ const Post = () => {
     const scrollRef = useRef(null);
     const {postId} = useParams();
     const [post, setPost] = useState(null);
+
+
     const [isDrag, setIsDrag] = useState(false);
     const [startX, setStartX] = useState();
     const onDragStart = e => {
@@ -74,12 +76,36 @@ const Post = () => {
         }
 
         fetchPost();
-    },[postId])
+    },[postId]);
+
+    // 작성 시간 계산 메서드
+    const getTimeDifference = (createdAt) => {
+        const postDate = new Date(createdAt);
+        const now = new Date();
+        const diff = (now - postDate) / 1000;
+
+        if(diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+        if(diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+        return `${Math.floor(diff / 86400)}일 전`;
+    }
+
+    // 마감일 계산
+    const calculateLeftDays = (deadLineDate) => {
+        const now = new Date();
+        const difference = (deadLineDate - now) / (1000*60*60*24);
+        
+        return difference >= 0 ? Math.floor(difference) : "마감";
+    }
+    const [leftDays, setLeftDays] = useState(calculateLeftDays);
+    useEffect(() => {
+        setLeftDays(calculateLeftDays());
+    }, [Date.now()]);
 
     if (!post) { // 게시글 데이터 불러오기 전까지 보여줌
         return <Loading />;
     }
 
+    // 작성일 마감일 format 메서드
     const formatDate = (dateString) => {
         let date;
 
@@ -132,8 +158,8 @@ const Post = () => {
                 </ImageSlider>
                 <TagsAndWriteTime>
                     <Tags>
-                        <Tag style={{backgroundColor:"#7F52FF", color:"white", fontSize:"12px"}}>
-                            D-3
+                        <Tag style={{backgroundColor:"#7F52FF", color:"white", fontSize:"12px"}} $isexpired={leftDays === '마감'}>
+                            {leftDays === "마감" ? "마감" : `D-${leftDays}`}
                         </Tag>
                         <Tag style={{backgroundColor:"white", border:"1px solid #808284", color:"#404041", fontSize:"12px"}}>
                             {post.post_category}
@@ -144,7 +170,7 @@ const Post = () => {
                         </Tag>
                     </Tags>
                     <WriteTime>
-                        30분전
+                        {getTimeDifference(post.post_createdAt)}
                     </WriteTime>
                 </TagsAndWriteTime>
                 <ContentTop>

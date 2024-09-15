@@ -1,17 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import UserStats from "../../components/user/UserStats";
 import InterestList from "../../components/user/InterestList";
 import UploadList from "../../components/user/UploadList";
+import Loading from "../../Loading";
 import profileExample from "/assets/BG/ProfileExample.svg";
 import NavigationUser from "../../components/main/NavigationUser";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { auth } from "../../firebase";
+import { auth, db, storage } from "../../firebase";
 import { signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { getDownloadURL } from "firebase/storage";
 
 const UserMain = () => {
     const navigate = useNavigate();
+    const {userId} = useParams();
+    const [user ,setUser] = useState(null);
+    const [profileImageUrl, setProfileImageUrl] = useState("");
+
+    // 사용자 정보 불러오기
+    useEffect(() => {
+        const fetchUser = async () => {
+            try{
+                const userRef = doc(db, "users", userId);
+                const userSnapshot = await getDoc(userRef);
+
+                if(userSnapshot.exists){
+                    setUser(userSnapshot.data());
+                }
+            } catch {
+                console.log(error);
+            }
+        }
+
+        fetchUser();
+    },[userId]);
+
+    // 데이터 로딩 중 처리
+    if (!user) {
+        return <Loading />;
+      }
 
     const handleLogout = async () => {
         try {
@@ -30,14 +59,14 @@ const UserMain = () => {
                     <Title>마이페이지</Title>
                     <ProfileArea>
                         <ProfileAreaLeft>
-                            <ProfileImage />
+                            <ProfileImage src={user.profile_image_url || "/defaultImage/profile.png"}/>
                             <EditProfileButton >프로필 사진 변경하기</EditProfileButton>
-                            <UserName>윤준수</UserName>
-                            <Department>프론트엔드/대면</Department>
+                            <UserName>{user.user_name}</UserName>
+                            <Department>{user.user_department}/{user.user_onoffline}</Department>
                             <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
                         </ProfileAreaLeft>
                         <ProfileAreaRight>
-                            <UserStats />
+                            <UserStats user={user}/>
                         </ProfileAreaRight>
                     </ProfileArea>
                 </InfoBox>
@@ -54,15 +83,14 @@ export default UserMain;
 // styled components
 
 const Wrapper = styled.div`
-    /* font-family: "Pretendard-Medium"; */
     width: 390px;
-    /* height: 1800px; */
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     background-color: white;
+    margin-bottom: 90px;
 `;
 
 const InfoBox = styled.div`
@@ -94,11 +122,12 @@ const ProfileAreaLeft = styled.div`
     align-items: center;
 `;
 
-const ProfileImage = styled.img.attrs({
-    src: profileExample,
-    alt: "User Profile Example"
-})`
+const ProfileImage = styled.img`
     width: 67px;
+    height: 67px;
+    border-radius: 67px;
+    object-fit: cover;
+    object-position: center;
 `;
 
 const EditProfileButton = styled.div`
