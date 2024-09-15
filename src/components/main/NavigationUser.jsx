@@ -1,15 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import home from "/assets/Icon/notHome.svg";
 import notChat from "/assets/Icon/notChat.svg";
 import notUser from "/assets/Icon/user.svg";
 
+import { auth, db } from "../../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+
 const NavigationUser = () => {
   const navigate = useNavigate();
+  const [userDocId, setUserDocId] = useState(null);
 
+  // 현재 로그인한 사용자의 UID fetch
+  useEffect(() => {
+    const fetchUserDocId = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const usersCollection = collection(db, "users");
+          const q = query(usersCollection, where("user_id", "==", user.uid));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const doc = querySnapshot.docs[0];
+            setUserDocId(doc.id);
+          } else {
+            console.log("사용자 문서를 찾을 수 없습니다.");
+          }
+        } catch (error) {
+          console.error("사용자 문서를 불러오는 중 오류 발생:", error);
+        }
+      }
+    };
+
+    fetchUserDocId();
+  }, []);
+
+  // 페이지 이동 핸들러
   const handleNavigation = (page) => {
-    navigate(`/${page}`);
+    if (page === "user" && userDocId) {
+      navigate(`/user/main/${userDocId}`); // 사용자 페이지로 이동
+    } else {
+      navigate(`/${page}`); // 그 외의 페이지로 이동
+    }
   };
 
   return (
@@ -25,7 +59,7 @@ const NavigationUser = () => {
           <PlainText>채팅</PlainText>
         </NavItem>
 
-        <NavItem onClick={() => handleNavigation("user/main")}>
+        <NavItem onClick={() => handleNavigation("user")}>
           <NavIcon src={notUser} alt="User Icon" />
           <PlainText>내 정보</PlainText>
         </NavItem>

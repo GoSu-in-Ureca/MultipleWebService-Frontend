@@ -18,7 +18,9 @@ import Post from "./pages/main/Post.jsx";
 import UserMain from "./pages/user/UserMain.jsx";
 import UserInterestMoreList from "./pages/user/UserInterestMoreList.jsx";
 import UserUploadMoreList from "./pages/user/UserUploadMoreList.jsx";
-import WrongPath from "./pages/Etc/WrongPath.jsx";
+import WrongPath from "./pages/wrong/WrongPath.jsx";
+import WrongPathUser from "./pages/wrong/WrongPathUser.jsx";
+import Loading from "./Loading.jsx";
 
 export const RouterList = () => [
   {
@@ -76,7 +78,7 @@ export const RouterList = () => [
     element: <PrivateRoute><UserLayout /></PrivateRoute>,
     children: [
       {
-        path: "main",
+        path: "main/:userId",
         element: <UserMain />,
       },
       {
@@ -87,10 +89,14 @@ export const RouterList = () => [
         path: "interest",
         element: <UserInterestMoreList />,
       },
+      {
+        path: "*",
+        element: <WrongPathUser />,
+      },
     ],
   },
   {
-    // Chat Routes
+    // Chat
     path: "chats",
     element: <PrivateRoute><ChatLayout /></PrivateRoute>,
     children: [
@@ -103,6 +109,11 @@ export const RouterList = () => [
         element: <Chat />,
       },
     ],
+  },
+  {
+    // Loading
+    path : "loading",
+    element: <Loading />
   },
   {
     path: "*",

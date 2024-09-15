@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { increaseExpAndLevel } from "../../function/Exp";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
-import { addDoc, collection, getDocs, increment, query, QuerySnapshot, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 import { db, storage, auth } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -61,6 +62,7 @@ const UploadForm = () => {
         );
       };
 
+    // 제출
     const handleUpload = async (e) => {
         e.preventDefault();
         const uploadedImageUrls = [];
@@ -103,14 +105,22 @@ const UploadForm = () => {
             alert('게시글이 성공적으로 등록되었습니다!');
 
             const userSnapshot = await getDocs(
-                query(collection(db, "users"),
-                    where("user_id", "==", currentUser.uid)
+                query(collection(db, "users"), where("user_id", "==", currentUser.uid)
             ));
+
             if(!userSnapshot.empty){
+                const userDoc = userSnapshot.docs[0];
+                const userDocId = userDoc.id;
+
+                // 사용자 문서 업데이트
                 await updateDoc(userSnapshot.docs[0].ref, {
-                    user_exp: increment(3),
+                    user_recruit: increment(1),
                 });
-            }
+                // 경험치와 레벨 증가
+                await increaseExpAndLevel(userDocId, 3);
+            } else {
+                console.log("사용자 문서를 찾을 수 없습니다.");
+              }
 
             navigate('/main');
         } catch (error) {
@@ -118,6 +128,7 @@ const UploadForm = () => {
             alert('게시글 등록에 실패했습니다.');
         }
     };
+    
 
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
 

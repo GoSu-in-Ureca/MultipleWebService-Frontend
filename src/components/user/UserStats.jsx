@@ -1,12 +1,11 @@
 import styled from "styled-components";
-import LevelPic from "/assets/Icon/level4.svg";
 
-const UserStats = () => {
+const UserStats = ({user}) => {
     return (
         <Wrapper>
             <Box>
                 <PartyBox>
-                    <Party>모집 횟수</Party><PartyNum>12회</PartyNum>
+                    <Party>모집 횟수</Party><PartyNum>{user.user_recruit}회</PartyNum>
                 </PartyBox>
                 <JoinBox>
                     <Join>참여 횟수</Join><JoinNum>15회</JoinNum>
@@ -14,9 +13,9 @@ const UserStats = () => {
             </Box>
                 <LevelBox>
                     <LevelLayout>
-                        <Level>활동 레벨</Level><LevelNum>Lv.4</LevelNum>
+                        <Level>활동 레벨</Level><LevelNum>LV.{user.user_level}</LevelNum>
                     </LevelLayout>
-                    <LevelGraph></LevelGraph>
+                    <LevelGraph src={`/assets/Icon/level${user.user_level}.svg`}></LevelGraph>
                 </LevelBox>
         </Wrapper>
     );
@@ -93,10 +92,7 @@ const LevelNum = styled.span`
     font-family: 'Pretendard-Medium';
 `;
 
-const LevelGraph = styled.img.attrs({
-    src: LevelPic,
-    alt: "levelPic"
-})`
+const LevelGraph = styled.img`
     width: 115px;
     position: relative;
     padding-top: 22px;
