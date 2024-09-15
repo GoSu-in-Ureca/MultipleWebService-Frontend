@@ -37,7 +37,7 @@ const PostItem = ({post}) => {
     };
     // 게시글 대표 사진 불러오기
     const fetchPostThumbnail = (post) => {
-        const thumbnailUrl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/default-thumbnail.png";
+        const thumbnailUrl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage.png";
         return thumbnailUrl;
     };
     const thumbnailUrl = fetchPostThumbnail(post);

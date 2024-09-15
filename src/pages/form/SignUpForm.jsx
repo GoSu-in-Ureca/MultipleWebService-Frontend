@@ -77,7 +77,7 @@ const SignUpForm = () => {
             const user = userCredential.user;
 
             // 프로필 이미지 업로드
-            let profileImageUrl = "";
+            let profileImageUrl = "/assets/BG/defaultProfile.png";
             if (profileImage) {
                 const imageRef = ref(storage, `profileImages/${user.uid}`);
                 await uploadBytes(imageRef, profileImage);
@@ -93,6 +93,7 @@ const SignUpForm = () => {
             // Firestore에 사용자 정보 저장
             await addDoc(collection(db, "users"), {
                 user_id: user.uid,
+                user_name: user.displayName,
                 user_department: selectDepartment,
                 user_onoffline: selectOnOff,
                 profile_image_url: profileImageUrl,
