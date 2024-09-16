@@ -33,7 +33,7 @@ const UserInterestMoreList = () => {
     const navigate = useNavigate();
 
     const handleIntroNavigate = () => {
-        navigate('/user/main');
+        navigate(-1);
     }
 
     return (
