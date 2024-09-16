@@ -29,7 +29,6 @@ const PostList = ({toggleState}) => {
             console.log(error);
         }
     }
-
     useEffect(() => {
         fetchPosts();
     }, []);
