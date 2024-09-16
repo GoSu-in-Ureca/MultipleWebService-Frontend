@@ -4,20 +4,20 @@ import UserStats from "../../components/user/UserStats";
 import InterestList from "../../components/user/InterestList";
 import UploadList from "../../components/user/UploadList";
 import Loading from "../../Loading";
-import profileExample from "/assets/BG/ProfileExample.svg";
 import NavigationUser from "../../components/main/NavigationUser";
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { auth, db, storage } from "../../firebase";
-import { signOut } from "firebase/auth";
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { getDownloadURL } from "firebase/storage";
 
 const UserMain = () => {
     const navigate = useNavigate();
     const {userId} = useParams();
     const [user ,setUser] = useState(null);
-    const [profileImageUrl, setProfileImageUrl] = useState("");
+    const [showSecessionModal, setShowSecessionModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [password, setPassword] = useState("");
 
     // 사용자 정보 불러오기
     useEffect(() => {
@@ -46,11 +46,52 @@ const UserMain = () => {
         try {
           await signOut(auth);
           navigate("/intro");
-          console.log('로그아웃 성공');
+          console.log('Success to Logout');
         } catch (error) {
-          console.error('로그아웃 중 오류 발생:', error);
+          console.error(error);
         }
       };
+
+      const handleSecessionAlert = () => {
+        setShowSecessionModal(true);
+      };
+      const handleSecessionCancel = () => {
+        setShowSecessionModal(false);
+      };
+
+      const handleSecessionClick = async () => {
+        setShowSecessionModal(false);
+        setShowPasswordModal(true);
+        
+      };
+      const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+      };
+      const handlePasswordSubmit = async () => {
+        const user = auth.currentUser;
+
+        if(!user){
+            return;
+        }
+
+        try {
+            // 사용자 재인증 우선 진행
+            const credential = EmailAuthProvider.credential(auth.currentUser.email, password);
+
+            // 자격 증명
+            await reauthenticateWithCredential(user, credential);
+            console.log("Success to reauthenticate");
+
+            // 삭제
+            await deleteUser(user);
+            console.log("Success to Secession");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setPassword("");
+            setShowPasswordModal(false);
+        }
+      }
 
     return (
         <>
@@ -72,8 +113,36 @@ const UserMain = () => {
                 </InfoBox>
                 <InterestList/>
                 <UploadList/>
+                <Secession onClick={handleSecessionAlert}>회원탈퇴</Secession>
             </Wrapper>
             <NavigationUser />
+
+            {showSecessionModal && (
+                <ModalOverlay>
+                    <ModalContent>
+                        <ModalTitle>정말로 회원탈퇴를 진행하시겠습니까?</ModalTitle>
+                        <ButtonGroup>
+                            <ConfirmButton onClick={handleSecessionClick}>확인</ConfirmButton>
+                            <CancelButton onClick={handleSecessionCancel}>취소</CancelButton>
+                        </ButtonGroup>
+                    </ModalContent>
+                </ModalOverlay>
+            )}
+
+            {showPasswordModal && (
+                <ModalOverlay>
+                    <ModalContent>
+                        <ModalTitle>비밀번호를 입력해주세요</ModalTitle>
+                        <Input type= "password"
+                                value={password}
+                                onChange= {handlePasswordChange}/>
+                        <ButtonGroup>
+                            <ConfirmButton onClick={handlePasswordSubmit}>확인</ConfirmButton>
+                            <CancelButton onClick={() => {setShowPasswordModal(false)}}>취소</CancelButton>
+                        </ButtonGroup>
+                    </ModalContent>
+                </ModalOverlay>
+            )}
         </>
     );
 }
@@ -168,4 +237,74 @@ const LogoutButton = styled.div`
 
 const ProfileAreaRight = styled.div`
     width: 100%;
+`;
+
+const Secession = styled.div`
+    font-size: 11px;
+    color: #ff7474;
+    margin-bottom: 12px;
+
+    &:hover{
+        cursor: pointer;
+    }
+`;
+
+// Modal styled components
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 350px;
+  width: 100%;
+`;
+
+const ModalTitle = styled.div`
+  margin-bottom: 10px;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: space-around;
+`;
+
+const ConfirmButton = styled.button`
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+`;
+
+const CancelButton = styled.button`
+  background-color: gray;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+`;
+
+const Input = styled.input`
+    outline: none;
+    border: none;
+    border-bottom: 1px solid black;
+    margin-bottom: 10px;
+    height: 30px;
+    width: 200px;
+    text-align: center;
 `;
