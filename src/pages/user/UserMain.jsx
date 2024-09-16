@@ -13,7 +13,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 const UserMain = () => {
     const navigate = useNavigate();
-    const {userId} = useParams();
+    const {userDocId} = useParams();
     const [user ,setUser] = useState(null);
     const [showSecessionModal, setShowSecessionModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -23,19 +23,19 @@ const UserMain = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try{
-                const userRef = doc(db, "users", userId);
+                const userRef = doc(db, "users", userDocId);
                 const userSnapshot = await getDoc(userRef);
 
                 if(userSnapshot.exists){
                     setUser(userSnapshot.data());
                 }
-            } catch {
+            } catch (error) {
                 console.log(error);
             }
         }
 
         fetchUser();
-    },[userId]);
+    },[userDocId]);
 
     // 데이터 로딩 중 처리
     if (!user) {

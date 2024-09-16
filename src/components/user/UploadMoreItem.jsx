@@ -1,28 +1,55 @@
 import styled from "styled-components";
 import profile from "/assets/BG/ProfileExample2.jpg";
 import dot from "/assets/Icon/dot.svg";
+import { useNavigate } from "react-router-dom";
+import { increment } from "firebase/firestore";
 
 const UploadMoreItem = ({post}) => {
-    const deadLineDate = new Date(post.deadline);
+    const navigate = useNavigate();
+    const deadLineDate = new Date(post.post_deadline);
     const leftDays = Math.ceil((deadLineDate-Date.now()) / (1000*60*60*24));
+    const createdDate = new Date(post.post_createdAt).toLocaleString('ko-KR', {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit',
+    }).replace(/\. /g, '.');
+
+    const handlePostClick = () => {
+        incrementViewCount(post.id);
+        navigate(`/main/${post.id}`);
+    }
+
+    const incrementViewCount = async (postId) => {
+        try{
+            const postDocRef = doc(db, "posts", postId);
+            await updateDoc(postDocRef, {
+                post_view: increment(1),
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
-        <>
-            <Wrapper>
-                <PresentImage />
-                <MainArea>
-                    <TextArea>{post.title}</TextArea>
-                    <Content>{post.content}</Content>
-                    <InfoArea>
-                        <LeftDays>D-{leftDays}</LeftDays>
-                        <DotIcon />
-                        <PartyStatus>참여 인원 <span style={{color: "#7F52FF"}}>3</span> / 4</PartyStatus>
-                    </InfoArea>
-                </MainArea>
-            </Wrapper>
-        </>
+        <Wrapper onClick={handlePostClick}>
+            <PresentImage src={post.imageUrl || "/assets/BG/defaultImage.png"} alt="Post Image" />
+            <MainArea>
+                <TitleArea>
+                    <Title>{post.post_title}</Title>
+                    <CreatedAt>{createdDate}</CreatedAt>
+                </TitleArea>
+                <Content>{post.post_content}</Content>
+                <InfoArea>
+                    <LeftDays>{leftDays > 0 ? `D-${leftDays}` : "마감"}</LeftDays>
+                    <DotIcon />
+                    <PartyStatus>
+                        참여 인원 <span style={{ color: "#7F52FF" }}>{post.post_currentparti}</span> / {post.post_maxparti}
+                    </PartyStatus>
+                </InfoArea>
+            </MainArea>
+        </Wrapper>
     );
-}
+};
 
 export default UploadMoreItem;
 
@@ -57,15 +84,28 @@ const MainArea = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    width: 262px;
 `;
 
-const TextArea = styled.div`
+const TitleArea = styled.div`
+    display: flex;
+    justify-content: space-between;
+`;
+
+const Title = styled.div`
     font-size: 16px;
     font-weight: bold;
     width: 220px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+`;
+
+const CreatedAt = styled.div`
+    font-size: 8px;
+    text-align: right;
+    width: 60px;
+    color: #888888;
 `;
 
 const Content = styled.div`
@@ -108,9 +148,6 @@ const DotIcon = styled.img.attrs({
     height: 2px;
 `;
 
-const SubText = styled.div`
-    
-`;
 const PartyStatus = styled.div`
     
 `;

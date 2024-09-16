@@ -78,11 +78,11 @@ export const RouterList = () => [
     element: <PrivateRoute><UserLayout /></PrivateRoute>,
     children: [
       {
-        path: "main/:userId",
+        path: "main/:userDocId",
         element: <UserMain />,
       },
       {
-        path: "upload",
+        path: "upload/:userDocId",
         element: <UserUploadMoreList />,
       },
       {

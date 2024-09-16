@@ -130,7 +130,7 @@ const Post = () => {
     }
 
     const handleBackClick = () => {
-        navigate("/main");
+        navigate(-1);
     }
     
     return (

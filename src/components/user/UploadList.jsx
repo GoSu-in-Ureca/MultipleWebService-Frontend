@@ -1,19 +1,41 @@
 import styled from "styled-components";
 import Image from "/assets/BG/ProfileExample.svg";
-import heart from "/assets/Icon/heart-fill.svg";
+import heart from "/assets/Icon/heart-fill.svg"
 import { useNavigate } from 'react-router-dom';
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import { db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const UploadList = () => {
     const navigate = useNavigate();
+    const {userDocId} = useParams();
+    const [user, setUser] = useState()
 
     const handleUploadPostListNavigate = () => {
-        navigate('/user/upload')
+        navigate(`/user/upload/${userDocId}`);
     }
+
+    const fetchUser = async () => {
+        try{
+            const userDocRef = doc(db, 'users', userDocId);
+            const userSnapshot = await getDoc(userDocRef);
+            if(userSnapshot.exists)
+            setUser(userSnapshot.data());
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchUser();
+    }, [userDocId]);
 
     return (
         <Wrapper>
             <UploadPost>
-                <UploadPostTitle>내가 작성한 게시글</UploadPostTitle>
+                <UploadPostTitle>{user ? `${user.user_name}님이 작성한 게시글` : '게시글을 불러오는 중...'}</UploadPostTitle>
                 <WholeView onClick={handleUploadPostListNavigate}>전체보기</WholeView>
             </UploadPost>
             <UploadPostContent>
