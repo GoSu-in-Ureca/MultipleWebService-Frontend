@@ -110,7 +110,8 @@ const Wrapper = styled.div`
     align-items: center;
     background-color: white;
     margin-bottom: 90px;
-`
+    min-height: calc(100vh - 90px);
+`;
 
 const Header = styled.div`
     display: flex;

@@ -32,7 +32,7 @@ const UploadMoreItem = ({post}) => {
 
     return (
         <Wrapper onClick={handlePostClick}>
-            <PresentImage src={post.imageUrl || "/assets/BG/defaultImage.png"} alt="Post Image" />
+            <PresentImage src={post.post_images[0] || "/assets/BG/defaultImage.png"} alt="Post Image" />
             <MainArea>
                 <TitleArea>
                     <Title>{post.post_title}</Title>
@@ -68,16 +68,13 @@ const Wrapper = styled.div`
     }
 `;
 
-const PresentImage = styled.img.attrs({
-    src: profile,
-    alt: "Profile Image"
-})`
+const PresentImage = styled.img`
     width: 70px;
     height: 70px;
     border-radius: 11px;
-    background-color: gray;
     margin-right: 13px;
-    align-self: center;
+    object-fit: cover;
+    object-position: center;
 `;
 
 const MainArea = styled.div`

@@ -40,7 +40,11 @@ const HotPostList = () => {
 
     useEffect(() => {
         const topPosts = [...firePosts]
-                        .sort((a, b) => b.post_interest - a.post_interest)
+                        .sort((a, b) => {
+                            const aValue = a.post_interest*10 + a.post_view;
+                            const bValue = b.post_interest*10 + b.post_view;
+                            return bValue - aValue;
+                        })
                         .slice(0, 10);
 
         setSortedData(topPosts);
