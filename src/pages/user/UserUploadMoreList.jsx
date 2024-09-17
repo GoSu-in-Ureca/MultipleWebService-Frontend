@@ -9,7 +9,7 @@ import NavigationUser from "../../components/main/NavigationUser";
 import Loading from "../../Loading";
 
 import { db } from "../../firebase";
-import { collection, doc, getDoc, getDocs, where, query, orderBy } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, where, query } from "firebase/firestore";
 
 const UserUploadList = () => {
     const {userDocId} = useParams();

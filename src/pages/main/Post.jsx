@@ -1,34 +1,23 @@
 import React, { useRef, useState, useEffect } from "react";
-import Loading from "../../Loading.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import Loading from "../../Loading.jsx";
 import PrevButton from "/assets/Icon/navigate_before.svg";
-import BigHeart from "/assets/Icon/heart-color.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
-import leftArrow from "/assets/Icon/photoArrowL.svg";
-import rightArrow from "/assets/Icon/photoArrowR.svg";
-import { useNavigate } from 'react-router-dom';
 
 import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 
 const Post = () => {
     const navigate = useNavigate();
 
-    const handleBackNavigate = () => {
-        navigate('/main')
-    }
-    
-    const handleParticipateNavigate = () => {
-        navigate('/main')
-    }
-
     const scrollRef = useRef(null);
     const {postId} = useParams();
     const [post, setPost] = useState(null);
-
+    const [author, setAuthor] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const [isDrag, setIsDrag] = useState(false);
     const [startX, setStartX] = useState();
@@ -90,6 +79,29 @@ const Post = () => {
         fetchPost();
     },[postId]);
 
+    // 작성자 불러오기
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (!post || !post.post_user_id) return;
+
+            try {
+                const queryCollection = query(collection(db, 'users'), where('user_id', '==', post.post_user_id));
+                const querySnapshot = await getDocs(queryCollection);
+
+                if(!querySnapshot.empty){
+                    const userDoc = querySnapshot.docs[0];
+                    setAuthor(userDoc.data());
+                }
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchUser();
+    }, [post]);
+
     // 작성 시간 계산 메서드
     const getTimeDifference = (createdAt) => {
         const postDate = new Date(createdAt);
@@ -102,18 +114,23 @@ const Post = () => {
     }
 
     // 마감일 계산
-    const calculateLeftDays = (deadLineDate) => {
+    const calculateLeftDays = (deadLine) => {
+        const deadLineDate = new Date(deadLine);
         const now = new Date();
         const difference = (deadLineDate - now) / (1000*60*60*24);
         
         return difference >= 0 ? Math.floor(difference) : "마감";
     }
-    const [leftDays, setLeftDays] = useState(calculateLeftDays);
-    useEffect(() => {
-        setLeftDays(calculateLeftDays());
-    }, [Date.now()]);
 
-    if (!post) { // 게시글 데이터 불러오기 전까지 보여줌
+    const [leftDays, setLeftDays] = useState(calculateLeftDays);
+
+    useEffect(() => {
+        if(post && post.post_deadline){
+            setLeftDays(calculateLeftDays(post.post_deadline));
+        }
+    }, post);
+
+    if (loading) { // 게시글 데이터 불러오기 전까지 보여줌
         return <Loading />;
     }
 
@@ -149,7 +166,7 @@ const Post = () => {
         <>
             <Wrapper>
                 <Header>
-                    <img src={PrevButton} onClick={handleBackNavigate} style={{cursor: 'pointer'}}/>
+                    <img src={PrevButton} onClick={handleBackClick} style={{cursor: 'pointer'}}/>
                 </Header>
                 <ImageSlider 
                     onMouseDown={onDragStart} 
@@ -158,10 +175,6 @@ const Post = () => {
                     onMouseLeave={onDragEnd}
                     ref={scrollRef}
                     >
-                    <LeftRightButton>
-                        <Button><img src={leftArrow}/></Button>
-                        <Button><img src={rightArrow}/></Button>
-                    </LeftRightButton>
                     <ImageInner>
                         <Image/>
                         <Image/>
@@ -184,11 +197,11 @@ const Post = () => {
                 <HeartAndView>
                     <HeartTag>
                         <img src={Heart}/>
-                        <span>13</span>
+                        <span>{post.post_interest}</span>
                     </HeartTag>
                     <ViewTag>
                         <img src={View}/>
-                        <span>20</span>
+                        <span>{post.post_view}</span>
                     </ViewTag>
                 </HeartAndView>
                 <ContentTop>
@@ -200,7 +213,7 @@ const Post = () => {
                         <span>작성자</span> 
                         <WriterName>
                             <span>{post.post_user_name}</span> 
-                            <span style={{color:"#DADADA"}}>프론트엔드/대면</span>
+                            <span style={{color:"#DADADA"}}>{author.user_department}/{author.user_onoffline}</span>
                         </WriterName>
                     </Writer>
                     <Time>
@@ -209,12 +222,12 @@ const Post = () => {
                     </Time>
                     <PeopleNum>
                         <span>참여인원</span>
-                        <span><Highlight>0명 </Highlight>/ 4명</span>
+                        <span><Highlight>{post.post_currentParty}</Highlight>/ {post.post_maxParti}</span>
                     </PeopleNum>
                     <Price>
                         <span>가격</span>
                         <span>
-                            <Highlight>약 16,000원~</Highlight>
+                            <Highlight>약 {post.post_cost}원~</Highlight>
                             <span>/인</span>
                         </span>
                     </Price>
@@ -240,7 +253,7 @@ const Wrapper = styled.div`
     background-color: white;
     width: 100%;
     max-width: 390px;
-    height: 100vh;
+    margin-bottom: 78px;
 `;
 
 const Header = styled.div`
@@ -278,30 +291,17 @@ const ImageInner = styled.div`
 `;
 
 const Image = styled.div`
-  width: 326px;
-  height: 326px;
-  background-color: gray;
-  border-radius: 11px;
-  margin: 0px 10px 0px 10px;
-  display: flex;
-  align-items: center;
-  background: url(../../../public/assets/BG/ProfileExample.svg);
-  background-repeat: no-repeat;
-  background-size: cover;
-  `;
-
-const LeftRightButton = styled.div`
+    width: 326px;
+    height: 326px;
+    background-color: gray;
+    border-radius: 11px;
+    margin: 0px 10px 0px 10px;
     display: flex;
-    justify-content: space-between;
-    gap: 290px;
-    margin: 17px;
     align-items: center;
-    position: fixed;
+    background: url(../../../public/assets/BG/ProfileExample.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
   `;
-
-const Button = styled.div`
-    cursor: pointer;
-`;
 
 const TagsAndWriteTime = styled.div`
     display: flex;
@@ -373,22 +373,22 @@ const WriteTime = styled.div`
 `;
 
 const ContentTop = styled.div`
-  padding: 4px 14px 25px 25px;
-  border-bottom: 4px solid #F4F4F4;
-  font-family: 'Pretendard-Medium';
-  color: #676767;
-  font-size: 12px;
+    padding: 4px 14px 25px 25px;
+    border-bottom: 4px solid #F4F4F4;
+    font-family: 'Pretendard-Medium';
+    color: #676767;
+    font-size: 12px;
 `;
 
 const TitleAndImg =styled.div`
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 `;
 
 const Title = styled.div`
-  font-size: 24px;
-  font-family: 'Pretendard-SemiBold';
-  color: black;
+    font-size: 24px;
+    font-family: 'Pretendard-SemiBold';
+    color: black;
 `;
 
 const Writer = styled.div`
@@ -399,14 +399,14 @@ const Writer = styled.div`
 `;
 
 const WriterName = styled.div`
-  display: flex;
-  gap: 12px;
+    display: flex;
+    gap: 12px;
 `;
 
 const Time = styled.div`
-  margin-top: 9px;
-  display: flex;
-  gap: 32px;
+    margin-top: 9px;
+    display: flex;
+    gap: 32px;
 `;
 
 
@@ -427,24 +427,23 @@ const Price = styled.div`
 const Highlight = styled.span`
     font-family: 'Pretendard-SemiBold';
     color: #7F52FF;
-    `;
+`;
 
 const SubmitArea = styled.div`
     width: 390px;
     height: 78px;
     background-color: white;
-    padding: 18px 22px 18px;
+    padding: 18px 22px;
     box-sizing: border-box;
     position: fixed;
     bottom: 0;
     box-shadow: 0px -5px 5px -5px #E2E2E2;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 14px;
 `;
 
 const HeartButton = styled.div`
-    margin: auto;
     width: 20px;
 `;
 
