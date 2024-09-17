@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { increaseExpAndLevel } from "../../function/Exp";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 import { db, storage, auth } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const UploadForm = () => {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("문화생활");
     const [selectedPictures, setSelectedPictures] = useState([]);
     const [selectedPictureAlert, setSelectedPictureAlert] = useState("");
     const [title, setTitle] = useState("");
@@ -61,10 +62,13 @@ const UploadForm = () => {
         );
       };
 
+    // 제출
     const handleUpload = async (e) => {
         e.preventDefault();
         const uploadedImageUrls = [];
         const currentUser = auth.currentUser;
+        const userName = currentUser.displayName;
+        const currentDateTime = new Date().toISOString();
 
         for (const file of selectedPictures) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
@@ -81,11 +85,12 @@ const UploadForm = () => {
         try {
             await addDoc(collection(db, 'posts'), {
                 post_user_id: currentUser.uid,
-                post_user_name: currentUser.uid,
+                post_user_name: userName,
                 post_category: selectedCategory,
                 post_title: title,
                 post_content: content,
-                post_createdAt: new Date(),
+                post_createdAt: currentDateTime,
+                post_updatedAt: currentDateTime,
                 post_status: true,
                 post_deadline: deadline,
                 totalPrice: totalPrice,
@@ -98,12 +103,32 @@ const UploadForm = () => {
             });
 
             alert('게시글이 성공적으로 등록되었습니다!');
+
+            const userSnapshot = await getDocs(
+                query(collection(db, "users"), where("user_id", "==", currentUser.uid)
+            ));
+
+            if(!userSnapshot.empty){
+                const userDoc = userSnapshot.docs[0];
+                const userDocId = userDoc.id;
+
+                // 사용자 문서 업데이트
+                await updateDoc(userSnapshot.docs[0].ref, {
+                    user_recruit: increment(1),
+                });
+                // 경험치와 레벨 증가
+                await increaseExpAndLevel(userDocId, 3);
+            } else {
+                console.log("사용자 문서를 찾을 수 없습니다.");
+              }
+
             navigate('/main');
         } catch (error) {
             console.error('게시글 등록 중 오류 발생:', error);
             alert('게시글 등록에 실패했습니다.');
         }
     };
+    
 
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
 
@@ -424,7 +449,8 @@ const ParticipantsInputArea = styled.input.attrs({
     id: "participants",
     name: "participants",
     required: "required",
-    min: "2"
+    min: "2",
+    max: "10",
 })`
     width: 160px;
     height: 30px;

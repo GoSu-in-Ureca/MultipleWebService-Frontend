@@ -28,6 +28,9 @@ export default SortFilter;
 
 const Wrapper = styled.div`
     margin-right: 16px;
+    height: 100%;
+    display: flex;
+    align-items: center;
 `;
 
 const Select = styled.select`

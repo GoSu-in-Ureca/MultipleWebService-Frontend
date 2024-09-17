@@ -1,4 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import Loading from "../../Loading.jsx";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import BigHeart from "/assets/Icon/heart-color.svg";
@@ -8,6 +10,9 @@ import More from "/public/assets/Icon/More.svg";
 import leftArrow from "/assets/Icon/photoArrowL.svg";
 import rightArrow from "/assets/Icon/photoArrowR.svg";
 import { useNavigate } from 'react-router-dom';
+
+import { db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const Post = () => {
     const navigate = useNavigate();
@@ -21,6 +26,10 @@ const Post = () => {
     }
 
     const scrollRef = useRef(null);
+    const {postId} = useParams();
+    const [post, setPost] = useState(null);
+
+
     const [isDrag, setIsDrag] = useState(false);
     const [startX, setStartX] = useState();
     const onDragStart = e => {
@@ -62,6 +71,79 @@ const Post = () => {
 
     const delay = 50;
     const onThrottleDragMove = throttle(onDragMove, delay);
+
+    // 게시글 불러오기
+    useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                const postRef = doc(db, "posts", postId);
+                const postSnapshot = await getDoc(postRef);
+
+                if(postSnapshot.exists){
+                    setPost(postSnapshot.data());
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        fetchPost();
+    },[postId]);
+
+    // 작성 시간 계산 메서드
+    const getTimeDifference = (createdAt) => {
+        const postDate = new Date(createdAt);
+        const now = new Date();
+        const diff = (now - postDate) / 1000;
+
+        if(diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+        if(diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+        return `${Math.floor(diff / 86400)}일 전`;
+    }
+
+    // 마감일 계산
+    const calculateLeftDays = (deadLineDate) => {
+        const now = new Date();
+        const difference = (deadLineDate - now) / (1000*60*60*24);
+        
+        return difference >= 0 ? Math.floor(difference) : "마감";
+    }
+    const [leftDays, setLeftDays] = useState(calculateLeftDays);
+    useEffect(() => {
+        setLeftDays(calculateLeftDays());
+    }, [Date.now()]);
+
+    if (!post) { // 게시글 데이터 불러오기 전까지 보여줌
+        return <Loading />;
+    }
+
+    // 작성일 마감일 format 메서드
+    const formatDate = (dateString) => {
+        let date;
+
+        // 날짜 문자열의 자릿수를 확인하고 Date 객체 생성 방식 결정
+        if (dateString.length === 16) { // "2024-09-15T16:18" 형식
+            date = new Date(dateString);
+        } else if (dateString.length === 24) { // "2024-09-14T07:18:26.051Z" 형식
+            date = new Date(dateString);
+        } else {
+            return '';
+        }
+    
+        const padZero = (num) => num.toString().padStart(2, '0');
+    
+        const year = date.getFullYear().toString().slice(-2); // 두 자리 연도
+        const month = padZero(date.getMonth() + 1); // 월 (0부터 시작하므로 +1)
+        const day = padZero(date.getDate()); // 일
+        const hours = padZero(date.getHours()); // 시
+        const minutes = padZero(date.getMinutes()); // 분
+    
+        return `${year}.${month}.${day} ${hours}:${minutes}`;
+    }
+
+    const handleBackClick = () => {
+        navigate(-1);
+    }
     
     return (
         <>
@@ -89,14 +171,14 @@ const Post = () => {
                 <TagsAndWriteTime>
                     <Tags>
                         <DdayTag>
-                            D-3
+                            {leftDays === "마감" ? "마감" : `D-${leftDays}`}
                         </DdayTag>
                         <CatagoryTag>
-                            맛집탐방
+                            {post.post_category}
                         </CatagoryTag>
                     </Tags>
                     <WriteTime>
-                        30분전
+                        {getTimeDifference(post.post_createdAt)}
                     </WriteTime>
                 </TagsAndWriteTime>
                 <HeartAndView>
@@ -111,19 +193,19 @@ const Post = () => {
                 </HeartAndView>
                 <ContentTop>
                     <TitleAndImg>
-                        <Title>평양냉면 도장깨기 함께 하실 분</Title>
+                        <Title>{post.post_title}</Title>
                         <img src={More} style={{transform:"rotate(90deg)"}}/>
                     </TitleAndImg>
                     <Writer>
                         <span>작성자</span> 
                         <WriterName>
-                            <span>고윤정</span> 
+                            <span>{post.post_user_name}</span> 
                             <span style={{color:"#DADADA"}}>프론트엔드/대면</span>
                         </WriterName>
                     </Writer>
                     <Time>
                         <span>모집기간</span> 
-                        <span>24.09.05 17:00 ~ 24.09.09 18:00</span>
+                        <span>{formatDate(post.post_createdAt)} ~ {formatDate(post.post_deadline)}</span>
                     </Time>
                     <PeopleNum>
                         <span>참여인원</span>
@@ -168,6 +250,10 @@ const Header = styled.div`
     align-items: center;
     padding-left: 10px;
     box-sizing: border-box;
+
+    &:hover{
+        cursor: pointer;
+    }
 `;
 
 const ImageSlider = styled.div`

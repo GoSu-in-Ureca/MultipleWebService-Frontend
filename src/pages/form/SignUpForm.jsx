@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 
 import { addDoc, collection } from "firebase/firestore";
 import { db, auth, storage } from "../../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const SignUpForm = () => {
     const navigate = useNavigate();
     const [profileImage, setProfileImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -25,10 +26,13 @@ const SignUpForm = () => {
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
 
+    // 파일 확장자 검사
     const validateFile = (file) => {
         const fileExtension = file.name.split(".").pop().toLowerCase();
         return allowedExtensions.includes(fileExtension);
     }
+
+    // 기타 핸들러
     const handleIntroNavigate = () => {
         navigate('/intro');
     }
@@ -39,27 +43,30 @@ const SignUpForm = () => {
         setSelectOnOff(onoff);
     }
 
+    // 회원가입 제출 시 이벤트 발생
     async function handleSignUp(event) {
         event.preventDefault();
 
+        // 입력 필드 검사
         if (!email || !name || !password || !rePassword) {
             setSignupError("모든 필드를 입력해주세요.");
             return;
         }
-    
+
         // 이메일 형식 검사
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailPattern.test(email)) {
             setSignupError("유효한 이메일 형식을 입력해주세요.");
             return;
         }
-    
+
         // 비밀번호 길이 및 일치 검사
         if (password.length < 8 || password.length > 20) {
             setSignupError("비밀번호는 8-20자 이내로 설정해주세요.");
             return;
         }
-    
+
+        // 비밀번호 확인 필드 일치 검사
         if (password !== rePassword) {
             setSignupError("비밀번호가 일치하지 않습니다.");
             return;
@@ -69,41 +76,51 @@ const SignUpForm = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            let profileImageUrl = "";
+            // 프로필 이미지 업로드
+            let profileImageUrl = "/assets/BG/defaultProfile.png";
             if (profileImage) {
                 const imageRef = ref(storage, `profileImages/${user.uid}`);
                 await uploadBytes(imageRef, profileImage);
                 profileImageUrl = await getDownloadURL(imageRef);
             }
 
+            // 사용자 프로필 업데이트
+            await updateProfile(user, {
+                displayName: name,
+                photoURL: profileImageUrl, // 사진 URL을 사용자의 프로필에도 설정
+            });
+
+            // Firestore에 사용자 정보 저장
             await addDoc(collection(db, "users"), {
                 user_id: user.uid,
-                user_email: email,
-                user_name: name,
+                user_name: user.displayName,
                 user_department: selectDepartment,
                 user_onoffline: selectOnOff,
                 profile_image_url: profileImageUrl,
                 user_level: 1,
+                user_exp: 0,
                 user_createdAt: new Date(),
+                user_recruit: 0,
+                user_join: 0,
             });
-            
+
             navigate('/main');
             setSignupError("");
-          } catch (error) {
+        } catch (error) {
             console.log(error);
             setSignupError("회원가입 제출 양식이 올바르지 않습니다.");
-          }
+        }
     }
 
+    // 프로필 사진 핸들러
     const handleProfileImageChange = (event) => {
         const file = event.target.files[0];
         const maxSize = 2 * 1024 * 1024; // 2MB
-    
+
         if (file && file.size > maxSize) {
             setFileSizeAlert("파일 용량은 2MB를 초과할 수 없습니다");
             return;
         }
-    
         if (file && !validateFile(file)) {
             setFileSizeAlert("유효한 파일 형식이 아닙니다");
             event.target.value = "";
@@ -111,8 +128,18 @@ const SignUpForm = () => {
         }
 
         setFileSizeAlert("");
-        setProfileImage(URL.createObjectURL(file));
+        setProfileImage(file); // 파일 자체를 저장하여 업로드 시 사용
+
+        // 미리보기 URL 생성
+        const previewURL = URL.createObjectURL(file);
+        setPreviewImage(previewURL);
+
+        // 컴포넌트가 언마운트되거나 파일이 바뀔 때 URL 해제
+        return () => {
+            URL.revokeObjectURL(previewURL);
+        };
     };
+
 
     // 이메일 입력마다 업데이트
     const handleEmailChange = (event) => {
@@ -163,7 +190,7 @@ const SignUpForm = () => {
                     <ProfileImageArea
                         onClick={() => document.getElementById('fileInput').click()}
                         style={{
-                            backgroundImage: profileImage ? `url(${profileImage})` : 'none',
+                            backgroundImage: previewImage ? `url(${previewImage})` : 'none',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}

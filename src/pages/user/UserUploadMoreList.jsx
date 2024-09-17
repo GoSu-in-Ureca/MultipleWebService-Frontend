@@ -2,78 +2,92 @@ import React from "react";
 import styled from "styled-components";
 import backbutton from "/assets/Icon/navigate_before.svg";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import UploadMoreItem from "../../components/user/UploadMoreItem";
 import NavigationUser from "../../components/main/NavigationUser";
-import post from "../../postData.json";
+import Loading from "../../Loading";
+
+import { db } from "../../firebase";
+import { collection, doc, getDoc, getDocs, where, query, orderBy } from "firebase/firestore";
 
 const UserUploadList = () => {
-    
+    const {userDocId} = useParams();
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [fireposts, setFireposts] = useState([]);
+    const [loadingUser, setLoadingUser] = useState(true);
+    const [loadingPosts, setLoadingPosts] = useState(true);
 
-    const groupByDate = (data) => {
-        return post.reduce((acc, post) => {
-            if (!data || !Array.isArray(data)) return {};
-            const date = post.created_at.split('T')[0];
-            if (!date) return acc;
-        
-            if (!acc[date]) {
-                acc[date] = [];
+    // 현재 페이지의 사용자 데이터 가져오기
+    const fetchUser = async () => {
+        try {
+            const userDocRef = doc(db, 'users', userDocId);
+            const userSnapshot = await getDoc(userDocRef);
+            if (userSnapshot.exists()) {
+                setUser(userSnapshot.data());
             }
-            acc[date].push(post);
-            return acc;
-            }, {});
-      };
-
-      const dateFormat = (dateString) => {
-        const today = new Date();
-        const date = new Date(dateString);
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        if (
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear()
-            ) {
-            return "오늘";
-        } 
-        
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        if (
-            date.getDate() === yesterday.getDate() &&
-            date.getMonth() === yesterday.getMonth() &&
-            date.getFullYear() === yesterday.getFullYear()
-        ) {
-            return "어제";
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoadingUser(false);
         }
-            return `${month}.${day}`;
-      };
-      
-      const groupedPosts = Object.entries(groupByDate(post) || {}).sort(
-        ([dateA], [dateB]) => new Date(dateB) - new Date(dateA)
-      );
+    };
 
-    const handleIntroNavigate = () => {
-        navigate('/user/main');
+    // 게시글 전체 불러오기
+    const fetchPost = async () => {
+        if (!user) return;
+        try {
+            const queryCollection = query(
+                collection(db, 'posts'),
+                where('post_user_name', '==', user.user_name)
+            );
+            const postSnapshot = await getDocs(queryCollection);
+            const postsArray = postSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+            postsArray.sort((a, b) => new Date(b.post_createdAt) - new Date(a.post_createdAt));
+
+            setFireposts(postsArray);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoadingPosts(false);
+        }
+    };
+
+    // 사용자 데이터 로드
+    useEffect(() => {
+        fetchUser();
+    }, [userDocId]);
+
+    // 사용자 데이터 로드가 끝난 후 게시글 데이터 로드
+    useEffect(() => {
+        if (user) {
+            fetchPost();
+        }
+    }, [user]);
+
+    // 모든 데이터가 로드될 때까지 로딩 화면 표시
+    if (loadingUser || loadingPosts) {
+        return <Loading />;
     }
 
+    const handleIntroNavigate = () => {
+        navigate(-1);
+    }
+
+    // console.log(fireposts);
     return (
         <>
             <Wrapper>
                 <Header>
                     <BackButton onClick={handleIntroNavigate}/>
-                    <Title>내가 작성한 게시글</Title>
+                    <Title>{user.user_name}님이 작성한 게시글</Title>
                 </Header>
                 <MainArea>
-                    {groupedPosts.map(([date, posts], index) => (
-                    <SectionDivision key={index}>
-                        <DateTitle>{dateFormat(date)}</DateTitle>
-                        <UploadList>
-                        {posts.map((post, index) => (
-                            <UploadMoreItem post={post} key={index} />
-                        ))}
-                        </UploadList>
-                    </SectionDivision>
+                    {fireposts.map((post) => (
+                        <UploadMoreItem post={post} key={post.id} />
+                        
                     ))}
                 </MainArea>
             </Wrapper>
@@ -130,27 +144,5 @@ const MainArea = styled.div`
 const Title = styled.div`
     font-size: 16px;
     font-weight: bold;
-    margin-left: 102px;
-`;
-
-const SectionDivision = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    margin-bottom: 30px;
-`;
-
-const DateTitle = styled.div`
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 13px;
-    margin-left: 22px;
-`;
-
-const UploadList = styled.div`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    margin-left: 68px;
 `;
