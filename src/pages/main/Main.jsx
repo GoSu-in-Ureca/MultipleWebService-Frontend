@@ -10,10 +10,14 @@ import PostList from "../../components/main/PostList";
 import Toggle from "../../components/main/Toggle";
 import logo from "/assets/branding/logo.svg"
 import upload from "/assets/Icon/UploadButton.svg";
+import { selectedCategoryState } from "../../recoil/atoms";
+import { useRecoilState } from "recoil";
 
 const Main = () => {
+
     const navigate = useNavigate();
     const [toggleState, setToggleState] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useRecoilState(selectedCategoryState);
 
     const handleUploadFormNavigate = () => {
         navigate('/upload');
@@ -26,16 +30,16 @@ const Main = () => {
         <>
             <Wrapper>
                 <Logo onClick={handleLogoClick}/>
-                <CategoryList />
+                <CategoryList/>
                 <Title>인기 게시글</Title>
-                <HotPostList></HotPostList>
+                <HotPostList />
                 <TotalPostArea>
                     <Title>게시글 목록</Title>
                     <HeadArea>
                         <Toggle toggleState={toggleState} setToggleState={setToggleState}/>
                         <SortFilter />
                     </HeadArea>
-                    <PostList toggleState={toggleState}></PostList>
+                    <PostList toggleState={toggleState} />
                 </TotalPostArea>
             </Wrapper>
             <UploadIcon onClick={handleUploadFormNavigate}/>

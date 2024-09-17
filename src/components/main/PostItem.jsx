@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { db } from "../../firebase";
-import { doc, updateDoc, increment } from "firebase/firestore";
+import { doc, runTransaction } from "firebase/firestore";
 import { storage } from "../../firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 
@@ -49,8 +49,15 @@ const PostItem = ({post}) => {
     const incrementViewCount = async (postId) => {
         try{
             const postDocRef = doc(db, "posts", postId);
-            await updateDoc(postDocRef, {
-                post_view: increment(1),
+            await runTransaction(db, async (transaction) => {
+                const postDoc = await transaction.get(postDocRef);
+
+                if(!postDoc.exists){
+                    return;
+                }
+
+                const newViewCount = (postDoc.data().post_view || 0) + 1;
+                transaction.update(postDocRef, { post_view: newViewCount});
             });
         } catch (error) {
             console.log(error);
@@ -59,6 +66,7 @@ const PostItem = ({post}) => {
 
     // 게시글 클릭 시 라우팅
     const handlePostClick = () => {
+        // view 1 증가
         incrementViewCount(post.id);
         navigate(`/main/${post.id}`);
       };
