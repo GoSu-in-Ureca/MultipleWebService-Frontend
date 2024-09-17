@@ -105,6 +105,7 @@ const UploadIcon = styled.img.attrs({
     width: 55px;
     height: 55px;
     transform: translateX(120px);
+    z-index: 2;
 
     &:hover{
         cursor: pointer;

@@ -106,6 +106,7 @@ const Wrapper = styled.div`
     position: relative;
     background-image: url(${props => props.thumbnailUrl});
     background-size: cover;
+    background-position: center;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
