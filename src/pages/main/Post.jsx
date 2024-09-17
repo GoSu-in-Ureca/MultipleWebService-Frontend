@@ -4,21 +4,24 @@ import styled from "styled-components";
 import Loading from "../../Loading.jsx";
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
+import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
 
-import { db } from "../../firebase";
-import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
+import { db, auth } from "../../firebase";
+import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 
 const Post = () => {
     const navigate = useNavigate();
 
-    const scrollRef = useRef(null);
     const {postId} = useParams();
+    const [user, setUser] = useState(auth.currentUser);
     const [post, setPost] = useState(null);
     const [author, setAuthor] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const [isInteresting, setIsInteresting] = useState(false);
+    
+    const scrollRef = useRef(null);
     const [isDrag, setIsDrag] = useState(false);
     const [startX, setStartX] = useState();
     const onDragStart = e => {
@@ -69,7 +72,12 @@ const Post = () => {
                 const postSnapshot = await getDoc(postRef);
 
                 if(postSnapshot.exists){
-                    setPost(postSnapshot.data());
+                    const postData = postSnapshot.data();
+                    setPost(postData);
+
+                    if (postData.liked_users && postData.liked_users.includes(user.uid)) {
+                        setIsInteresting(true);
+                    }
                 }
             } catch (error) {
                 console.log(error);
@@ -94,13 +102,18 @@ const Post = () => {
                 }
             } catch (error) {
                 console.log(error);
-            } finally {
-                setLoading(false);
             }
         }
 
         fetchUser();
     }, [post]);
+
+    // 데이터 완전히 로드 대기
+    useEffect(() => {
+        if(post && author) {
+            setLoading(false);
+        }
+    }, [post, author])
 
     // 작성 시간 계산 메서드
     const getTimeDifference = (createdAt) => {
@@ -128,7 +141,7 @@ const Post = () => {
         if(post && post.post_deadline){
             setLeftDays(calculateLeftDays(post.post_deadline));
         }
-    }, post);
+    }, [post]);
 
     if (loading) { // 게시글 데이터 불러오기 전까지 보여줌
         return <Loading />;
@@ -156,6 +169,36 @@ const Post = () => {
         const minutes = padZero(date.getMinutes()); // 분
     
         return `${year}.${month}.${day} ${hours}:${minutes}`;
+    }
+
+    // 하트 클릭
+    const handleHeartClick = async () => {
+        if(!post){
+            return ;
+        }
+
+        try {
+            const postDocRef = doc(db, "posts", postId);
+            if(isInteresting){
+                setIsInteresting(false);
+                await updateDoc(postDocRef, {post_interest: increment(-1), liked_users: arrayRemove(user.uid)});
+                setPost(prev => ({
+                    ...prev,
+                    post_interest: prev.post_interest - 1,
+                    post_liked_users: prev.post_liked_users.filter(uid => uid !== user.uid)
+                }));
+            } else {
+                setIsInteresting(true);
+                await updateDoc(postDocRef, {post_interest: increment(1), liked_users: arrayUnion(user.uid)});
+                setPost(prev => ({
+                    ...prev,
+                    post_interest: prev.post_interest + 1,
+                    post_liked_users: [...prev.post_liked_users, user.uid]
+                }));
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const handleBackClick = () => {
@@ -222,7 +265,7 @@ const Post = () => {
                     </Time>
                     <PeopleNum>
                         <span>참여인원</span>
-                        <span><Highlight>{post.post_currentParty}</Highlight>/ {post.post_maxParti}</span>
+                        <span><Highlight>{post.post_currentparti}명 </Highlight>/ {post.post_maxparti}명</span>
                     </PeopleNum>
                     <Price>
                         <span>가격</span>
@@ -232,10 +275,10 @@ const Post = () => {
                         </span>
                     </Price>
                 </ContentTop>
+                <ContentMiddle>{post.post_content}</ContentMiddle>
                 <SubmitArea>
-                    <HeartButton>
-                        <img src={Heart} />
-                    </HeartButton>
+                    <HeartIcon src={isInteresting ? HeartBlack : Heart}
+                                onClick={handleHeartClick} />
                     <Participate>참여하기</Participate>
                 </SubmitArea>
             </Wrapper>
@@ -380,6 +423,14 @@ const ContentTop = styled.div`
     font-size: 12px;
 `;
 
+const ContentMiddle = styled.div`
+    padding: 25px 14px 25px 25px;
+    border-bottom: 4px solid #F4F4F4;
+    font-family: 'Pretendard-Medium';
+    color: #676767;
+    font-size: 12px;
+`;
+
 const TitleAndImg =styled.div`
     display: flex;
     justify-content: space-between;
@@ -443,8 +494,13 @@ const SubmitArea = styled.div`
     align-items: center;
 `;
 
-const HeartButton = styled.div`
+const HeartIcon = styled.img`
     width: 20px;
+    height: 20px;
+
+    &:hover{
+        cursor: pointer;
+    }
 `;
 
 const Participate = styled.div`

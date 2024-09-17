@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import PostItem from "./PostItem";
 import { selectedSortState } from "../../recoil/atoms";
+import { selectedCategoryState } from "../../recoil/atoms";
 import { useRecoilState } from "recoil";
 import { useState, useEffect } from "react";
 
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 
 const PostList = ({toggleState}) => {
@@ -12,12 +13,20 @@ const PostList = ({toggleState}) => {
     // 파이어 베이스에서 불러온 데이터를 배열로 상태 관리
     const [firePosts, setFirePosts] = useState([]);
     const [sortedData, setSortedData] = useState(firePosts);
+    const [selectedCategory, setSelectedCatogory] = useRecoilState(selectedCategoryState);
 
     // db에서 불러오기
     const fetchPosts = async () => {
         try{
             const postsCollection = collection(db, "posts");
-            const querySnapshot = await getDocs(postsCollection);
+            let postsQuery;
+
+            if (selectedCategory === "전체") {
+                postsQuery = postsCollection;
+            } else {
+                postsQuery = query(postsCollection, where("post_category", "==", selectedCategory));
+            }
+            const querySnapshot = await getDocs(postsQuery);
 
             const resultposts = querySnapshot.docs.map((doc) => ({
                 id: doc.id,
@@ -31,7 +40,7 @@ const PostList = ({toggleState}) => {
     }
     useEffect(() => {
         fetchPosts();
-    }, []);
+    }, [selectedCategory]);
 
     // 배열 정렬 메서드 => 시각과 참가자
     const timeOrder = (targetArr) => {
@@ -76,7 +85,7 @@ const PostList = ({toggleState}) => {
                 setSortedData(activePosts);
             }
         }
-    }, [sort, toggleState, firePosts]);
+    }, [sort, toggleState, firePosts, selectedCategory]);
 
     return (
         <>
@@ -98,4 +107,5 @@ const Wrapper = styled.div`
     flex-direction: column;
     width: 100%;
     margin-bottom: 90px;
+    min-height: calc(100vh - 540px);
 `;

@@ -1,8 +1,10 @@
 import styled from "styled-components";
 import HotPostItem from "./HotPostItem";
 import data from "../../hotPostData.json";
+import { useState } from "react";
 
 const HotPostList = () => {
+    const [fireposts, setFireposts] = useState([]);
     return (
         <>
             <Wrapper>

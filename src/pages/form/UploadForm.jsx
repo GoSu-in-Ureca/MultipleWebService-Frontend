@@ -100,6 +100,7 @@ const UploadForm = () => {
                 post_interest: 0,
                 post_images: uploadedImageUrls,
                 post_view: 0,
+                post_liked_users: [],
             });
 
             alert('게시글이 성공적으로 등록되었습니다!');
