@@ -117,6 +117,7 @@ const UserMain = () => {
             </Wrapper>
             <NavigationUser />
 
+            {/* 회원 탈퇴 코드 */}
             {showSecessionModal && (
                 <ModalOverlay>
                     <ModalContent>
@@ -160,6 +161,7 @@ const Wrapper = styled.div`
     align-items: center;
     background-color: white;
     margin-bottom: 90px;
+    min-height: calc(100vh - 90px);
 `;
 
 const InfoBox = styled.div`

@@ -42,7 +42,7 @@ const UploadList = () => {
                 <Content>
                     <Photo>
                         <Dday>
-                            D-3
+                            {post.post_deadline}
                         </Dday>
                         <HeartBox>
                             <HeartIcon/>
