@@ -3,16 +3,28 @@ import Loading from "../../Loading.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import PrevButton from "/assets/Icon/navigate_before.svg";
-import Heart from "/assets/Icon/heart-color.svg";
+import BigHeart from "/assets/Icon/heart-color.svg";
+import Heart from "/assets/Icon/heart-gray.svg";
+import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
 import leftArrow from "/assets/Icon/photoArrowL.svg";
 import rightArrow from "/assets/Icon/photoArrowR.svg";
+import { useNavigate } from 'react-router-dom';
 
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 const Post = () => {
     const navigate = useNavigate();
+
+    const handleBackNavigate = () => {
+        navigate('/main')
+    }
+    
+    const handleParticipateNavigate = () => {
+        navigate('/main')
+    }
+
     const scrollRef = useRef(null);
     const {postId} = useParams();
     const [post, setPost] = useState(null);
@@ -136,8 +148,8 @@ const Post = () => {
     return (
         <>
             <Wrapper>
-                <Header onClick={handleBackClick}>
-                    <img src={PrevButton}/>
+                <Header>
+                    <img src={PrevButton} onClick={handleBackNavigate} style={{cursor: 'pointer'}}/>
                 </Header>
                 <ImageSlider 
                     onMouseDown={onDragStart} 
@@ -158,21 +170,27 @@ const Post = () => {
                 </ImageSlider>
                 <TagsAndWriteTime>
                     <Tags>
-                        <Tag style={{backgroundColor:"#7F52FF", color:"white", fontSize:"12px"}} $isexpired={leftDays === '마감'}>
+                        <DdayTag>
                             {leftDays === "마감" ? "마감" : `D-${leftDays}`}
-                        </Tag>
-                        <Tag style={{backgroundColor:"white", border:"1px solid #808284", color:"#404041", fontSize:"12px"}}>
+                        </DdayTag>
+                        <CatagoryTag>
                             {post.post_category}
-                        </Tag>
-                        <Tag style={{display:'flex', gap: '2px',backgroundColor:"white", border:"1px solid #808284", color:"#404041", fontSize:"12px"}}>
-                            <img src={Heart} style={{width: "12px"}}/>
-                            {post.post_interest}
-                        </Tag>
+                        </CatagoryTag>
                     </Tags>
                     <WriteTime>
                         {getTimeDifference(post.post_createdAt)}
                     </WriteTime>
                 </TagsAndWriteTime>
+                <HeartAndView>
+                    <HeartTag>
+                        <img src={Heart}/>
+                        <span>13</span>
+                    </HeartTag>
+                    <ViewTag>
+                        <img src={View}/>
+                        <span>20</span>
+                    </ViewTag>
+                </HeartAndView>
                 <ContentTop>
                     <TitleAndImg>
                         <Title>{post.post_title}</Title>
@@ -189,17 +207,23 @@ const Post = () => {
                         <span>모집기간</span> 
                         <span>{formatDate(post.post_createdAt)} ~ {formatDate(post.post_deadline)}</span>
                     </Time>
+                    <PeopleNum>
+                        <span>참여인원</span>
+                        <span><Highlight>0명 </Highlight>/ 4명</span>
+                    </PeopleNum>
+                    <Price>
+                        <span>가격</span>
+                        <span>
+                            <Highlight>약 16,000원~</Highlight>
+                            <span>/인</span>
+                        </span>
+                    </Price>
                 </ContentTop>
                 <SubmitArea>
-                    <PriceAndPeopleNum>
-                        <div>
-                            <span style={{color:'#7F52FF', fontSize:'18px'}}>약 {post.post_cost}원~</span><span style={{color:'#676767', fontSize:'12px'}}>/인</span>
-                        </div>
-                        <PeopleNum>
-                            <span>참여인원</span><span>{post.post_currentparti}명 / {post.post_maxparti}명</span>
-                        </PeopleNum>
-                    </PriceAndPeopleNum>
-                    <Participate >참여하기</Participate>
+                    <HeartButton>
+                        <img src={Heart} />
+                    </HeartButton>
+                    <Participate>참여하기</Participate>
                 </SubmitArea>
             </Wrapper>
         </>
@@ -267,12 +291,12 @@ const Image = styled.div`
   `;
 
 const LeftRightButton = styled.div`
-      display: flex;
-      justify-content: space-between;
-      gap: 290px;
-      margin: 17px;
-      align-items: center;
-      position: fixed;
+    display: flex;
+    justify-content: space-between;
+    gap: 290px;
+    margin: 17px;
+    align-items: center;
+    position: fixed;
   `;
 
 const Button = styled.div`
@@ -280,26 +304,65 @@ const Button = styled.div`
 `;
 
 const TagsAndWriteTime = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding-top: 25px;
-  padding-left: 22px;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 25px;
+    padding-left: 22px;
 `;
 
 const Tags = styled.div`
-  display: flex;
-  gap: 6px;
+    display: flex;
+    gap: 6px;
+    font-family: 'Pretendard-Regular';
   `;
 
-const Tag = styled.div`
-    background-color: gray;
+const DdayTag = styled.div`
+    background-color: #7F52FF;
     padding: 6px 14px 6px 14px;
     border-radius: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: white;
+    font-size: 12px;
 `;
 
+const CatagoryTag = styled.div`
+    background-color: white;
+    padding: 6px 14px 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #808284;
+    color: #404041;
+    font-size: 12px;
+`;
+
+const HeartAndView = styled.div`
+    display: flex;
+    gap: 20px;
+    padding: 10px 0px 0px 25px;
+    color: #BCBEC0;
+    font-family: 'Pretendard-Regular';
+    font-size: 10px;
+`;
+
+const HeartTag = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    width: 10px;
+`;
+
+const ViewTag = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    width: 12px;
+`;
 
 const WriteTime = styled.div`
     font-size: 12px;
@@ -310,8 +373,11 @@ const WriteTime = styled.div`
 `;
 
 const ContentTop = styled.div`
-  padding: 22px 14px 22px 22px;
+  padding: 4px 14px 25px 25px;
   border-bottom: 4px solid #F4F4F4;
+  font-family: 'Pretendard-Medium';
+  color: #676767;
+  font-size: 12px;
 `;
 
 const TitleAndImg =styled.div`
@@ -321,13 +387,15 @@ const TitleAndImg =styled.div`
 
 const Title = styled.div`
   font-size: 24px;
+  font-family: 'Pretendard-SemiBold';
+  color: black;
 `;
 
 const Writer = styled.div`
     margin-top: 18px;
     display: flex;
-    gap: 45px;
-    font-size: 14px;
+    gap: 43px;
+    
 `;
 
 const WriterName = styled.div`
@@ -339,36 +407,49 @@ const Time = styled.div`
   margin-top: 9px;
   display: flex;
   gap: 32px;
-  font-size: 14px;
 `;
+
+
+const PeopleNum = styled.div`
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    margin-top: 9px;
+    `;
+
+const Price = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 52px;
+    margin-top: 9px;
+    `;
+
+const Highlight = styled.span`
+    font-family: 'Pretendard-SemiBold';
+    color: #7F52FF;
+    `;
 
 const SubmitArea = styled.div`
     width: 390px;
-    height: 136px;
+    height: 78px;
     background-color: white;
-    padding: 22px;
+    padding: 18px 22px 18px;
     box-sizing: border-box;
     position: fixed;
     bottom: 0;
     box-shadow: 0px -5px 5px -5px #E2E2E2;
-`;
-
-const PriceAndPeopleNum = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    gap: 14px;
 `;
 
-const PeopleNum = styled.div`
-    font-size: 12px;
-    color: #676767;
-    display: flex;
-    gap: 10px;
+const HeartButton = styled.div`
+    margin: auto;
+    width: 20px;
 `;
 
 const Participate = styled.div`
-    width: 346px;
+    width: 312px;
     height: 42px;
     background-color: #7F52FF;
     color: white;
