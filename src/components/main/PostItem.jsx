@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { db } from "../../firebase";
-import { doc, updateDoc, increment, runTransaction } from "firebase/firestore";
+import { doc, runTransaction } from "firebase/firestore";
 import { storage } from "../../firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 
