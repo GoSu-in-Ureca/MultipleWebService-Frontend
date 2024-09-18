@@ -41,7 +41,6 @@ const UploadItem = ({post, user}) => {
         setLeftDays(calculateLeftDays());
     }, [Date.now()]);
 
-    
      // 게시글 클릭 시 라우팅
      const handlePostClick = () => {
         // view 1 증가
@@ -61,7 +60,7 @@ const UploadItem = ({post, user}) => {
                 </ThumbnailArea>
                 <Title>{post.post_title}</Title>
                 <AuthorArea>
-                    <ProfileImage  src={user.profile_image_url || "/defaultImage/profile.png"}/>
+                    <ProfileImage src={user.profile_image_url || "/defaultImage/profile.png"}/>
                     <AuthorName>{user.user_name}</AuthorName>
                 </AuthorArea>
             </Wrapper>
