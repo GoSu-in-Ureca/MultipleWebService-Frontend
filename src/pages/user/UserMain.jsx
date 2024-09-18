@@ -7,9 +7,9 @@ import Loading from "../../Loading";
 import NavigationUser from "../../components/main/NavigationUser";
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { auth, db, storage } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 const UserMain = () => {
     const navigate = useNavigate();
@@ -18,6 +18,28 @@ const UserMain = () => {
     const [showSecessionModal, setShowSecessionModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [password, setPassword] = useState("");
+    const [currentUserDocId, setCurrentUserDocId] = useState(null);
+
+    // 로그인한 사용자의 Firestore 문서 ID 가져오기
+    useEffect(() => {
+        const fetchCurrentUserDocId = async () => {
+            const currentUser = auth.currentUser; // 현재 로그인한 사용자
+
+            if (currentUser) {
+                try {
+                    const q = query(collection(db, "users"), where("user_id", "==", currentUser.uid));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        setCurrentUserDocId(querySnapshot.docs[0].id); // 로그인한 사용자의 문서 ID 설정
+                    }
+                } catch (error) {
+                    console.error("Error fetching user document:", error);
+                }
+            }
+        };
+        fetchCurrentUserDocId();
+    }, []);
 
     // 사용자 정보 불러오기
     useEffect(() => {
@@ -38,7 +60,7 @@ const UserMain = () => {
     },[userDocId]);
 
     // 데이터 로딩 중 처리
-    if (!user) {
+    if (!user || currentUserDocId === null) {
         return <Loading />;
       }
 
@@ -97,14 +119,18 @@ const UserMain = () => {
         <>
             <Wrapper>
                 <InfoBox>
-                    <Title>마이페이지</Title>
+                    <Title>{currentUserDocId === userDocId ? "마이페이지" : `${user.user_name}님의 페이지`}</Title>
                     <ProfileArea>
                         <ProfileAreaLeft>
                             <ProfileImage src={user.profile_image_url || "/defaultImage/profile.png"}/>
-                            <EditProfileButton >프로필 사진 변경하기</EditProfileButton>
+                            {currentUserDocId === userDocId && (
+                                <EditProfileButton >프로필 사진 변경하기</EditProfileButton>
+                            )}
                             <UserName>{user.user_name}</UserName>
                             <Department>{user.user_department}/{user.user_onoffline}</Department>
-                            <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+                            {currentUserDocId === userDocId && (
+                                <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+                            )}
                         </ProfileAreaLeft>
                         <ProfileAreaRight>
                             <UserStats user={user}/>
@@ -113,7 +139,9 @@ const UserMain = () => {
                 </InfoBox>
                 <InterestList/>
                 <UploadList/>
-                <Secession onClick={handleSecessionAlert}>회원탈퇴</Secession>
+                {currentUserDocId === userDocId && (
+                    <Secession onClick={handleSecessionAlert}>회원탈퇴</Secession>
+                )}
             </Wrapper>
             <NavigationUser />
 
