@@ -1,70 +1,85 @@
 import styled from "styled-components";
-import Image from "/assets/BG/ProfileExample2.jpg";
-import heart from "/assets/Icon/heart-fill.svg";
+import InterestItem from "./InterestItem";
 import { useNavigate } from 'react-router-dom';
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import { auth, db } from "../../firebase";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 const InterestList = () => {
     const navigate = useNavigate();
+    const {userDocId} = useParams();
+    const [user, setUser] = useState();
+    const [firePosts, setFirePosts] = useState([]);
+    const [sortedData, setSortedData] = useState([]);
+
+    // 페이지 주인 불러오기
+    const fetchUser = async () => {
+        
+        try{
+            const userDocRef = doc(db, 'users', userDocId);
+            const userSnapshot = await getDoc(userDocRef);
+            if(userSnapshot.exists)
+            setUser(userSnapshot.data());
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUser();
+    }, [userDocId]);
+
+    // 게시글 불러오기
+    useEffect(() => {
+        const fetchPost = async () => {
+            if(!user) return;
+            try {
+                const postsCollection = collection(db, "posts");
+                const queryCollection = query(postsCollection, where("post_liked_users", "array-contains", user.user_id));
+
+                const resultPosts = (await getDocs(queryCollection)).docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+
+                setFirePosts(resultPosts);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchPost();
+    }, [user])
+
+    // 최종 게시글 목록
+    useEffect(() => {
+        const topPosts = [...firePosts]
+                        .sort((a, b) => {
+                            const dateA = new Date(a.post_createdAt);
+                            const dateB = new Date(b.post_createdAt);
+                            return dateB - dateA;
+                        })
+                        .slice(0, 10);
+
+        setSortedData(topPosts);
+    }, [firePosts])
 
     const handleHeartPostListNavigate = () => {
-        navigate('/user/interest')
-    }
+        navigate(`/user/interest/${userDocId}`);
+    };
 
     return (
         <Wrapper>
             <HeartPost>
-                <HeartPostTitle>내가 찜한 게시글</HeartPostTitle>
+                <HeartPostTitle>{user ? (user.user_id === auth.currentUser.uid ? "내가 찜한 게시글" : `${user.user_name}님이 찜한 게시글`) : `님이 찜한 게시글`}</HeartPostTitle>
                 <WholeView onClick={handleHeartPostListNavigate}>전체보기</WholeView>
             </HeartPost>
             <HeartPostContent>
-                <Content>
-                    <Photo>
-                        <Dday>
-                            D-3
-                        </Dday>
-                        <HeartBox>
-                            <HeartIcon/>
-                            <HeartNum>13</HeartNum>
-                        </HeartBox>
-                    </Photo>
-                    <Title>평양냉면 도장깨기 함께 가실분</Title>
-                    <ProfileAndWriter>
-                        <Profile/>
-                        <Writer>고윤정</Writer>
-                    </ProfileAndWriter>
-                </Content>
-                <Content>
-                    <Photo>
-                        <Dday> 
-                            D-3
-                        </Dday>
-                        <HeartBox>
-                            <HeartIcon/>
-                            <HeartNum>13</HeartNum>
-                        </HeartBox>
-                    </Photo>
-                    <Title>평양냉면 도장깨기 함께 가실분</Title>
-                    <ProfileAndWriter>
-                        <Profile/>
-                        <Writer>고윤정</Writer>
-                    </ProfileAndWriter>
-                </Content>
-                <Content>
-                    <Photo>
-                        <Dday>
-                            D-3
-                        </Dday>
-                        <HeartBox>
-                            <HeartIcon/>
-                            <HeartNum>13</HeartNum>
-                        </HeartBox>
-                    </Photo>
-                    <Title>평양냉면 도장깨기 함께 가실분</Title>
-                    <ProfileAndWriter>
-                        <Profile/>
-                        <Writer>고윤정</Writer>
-                    </ProfileAndWriter>
-                </Content>
+                {sortedData.map((post, index) => (
+                    <InterestItem key={index} post={post} user={user}/>
+                ))}
             </HeartPostContent>
         </Wrapper>
     );
@@ -75,9 +90,11 @@ export default InterestList;
 // styled components
 
 const Wrapper = styled.div`
-    max-width: 390px;
-    padding: 20px 23px 15px 23px;
-    box-sizing: border-box;
+    width: 390px;
+    padding: 15px 23px 32px 23px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const HeartPost = styled.div`
@@ -85,6 +102,7 @@ const HeartPost = styled.div`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    width: 100%;
 `;
 
 const HeartPostTitle = styled.div`
@@ -100,86 +118,9 @@ const WholeView = styled.div`
 
 const HeartPostContent = styled.div`
     display: flex;
+    justify-content: flex-start;
     gap: 15px;
-    overflow-x: scroll;
+    overflow-x: auto;
     scrollbar-width: none;
-`;
-
-const Content = styled.div`
-    
-`;
-
-const Photo = styled.div`
-    width: 120px;
-    height: 120px;
-    border-radius: 11px;
-    background: url(/assets/BG/BackGroundExample.png);
-    background-repeat: no-repeat;
-    background-size: cover;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-`;
-
-const Dday = styled.div`
-    width: 30px;
-    height: 15px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 0.3px solid #ffffff;
-    border-radius: 20px;
-    font-family: 'Pretendard-Regular';
-    font-size: 8px;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-const HeartBox = styled.div`
-    display: flex;
-    gap: 2px;
-    align-items: center;
-`;
-
-const HeartIcon = styled.img.attrs({
-    src: heart,
-    alt: "heart icon"
-})`
-    
-`;
-
-const HeartNum = styled.div`
-    font-family: 'Pretendard-Regular';
-    font-size: 9px;
-    color: white;
-`;
-
-const Title = styled.div`
-    font-family: 'Pretendard-SemiBold';
-    font-size: 12px;
-    width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 8px 0px 6px 0px;
-`;
-
-const ProfileAndWriter = styled.div`
-    display: flex;
-    gap: 4px;
-`;
-
-const Profile = styled.img.attrs({
-    src: Image,
-    alt: "Profile Image"
-})`
-    width: 15px;
-    height: 15px;
-    border-radius: 15px;
-`;
-
-const Writer = styled.div`
-    font-family: 'Pretendard-Regular';
-    font-size: 11px;
+    width: 100%;
 `;

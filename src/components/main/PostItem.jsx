@@ -113,7 +113,7 @@ const PostItem = ({post}) => {
                     <Middle>{post.post_title}</Middle>
                     <Bottom>
                         <Profile src={profileImageurl} onClick={handleProfileClick}></Profile>
-                        <Author>{post.post_user_name}</Author>
+                        <Author onClick={handleProfileClick}>{post.post_user_name}</Author>
                     </Bottom>
                 </TextArea>
             </Wrapper>

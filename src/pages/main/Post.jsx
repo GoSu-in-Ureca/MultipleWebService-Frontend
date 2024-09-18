@@ -75,7 +75,7 @@ const Post = () => {
                     const postData = postSnapshot.data();
                     setPost(postData);
 
-                    if (postData.liked_users && postData.liked_users.includes(user.uid)) {
+                    if (postData.post_liked_users && postData.post_liked_users.includes(user.uid)) {
                         setIsInteresting(true);
                     }
                 }
@@ -181,7 +181,7 @@ const Post = () => {
             const postDocRef = doc(db, "posts", postId);
             if(isInteresting){
                 setIsInteresting(false);
-                await updateDoc(postDocRef, {post_interest: increment(-1), liked_users: arrayRemove(user.uid)});
+                await updateDoc(postDocRef, {post_interest: increment(-1), post_liked_users: arrayRemove(user.uid)});
                 setPost(prev => ({
                     ...prev,
                     post_interest: prev.post_interest - 1,
@@ -189,7 +189,7 @@ const Post = () => {
                 }));
             } else {
                 setIsInteresting(true);
-                await updateDoc(postDocRef, {post_interest: increment(1), liked_users: arrayUnion(user.uid)});
+                await updateDoc(postDocRef, {post_interest: increment(1), post_liked_users: arrayUnion(user.uid)});
                 setPost(prev => ({
                     ...prev,
                     post_interest: prev.post_interest + 1,

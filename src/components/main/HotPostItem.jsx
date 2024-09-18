@@ -105,7 +105,7 @@ const HotPostItem = ({post}) => {
                     <Title>{post.post_title}</Title>
                     <AuthorArea>
                         <AuthorProfile src={profileImageurl} onClick={handleProfileClick}/>
-                        <AuthorName>{post.post_user_name}</AuthorName>
+                        <AuthorName onClick={handleProfileClick}>{post.post_user_name}</AuthorName>
                     </AuthorArea>
                 </BottomArea>
             </Wrapper>
