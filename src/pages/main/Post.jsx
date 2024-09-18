@@ -97,8 +97,8 @@ const Post = () => {
                 const querySnapshot = await getDocs(queryCollection);
 
                 if(!querySnapshot.empty){
-                    const userDoc = querySnapshot.docs[0];
-                    setAuthor(userDoc.data());
+                    const userData = querySnapshot.docs[0].data();
+                    setAuthor({ ...userData, id: querySnapshot.docs[0].id });
                 }
             } catch (error) {
                 console.log(error);
@@ -201,6 +201,10 @@ const Post = () => {
         }
     }
 
+    const handleAuthorClick = () => {
+        navigate(`/user/main/${author.id}`);
+    }
+
     const handleBackClick = () => {
         navigate(-1);
     }
@@ -255,7 +259,7 @@ const Post = () => {
                     <Writer>
                         <span>작성자</span> 
                         <WriterName>
-                            <span>{post.post_user_name}</span> 
+                            <Author onClick={handleAuthorClick}>{post.post_user_name}</Author> 
                             <span style={{color:"#DADADA"}}>{author.user_department}/{author.user_onoffline}</span>
                         </WriterName>
                     </Writer>
@@ -514,3 +518,9 @@ const Participate = styled.div`
     align-items: center;
     font-size: 14px;
 `;
+
+const Author = styled.div`
+    &:hover {
+        cursor: pointer;
+    }
+`

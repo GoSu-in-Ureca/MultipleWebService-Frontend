@@ -104,7 +104,7 @@ const HotPostItem = ({post}) => {
                     </Interest>
                     <Title>{post.post_title}</Title>
                     <AuthorArea>
-                        <AuthorProfile src={profileImageurl} onClick={handleProfileClick}/>
+                        <AuthorProfile src={profileImageurl ? profileImageurl : "/assets/BG/defaultProfile.png"} onClick={handleProfileClick}/>
                         <AuthorName onClick={handleProfileClick}>{post.post_user_name}</AuthorName>
                     </AuthorArea>
                 </BottomArea>

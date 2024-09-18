@@ -37,7 +37,6 @@ const PostItem = ({post}) => {
                 
                 // 프로필 이미지 설정
                 setProfileImageurl(authorData.profile_image_url || "/assets/BG/defaultProfile.png");
-                console.log(profileImageurl);
             }
         } catch (error) {
             console.error(error);
@@ -100,7 +99,7 @@ const PostItem = ({post}) => {
     return (
         <>
             <Wrapper onClick={handlePostClick}>
-                <Image src={thumbnailUrl} alt="Post Prensent Image"/>
+                <Image src={thumbnailUrl ? thumbnailUrl : "/assets/BG/defaultImage.png"}/>
                 <TextArea>
                     <Top>
                         <InfoWrapper>
@@ -112,7 +111,7 @@ const PostItem = ({post}) => {
                     </Top>
                     <Middle>{post.post_title}</Middle>
                     <Bottom>
-                        <Profile src={profileImageurl} onClick={handleProfileClick}></Profile>
+                        <Profile src={profileImageurl ? profileImageurl : "/assets/BG/defaultProfile.png"} onClick={handleProfileClick}></Profile>
                         <Author onClick={handleProfileClick}>{post.post_user_name}</Author>
                     </Bottom>
                 </TextArea>
@@ -140,7 +139,7 @@ const Image = styled.img`
     width: 96px;
     height: 96px;
     border-radius: 11px;
-    background-color: lightgray;
+    background-color: black;
     object-fit: cover;
     object-position: center;
 `;

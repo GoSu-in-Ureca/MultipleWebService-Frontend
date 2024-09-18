@@ -8,7 +8,7 @@ const UserStats = ({user}) => {
                     <Party>모집 횟수</Party><PartyNum>{user.user_recruit}회</PartyNum>
                 </PartyBox>
                 <JoinBox>
-                    <Join>참여 횟수</Join><JoinNum>15회</JoinNum>
+                    <Join>참여 횟수</Join><JoinNum>{user.user_join}회</JoinNum>
                 </JoinBox>
             </Box>
                 <LevelBox>
