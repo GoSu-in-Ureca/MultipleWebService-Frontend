@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../../firebase";
-import { doc, runTransaction } from "firebase/firestore";
-import { storage } from "../../firebase";
-import { getDownloadURL, ref } from "firebase/storage";
+import { collection, doc, getDocs, query, runTransaction, where } from "firebase/firestore";
 
 const HotPostItem = ({post}) => {
     const navigate = useNavigate();
-    const [profileImageUrl, setProfileImageUrl] = useState("");
-    
+    const [profileImageurl, setProfileImageurl] = useState("");
+    const [author, setAuthor] = useState(null);
+    const [thumbnailurl, setThumbnailurl] = useState("");
+
     // 마감일 계산
     const calculateLeftDays = (deadline) => {
         const now = new Date();
@@ -26,28 +26,36 @@ const HotPostItem = ({post}) => {
         setLeftDays(calculateLeftDays(post.post_deadline));
     }, [post.post_deadline]);
 
-    // 게시자 프로필 사진 불러오기
-    const fetchProfileImage = async () => {
+    // 작성자 정보 불러오기
+    const fetchAuthorData = async () => {
         try {
-            const imageRef = ref(storage, `profileImages/${post.post_user_id}`);
-            const url = await getDownloadURL(imageRef);
-            setProfileImageUrl(url);
+            const usersCollection = collection(db, "users");
+            const userQuery = query(usersCollection, where("user_id", "==", post.post_user_id));
+            const querySnapshot = await getDocs(userQuery);
+            if (!querySnapshot.empty) {
+                const authorDocSnapshot = querySnapshot.docs[0];
+                const authorData = authorDocSnapshot.data();
+                setAuthor({ ...authorData, id: authorDocSnapshot.id });
+                
+                // 프로필 이미지 설정
+                setProfileImageurl(authorData.profile_image_url || "/assets/BG/defaultProfile.png");
+                console.log(profileImageurl);
+            }
         } catch (error) {
-            console.error("프로필 이미지 불러오기 중 오류 발생:", error);
-            setProfileImageUrl("/defaultImage/profile.png");
+            console.error(error);
         }
     };
 
     // 게시글 대표 사진 불러오기
-    const fetchPostThumbnail = (post) => {
-        const thumbnailurl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage.png";
-        return thumbnailurl;
+    const fetchPostThumbnail = () => {
+        const thumbnail = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage.png";
+        setThumbnailurl(thumbnail);
     };
-    const thumbnailurl = fetchPostThumbnail(post);
+
     useEffect(() => {
-        if(post.post_user_id)
-        fetchProfileImage();
-    }, [post.post_user_id]);
+        fetchAuthorData();
+        fetchPostThumbnail();
+    }, [post.post_user_id, post]);
 
     // 조회수 증가
     const incrementViewCount = async (postId) => {
@@ -75,6 +83,13 @@ const HotPostItem = ({post}) => {
         navigate(`/main/${post.id}`);
       };
 
+      // 프로필 사진 클릭 시 라우팅
+      const handleProfileClick = (e) => {
+        e.stopPropagation();
+        if(author)
+        navigate(`/user/main/${author.id}`);
+    }
+
     return (
         <>
             <Wrapper $thumbnailurl={thumbnailurl} onClick={handleHotPostClick}>
@@ -89,7 +104,7 @@ const HotPostItem = ({post}) => {
                     </Interest>
                     <Title>{post.post_title}</Title>
                     <AuthorArea>
-                        <AuthorProfile src={profileImageUrl}/>
+                        <AuthorProfile src={profileImageurl} onClick={handleProfileClick}/>
                         <AuthorName>{post.post_user_name}</AuthorName>
                     </AuthorArea>
                 </BottomArea>

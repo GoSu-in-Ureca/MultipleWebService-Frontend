@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { db } from "../../firebase";
-import { collection, doc, getDoc, getDocs, query, runTransaction, where } from "firebase/firestore";
-import { storage } from "../../firebase";
-import { getDownloadURL, ref } from "firebase/storage";
+import { collection, doc, getDocs, query, runTransaction, where } from "firebase/firestore";
 
 const PostItem = ({post}) => {
     const navigate = useNavigate();
