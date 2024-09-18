@@ -1,23 +1,26 @@
 import styled from "styled-components";
-import Image from "/assets/BG/ProfileExample.svg";
-import heart from "/assets/Icon/heart-fill.svg"
 import { useNavigate } from 'react-router-dom';
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import UploadItem from "./UploadItem";
 
 import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 const UploadList = () => {
     const navigate = useNavigate();
     const {userDocId} = useParams();
-    const [user, setUser] = useState()
+    const [user, setUser] = useState();
+    const [firePosts, setFirePosts] = useState([]);
+    const [sortedData, setSortedData] = useState([]);
 
     const handleUploadPostListNavigate = () => {
         navigate(`/user/upload/${userDocId}`);
     }
 
+    // 사용자 불러오기
     const fetchUser = async () => {
+        
         try{
             const userDocRef = doc(db, 'users', userDocId);
             const userSnapshot = await getDoc(userDocRef);
@@ -27,10 +30,46 @@ const UploadList = () => {
             console.log(error);
         }
     }
-
+    
     useEffect(() => {
         fetchUser();
     }, [userDocId]);
+    
+    // 게시글 불러오기
+    useEffect(() => {
+        const fetchPost = async () => {
+            if(!user) return;
+            try {
+                const postsCollection = collection(db, "posts");
+                const queryCollection = query(postsCollection, where("post_user_name", "==", user.user_name));
+
+                const resultPosts = (await getDocs(queryCollection)).docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+
+                setFirePosts(resultPosts);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchPost();
+    }, [user])
+
+    // 최종 게시글 목록
+    useEffect(() => {
+        const topPosts = [...firePosts]
+                        .sort((a, b) => {
+                            const dateA = new Date(a.post_createdAt);
+                            const dateB = new Date(b.post_createdAt);
+                            return dateB - dateA;
+                        })
+                        .slice(0, 10);
+
+        setSortedData(topPosts);
+    }, [firePosts])
+
 
     return (
         <Wrapper>
@@ -39,54 +78,9 @@ const UploadList = () => {
                 <WholeView onClick={handleUploadPostListNavigate}>전체보기</WholeView>
             </UploadPost>
             <UploadPostContent>
-                <Content>
-                    <Photo>
-                        <Dday>
-                            D-3
-                        </Dday>
-                        <HeartBox>
-                            <HeartIcon/>
-                            <HeartNum>13</HeartNum>
-                        </HeartBox>
-                    </Photo>
-                    <Title>거치대 같이 공구하실 분 구합니다</Title>
-                    <ProfileAndWriter>
-                        <Profile/>
-                        <Writer>고윤정</Writer>
-                    </ProfileAndWriter>
-                </Content>
-                <Content>
-                    <Photo>
-                        <Dday>
-                            D-3
-                        </Dday>
-                        <HeartBox>
-                            <HeartIcon/>
-                            <HeartNum>13</HeartNum>
-                        </HeartBox>
-                    </Photo>
-                    <Title>거치대 같이 공구하실 분 구합니다</Title>
-                    <ProfileAndWriter>
-                        <Profile/>
-                        <Writer>고윤정</Writer>
-                    </ProfileAndWriter>
-                </Content>
-                <Content>
-                    <Photo>
-                        <Dday>
-                            D-3
-                        </Dday>
-                        <HeartBox>
-                            <HeartIcon/>
-                            <HeartNum>13</HeartNum>
-                        </HeartBox>
-                    </Photo>
-                    <Title>거치대 같이 공구하실 분 구합니다</Title>
-                    <ProfileAndWriter>
-                        <Profile/>
-                        <Writer>고윤정</Writer>
-                    </ProfileAndWriter>
-                </Content>
+                {sortedData.map((post, index) => (
+                    <UploadItem key={index} post={post} user={user}/>
+                ))}
             </UploadPostContent>
         </Wrapper>
     );
@@ -97,9 +91,11 @@ export default UploadList;
 // styled components
 
 const Wrapper = styled.div`
-    max-width: 390px;
+    width: 390px;
     padding: 15px 23px 32px 23px;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const UploadPost = styled.div`
@@ -107,6 +103,7 @@ const UploadPost = styled.div`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    width: 100%;
 `;
 
 const UploadPostTitle = styled.div`
@@ -122,86 +119,9 @@ const WholeView = styled.div`
 
 const UploadPostContent = styled.div`
     display: flex;
+    justify-content: flex-start;
     gap: 15px;
-    overflow-x: scroll;
+    overflow-x: auto;
     scrollbar-width: none;
-`;
-
-const Content = styled.div`
-    
-`;
-
-const Photo = styled.div`
-    width: 120px;
-    height: 120px;
-    border-radius: 11px;
-    background: url(/assets/BG/BackGroundExample.png);
-    background-repeat: no-repeat;
-    background-size: cover;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-`;
-
-const Dday = styled.div`
-    width: 30px;
-    height: 15px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 0.3px solid #ffffff;
-    border-radius: 20px;
-    font-family: 'Pretendard-Regular';
-    font-size: 8px;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-const HeartBox = styled.div`
-    display: flex;
-    gap: 2px;
-    align-items: center;
-`;
-
-const HeartIcon = styled.img.attrs({
-    src: heart,
-    alt: "heart icon"
-})`
-    
-`;
-
-const HeartNum = styled.div`
-    font-family: 'Pretendard-Regular';
-    font-size: 9px;
-    color: white;
-`;
-
-const Title = styled.div`
-    font-family: 'Pretendard-SemiBold';
-    font-size: 12px;
-    width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 8px 0px 6px 0px;
-`;
-
-const ProfileAndWriter = styled.div`
-    display: flex;
-    gap: 4px;
-`;
-
-const Profile = styled.img.attrs({
-    src: Image,
-    alt: "Profile Image"
-})`
-    width: 15px;
-    height: 15px;
-    border-radius: 15px;
-`;
-
-const Writer = styled.div`
-    font-family: 'Pretendard-Regular';
-    font-size: 11px;
+    width: 100%;
 `;
