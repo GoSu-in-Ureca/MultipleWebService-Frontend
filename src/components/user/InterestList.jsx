@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 const InterestList = () => {
@@ -14,7 +14,7 @@ const InterestList = () => {
     const [firePosts, setFirePosts] = useState([]);
     const [sortedData, setSortedData] = useState([]);
 
-    // 사용자 불러오기
+    // 페이지 주인 불러오기
     const fetchUser = async () => {
         
         try{
@@ -37,7 +37,7 @@ const InterestList = () => {
             if(!user) return;
             try {
                 const postsCollection = collection(db, "posts");
-                const queryCollection = query(postsCollection, where("post_user_name", "==", user.user_name));
+                const queryCollection = query(postsCollection, where("post_liked_users", "array-contains", user.user_id));
 
                 const resultPosts = (await getDocs(queryCollection)).docs.map((doc) => ({
                     id: doc.id,
@@ -73,7 +73,7 @@ const InterestList = () => {
     return (
         <Wrapper>
             <HeartPost>
-                <HeartPostTitle>내가 찜한 게시글</HeartPostTitle>
+                <HeartPostTitle>{user ? (user.user_id === auth.currentUser.uid ? "내가 찜한 게시글" : `${user.user_name}님이 찜한 게시글`) : `님이 찜한 게시글`}</HeartPostTitle>
                 <WholeView onClick={handleHeartPostListNavigate}>전체보기</WholeView>
             </HeartPost>
             <HeartPostContent>
@@ -90,9 +90,11 @@ export default InterestList;
 // styled components
 
 const Wrapper = styled.div`
-    max-width: 390px;
-    padding: 20px 23px 15px 23px;
-    box-sizing: border-box;
+    width: 390px;
+    padding: 15px 23px 32px 23px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const HeartPost = styled.div`
@@ -100,6 +102,7 @@ const HeartPost = styled.div`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    width: 100%;
 `;
 
 const HeartPostTitle = styled.div`
@@ -114,7 +117,7 @@ const WholeView = styled.div`
 `;
 
 const HeartPostContent = styled.div`
-     display: flex;
+    display: flex;
     justify-content: flex-start;
     gap: 15px;
     overflow-x: auto;

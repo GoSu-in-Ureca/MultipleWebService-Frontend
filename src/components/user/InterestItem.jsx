@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import heart from "/assets/Icon/heart-fill.svg";
 
 import { db } from "../../firebase";
-import { doc, runTransaction } from "firebase/firestore";
+import { collection, doc, getDocs, query, runTransaction, where } from "firebase/firestore";
 
 const InterestItem = ({post, user}) => {
     const navigate = useNavigate();
+    const [author, setAuthor] = useState(null);
+    const [loading, setLoading] = useState(true);
     const deadLineDate = new Date(post.post_deadline);
 
     // 조회수 증가
@@ -28,6 +30,26 @@ const InterestItem = ({post, user}) => {
             console.log(error);
         }
     };
+
+    // 작성자 프로필 사진 불러오기
+    useEffect(() => {
+        const fetchAuthor = async () => {
+            const authorCollection = collection(db, "users");
+            const queryCollection = query(authorCollection, where("user_id", "==", post.post_user_id));
+            try{
+                const authorSnapshot = await getDocs(queryCollection);
+                if (!authorSnapshot.empty) {
+                    setAuthor(authorSnapshot.docs[0].data());
+                }
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchAuthor();
+    }, [post]);
 
     // 마감일 계산
     const calculateLeftDays = () => {
@@ -60,8 +82,8 @@ const InterestItem = ({post, user}) => {
                 </ThumbnailArea>
                 <Title>{post.post_title}</Title>
                 <AuthorArea>
-                    <ProfileImage src={user.profile_image_url || "/defaultImage/profile.png"}/>
-                    <AuthorName>{user.user_name}</AuthorName>
+                    <ProfileImage src={author ? author.profile_image_url : "/assets/BG/defaultImage.png"}/>
+                    <AuthorName>{post.post_user_name}</AuthorName>
                 </AuthorArea>
             </Wrapper>
         </>
