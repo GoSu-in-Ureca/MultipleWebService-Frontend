@@ -20,49 +20,6 @@ const Post = () => {
     const [author, setAuthor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isInteresting, setIsInteresting] = useState(false);
-    
-    const scrollRef = useRef(null);
-    const [isDrag, setIsDrag] = useState(false);
-    const [startX, setStartX] = useState();
-    const onDragStart = e => {
-        e.preventDefault();
-        setIsDrag(true);
-        setStartX(e.pageX + scrollRef.current.scrollLeft);
-    };
-
-    const onDragEnd = () => {
-        setIsDrag(false);
-    };
-
-    const onDragMove = e => {
-        if(isDrag){
-            const { scrollWidth, clientWidth, scrollLeft } = scrollRef.current;
-
-            scrollRef.current.scrollLeft = startX - e.pageX;
-
-            if(scrollLeft === 0){
-                setStartX(e.pageX);
-            } else if(scrollWidth <= clientWidth + scrollLeft){
-                setStartX(e.pageX + scrollLeft);
-            }
-        }
-    }
-
-    const throttle = (func, ms) => {
-        let throttled = false;
-        return (...args) => {
-            if(!throttled){
-                throttled = true;
-                setTimeout(()=>{
-                    func(...args);
-                    throttled = false;
-                }, ms);
-            }
-        }
-    }
-
-    const delay = 50;
-    const onThrottleDragMove = throttle(onDragMove, delay);
 
     // 게시글 불러오기
     useEffect(() => {
@@ -171,7 +128,7 @@ const Post = () => {
         return `${year}.${month}.${day} ${hours}:${minutes}`;
     }
 
-    // 하트 클릭
+    // 하트 클릭 시
     const handleHeartClick = async () => {
         if(!post){
             return ;
@@ -215,22 +172,16 @@ const Post = () => {
                 <Header>
                     <img src={PrevButton} onClick={handleBackClick} style={{cursor: 'pointer'}}/>
                 </Header>
-                <ImageSlider 
-                    onMouseDown={onDragStart} 
-                    onMouseMove={isDrag ? onThrottleDragMove : null}
-                    onMouseUp={onDragEnd}
-                    onMouseLeave={onDragEnd}
-                    ref={scrollRef}
-                    >
+                <ImageSlider>
                     <ImageInner>
-                        <Image/>
-                        <Image/>
-                        <Image/>
+                        {post.post_images.map((image, index) => (
+                            <Image src={image}/>
+                        ))}
                     </ImageInner>
                 </ImageSlider>
                 <TagsAndWriteTime>
                     <Tags>
-                        <DdayTag>
+                        <DdayTag $isexpired={leftDays === '마감'}>
                             {leftDays === "마감" ? "마감" : `D-${leftDays}`}
                         </DdayTag>
                         <CatagoryTag>
@@ -283,7 +234,7 @@ const Post = () => {
                 <SubmitArea>
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
-                    <Participate>참여하기</Participate>
+                    <Participate $isexpired={leftDays === '마감'}>참여하기</Participate>
                 </SubmitArea>
             </Wrapper>
         </>
@@ -317,37 +268,34 @@ const Header = styled.div`
 `;
 
 const ImageSlider = styled.div`
-    /* overflow-x: scroll;
-    &::-webkit-scrollbar{
-        display: none;
-    } */
     overflow: hidden;
-    width: 390px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    width: 350px;
     height: 326px;
     display: flex;
+    justify-content: flex-start;
     align-items: center;
     position: relative;
-    `;
+    margin-left: 20px;
+    margin-right: 20px;
+`;
 
 const ImageInner = styled.div`
     display: flex;
-    width: fit-content;
-    padding-left: 20px;
-    padding-right: 20px;
-    
+    justify-content: flex-start;
+    gap: 10px;
 `;
 
-const Image = styled.div`
-    width: 326px;
+const Image = styled.img`
+    width: 350px;
     height: 326px;
     background-color: gray;
     border-radius: 11px;
-    margin: 0px 10px 0px 10px;
     display: flex;
     align-items: center;
-    background: url(../../../public/assets/BG/ProfileExample.svg);
-    background-repeat: no-repeat;
-    background-size: cover;
+    object-fit: cover;
+    object-position: center;
   `;
 
 const TagsAndWriteTime = styled.div`
@@ -364,7 +312,7 @@ const Tags = styled.div`
   `;
 
 const DdayTag = styled.div`
-    background-color: #7F52FF;
+    background-color:  ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     padding: 6px 14px 6px 14px;
     border-radius: 20px;
     display: flex;
@@ -428,6 +376,7 @@ const ContentTop = styled.div`
 `;
 
 const ContentMiddle = styled.div`
+    min-height: calc(100vh - 740px);
     padding: 25px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
@@ -510,13 +459,17 @@ const HeartIcon = styled.img`
 const Participate = styled.div`
     width: 312px;
     height: 42px;
-    background-color: #7F52FF;
+    background-color: ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     color: white;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 14px;
+
+    &:hover{
+        cursor: ${(props) => (props.$isexpired ? "" : "pointer")};
+    }
 `;
 
 const Author = styled.div`
