@@ -230,7 +230,7 @@ const Post = () => {
                 </ImageSlider>
                 <TagsAndWriteTime>
                     <Tags>
-                        <DdayTag>
+                        <DdayTag $isexpired={leftDays === '마감'}>
                             {leftDays === "마감" ? "마감" : `D-${leftDays}`}
                         </DdayTag>
                         <CatagoryTag>
@@ -283,7 +283,7 @@ const Post = () => {
                 <SubmitArea>
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
-                    <Participate>참여하기</Participate>
+                    <Participate $isexpired={leftDays === '마감'}>참여하기</Participate>
                 </SubmitArea>
             </Wrapper>
         </>
@@ -364,7 +364,7 @@ const Tags = styled.div`
   `;
 
 const DdayTag = styled.div`
-    background-color: #7F52FF;
+    background-color:  ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     padding: 6px 14px 6px 14px;
     border-radius: 20px;
     display: flex;
@@ -510,13 +510,17 @@ const HeartIcon = styled.img`
 const Participate = styled.div`
     width: 312px;
     height: 42px;
-    background-color: #7F52FF;
+    background-color: ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     color: white;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 14px;
+
+    &:hover{
+        cursor: ${(props) => (props.$isexpired ? "" : "pointer")};
+    }
 `;
 
 const Author = styled.div`
