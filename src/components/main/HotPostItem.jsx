@@ -40,10 +40,10 @@ const HotPostItem = ({post}) => {
 
     // 게시글 대표 사진 불러오기
     const fetchPostThumbnail = (post) => {
-        const thumbnailUrl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage.png";
-        return thumbnailUrl;
+        const thumbnailurl = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage.png";
+        return thumbnailurl;
     };
-    const thumbnailUrl = fetchPostThumbnail(post);
+    const thumbnailurl = fetchPostThumbnail(post);
     useEffect(() => {
         if(post.post_user_id)
         fetchProfileImage();
@@ -77,7 +77,7 @@ const HotPostItem = ({post}) => {
 
     return (
         <>
-            <Wrapper thumbnailUrl={thumbnailUrl} onClick={handleHotPostClick}>
+            <Wrapper $thumbnailurl={thumbnailurl} onClick={handleHotPostClick}>
                 <HeadArea>
                     <HeadItem>D-{leftDays}</HeadItem>
                     <HeadItem>{post.post_category}</HeadItem>
@@ -104,7 +104,7 @@ export default HotPostItem;
 
 const Wrapper = styled.div`
     position: relative;
-    background-image: url(${props => props.thumbnailUrl});
+    background-image: url(${props => props.$thumbnailurl});
     background-size: cover;
     background-position: center;
     display: flex;
