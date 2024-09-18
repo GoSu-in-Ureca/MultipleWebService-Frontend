@@ -288,7 +288,7 @@ const ImageInner = styled.div`
 `;
 
 const Image = styled.img`
-    width: 326px;
+    width: 350px;
     height: 326px;
     background-color: gray;
     border-radius: 11px;
