@@ -12,17 +12,25 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
 
   if(!isOpen) return null;
 
+  // 게시글 수정
   const handleUpdateClick = () => {
     navigate(`/update/${postId}`);
   }
 
+  // 게시글 삭제
   const handleDeleteClick = async () => {
     try{
       await deleteDoc(doc(db, 'posts', postId));
+      alert('게시글이 성공적으로 삭제되었습니다!');
       navigate(-1);
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // 게시글 강제 마감
+  const handleDeadlineClick = async () => {
+
   }
 
   return(
@@ -37,7 +45,7 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
         {/* children */}
         <UpdateButton onClick={handleUpdateClick}>수정</UpdateButton>
         <DelButton onClick={handleDeleteClick}>삭제</DelButton>
-        <EndButton>모집 마감</EndButton>
+        <EndButton onClick={handleDeadlineClick}>모집 마감</EndButton>
       </ModalBox>
     </ModalOverlay>
   );
