@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
@@ -205,8 +206,25 @@ const Post = () => {
                     post_party_members: arrayUnion(user.uid),
                 });
             }
-                alert("파티 참여 성공");
-                navigate('/chats/');
+            const userSnapshot = await getDocs(
+                query(collection(db, "users"), where("user_id", "==", user.uid)
+            ));
+            if(!userSnapshot.empty){
+                const userDoc = userSnapshot.docs[0];
+                const userDocId = userDoc.id;
+
+                // 사용자 문서 업데이트
+                await updateDoc(userSnapshot.docs[0].ref, {
+                    user_join: increment(1),
+                });
+                // 경험치와 레벨 증가
+                await increaseExpAndLevel(userDocId, 2);
+            } else {
+                console.log("사용자 문서를 찾을 수 없습니다.");
+            }
+
+            alert("파티 참여 성공");
+            navigate('/chats/');
             } else {
                 alert("모집이 마감된 게시글입니다.");
                 navigate(0);
@@ -310,8 +328,8 @@ const Post = () => {
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
                     <Participate
-                        $isexpired={leftDays === '마감' || isJoined} // 마감이거나 이미 참여한 경우 비활성화
-                        onClick={isJoined || leftDays === '마감' ? null : handleJoinClick} // 이미 참여한 경우 클릭 불가
+                        $isexpired={leftDays === '마감' || isJoined || user.uid === post.post_user_id}
+                        onClick={isJoined || leftDays === '마감' ? null : handleJoinClick}
                     >
                         {isJoined ? '참여 완료' : '참여하기'}
                     </Participate>

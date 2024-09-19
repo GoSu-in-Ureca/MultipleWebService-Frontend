@@ -121,7 +121,7 @@ const UploadForm = () => {
                 await increaseExpAndLevel(userDocId, 3);
             } else {
                 console.log("사용자 문서를 찾을 수 없습니다.");
-              }
+            }
 
             navigate('/main');
         } catch (error) {
