@@ -67,7 +67,7 @@ export const RouterList = () => [
         element: <UploadForm />,
       },
       {
-        path: "update",
+        path: "update/:postId",
         element: <UpdateForm />,
       },
     ],

@@ -1,59 +1,89 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+
 const UpdateForm = () => {
     const navigate = useNavigate();
+    const {postId} = useParams();
+    const [post, setPost] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPictures, setSelectedPictures] = useState([]);
-    const [selectedPictureAlert, setSelectedPictureAlert] = useState("");
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [participants, setParticipants] = useState(0);
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [deadline, setDeadline] = useState("");
+    const [totalPrice, setTotalPrice] = useState("");
+    const [participants, setParticipants] = useState("");
+    const [currentParti, setCurrentParti] = useState("");
 
-    const allowedExtensions = ["jpg", "jpeg", "png"];
+    // 해당 게시글 불러오기
+    useEffect(() => {
+        const fetchPostData = async () => {
+            const postDocRef = doc(db, "posts", postId);
+            try {
+                const postSnapshot = await getDoc(postDocRef);
 
-    const validateFile = (file) => {
-        const fileExtension = file.name.split(".").pop().toLowerCase();
-        return allowedExtensions.includes(fileExtension);
-    }
+                if (postSnapshot.exists()) {
+                    const postData = postSnapshot.data();
+                    setPost(postData);
+                    setSelectedCategory(postData.post_category);
+                    setSelectedPictures(postData.post_images);
+                    setTitle(postData.post_title);
+                    setContent(postData.post_content);
+                    setDeadline(postData.post_deadline);
+                    setTotalPrice(postData.totalPrice);
+                    setParticipants(postData.post_maxparti);
+                    setCurrentParti(postData.currentParti);
+                } else {
+                    console.log("게시글이 존재하지 않습니다.");
+                }
+            } catch (error) {
+                console.log("게시글 로딩 중 오류 발생:", error);
+            }
+        };
+
+        fetchPostData();
+    }, [postId]);
 
     const handleIntroNavigate = () => {
-        navigate('/main');
+        navigate(-1);
     }
 
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
       };
 
-    const handlePictureUpload = (event) => {
-        const files = Array.from(event.target.files);
+    // 제출
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        const currentDateTime = new Date().toISOString();
 
-        const invalidFiles = files.filter((file) => !validateFile(file));
-        if (invalidFiles.length > 0) {
-            setSelectedPictureAlert("유효한 파일 형식이 아닙니다");
-            return;
+        try {
+            await updateDoc(doc(db, 'posts', postId), {
+                post_category: selectedCategory,
+                post_title: title,
+                post_content: content,
+                post_createdAt: currentDateTime,
+                post_deadline: deadline,
+                totalPrice: totalPrice,
+                post_maxparti: participants,
+                post_cost: participants > 0 ? Math.ceil(totalPrice / participants) : 0,
+            });
+
+            alert('게시글이 성공적으로 등록되었습니다!');
+
+            navigate('/main');
+        } catch (error) {
+            console.error('게시글 등록 중 오류 발생:', error);
+            alert('게시글 등록에 실패했습니다.');
         }
-
-        if (selectedPictures.length + files.length > 5) {
-            setSelectedPictureAlert("파일은 최대 5개까지 업로드 가능합니다")
-          return;
-        }
-        setSelectedPictures((prevPictures) => [...prevPictures, ...files]);
-        setSelectedPictureAlert("");
-      };
-
-    const handleButtonClick = () => {
-        document.getElementById('pictureUploadInput').click();
     };
-
-    const handlePictureClick = (index) => {
-        setSelectedPictures((prevPictures) =>
-          prevPictures.filter((_, i) => i !== index)
-        );
-      };
-
+    
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
 
     return (
@@ -63,52 +93,45 @@ const UpdateForm = () => {
                     <BackButton onClick={handleIntroNavigate}/>
                     <Title>게시글 작성</Title>
                 </Header>
-                <Form>
+                <Form onSubmit={handleUpload}>
                     <SettingSubject>카테고리</SettingSubject>
                     <CategoryList>
                         {categories.map((category, index) => (
                             <CategoryItem
-                            key={index}
-                            category={category}
-                            selectedCategory={selectedCategory}
-                            onCategorySelect={handleCategorySelect}
+                                key={index}
+                                category={category}
+                                selectedCategory={selectedCategory}
+                                onCategorySelect={handleCategorySelect}
                             />
                         ))}
                     </CategoryList>
                     <SettingSubject>사진 등록
-                        <PictureLengthAlert>{selectedPictureAlert}</PictureLengthAlert>
                     </SettingSubject>
                     <PictureInputArea>
-                        <PictureInputButton onClick={handleButtonClick}/>
-                        <PictureUploadInput onChange={handlePictureUpload} />
                         <SelectedPictureWrapper>
-                            {selectedPictures.map((file, index) => (
-                                <PreviewImage
-                                    key={index}
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Uploaded ${index}`}
-                                    onClick={() => handlePictureClick(index)}
-                                />
+                            {selectedPictures.map((image, index) => (
+                                <PreviewImage src={image} key={index}/>
                             ))}
                         </SelectedPictureWrapper>
                     </PictureInputArea>
                     <SettingSubject>제목</SettingSubject>
-                    <TitleInputArea />
+                    <TitleInputArea value={title} onChange={(e) => setTitle(e.target.value)}/>
                     <SettingSubject>내용</SettingSubject>
-                    <ContentInputArea />
+                    <ContentInputArea value={content} onChange={(e) => setContent(e.target.value)}/>
                     <SettingSubject>마감 기한 설정</SettingSubject>
-                    <DeadLineInput />
+                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}/>
                     <SettingSubject>가격 및 모집 인원</SettingSubject>
                     <PPInputArea>
                         <EstimatePriceArea value={totalPrice}
                                 onChange={(e) => setTotalPrice(Number(e.target.value))}>
                             <SubTitle>예상 경비(:원)</SubTitle>
-                            <PriceInputArea />
+                            <PriceInputArea value={totalPrice} onChange={(e) => setTotalPrice(e.target.value)}/>
                         </EstimatePriceArea>
                         <MaxParticipantsArea>
                             <SubTitle>모집 인원</SubTitle>
                             <ParticipantsInputArea value={participants}
-                                onChange={(e) => setParticipants(Number(e.target.value))}/>
+                                onChange={(e) => setParticipants(Number(e.target.value))}
+                                min={currentParti}/>
                         </MaxParticipantsArea>
                         <EstimatePricePerMemberArea>
                             <SubTitle>예상 인당 가격</SubTitle>
@@ -176,10 +199,7 @@ const Title = styled.div`
     margin-left: 132px;
 `;
 
-const Form = styled.form.attrs({
-    action: "#",
-    method: "POST"
-})``;
+const Form = styled.form``;
 
 const SettingSubject = styled.div`
     font-size: 14px;
@@ -192,26 +212,6 @@ const PictureInputArea = styled.div`
     justify-content: flex-start;
     height: 70px;
     margin-left: 22px;
-`;
-
-const PictureInputButton = styled.div`
-    width: 70px;
-    height: 70px;
-    margin-right: 11px;
-    background-image: url('/assets/Icon/addfile.svg');
-
-    &:hover{
-        cursor: pointer;
-    }
-`;
-
-const PictureUploadInput = styled.input.attrs({
-    id: "pictureUploadInput",
-    type: "file",
-    multiple: "multiple",
-    accept: ".jpg, .jpeg, .png"
-})`
-    display: none;
 `;
 
 const SelectedPictureWrapper = styled.div`
@@ -235,12 +235,6 @@ const PreviewImage = styled.img`
     &:hover{
         cursor: pointer;
     }
-`;
-
-const PictureLengthAlert = styled.span`
-    font-size: 8px;
-    color: #FF3838;
-    margin-left: 10px;
 `;
 
 const TitleInputArea = styled.input.attrs({
@@ -376,7 +370,7 @@ const ParticipantsInputArea = styled.input.attrs({
     id: "participants",
     name: "participants",
     required: "required",
-    min: "0"
+    max: "10",
 })`
     width: 160px;
     height: 30px;

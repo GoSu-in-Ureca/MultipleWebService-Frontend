@@ -1,20 +1,57 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+
 // isOpen : 모달 열려있는지 여부
 // onClose : 모달 닫기
 // children : 모달 안에 들어갈 내용
 
-const Modal = ({isOpen, onClose, modalPosition}) => {
+const Modal = ({isOpen, onClose, modalPosition, postId}) => {
   const navigate = useNavigate();
 
   if(!isOpen) return null;
 
+  // 게시글 수정
   const handleUpdateClick = () => {
-    navigate('/update');
-}
+    navigate(`/update/${postId}`);
+  };
 
-  return(
+  // 게시글 삭제
+  const handleDeleteClick = async () => {
+    try{
+      await deleteDoc(doc(db, 'posts', postId));
+      alert('게시글이 성공적으로 삭제되었습니다!');
+      navigate(-1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 게시글 강제 마감
+  const formatDate = (date) => {
+    return date.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM" 형식으로 변환
+  };
+  const handleDeadlineClick = async () => {
+    try {
+      const postDocRef = doc(db, "posts", postId);
+
+      const currentDate = new Date();
+      const formattedDate = formatDate(currentDate);
+
+      await updateDoc(postDocRef, {
+        post_deadline: formattedDate,
+        post_status: false,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
     <ModalOverlay onClick={onClose}>
       <ModalBox
         style={{
@@ -25,8 +62,8 @@ const Modal = ({isOpen, onClose, modalPosition}) => {
         onClick={(e)=>e.stopPropagation()}>
         {/* children */}
         <UpdateButton onClick={handleUpdateClick}>수정</UpdateButton>
-        <DelButton>삭제</DelButton>
-        <EndButton>모집 마감</EndButton>
+        <DelButton onClick={handleDeleteClick}>삭제</DelButton>
+        <EndButton onClick={handleDeadlineClick}>모집 마감</EndButton>
       </ModalBox>
     </ModalOverlay>
   );
