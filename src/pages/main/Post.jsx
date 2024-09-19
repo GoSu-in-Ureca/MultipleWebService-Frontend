@@ -21,6 +21,7 @@ const Post = () => {
     const [author, setAuthor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isInteresting, setIsInteresting] = useState(false);
+    const [isJoined, setIsJoined] = useState(false);
     const [isOpen, setIsOpen] = useState(false); // 모달 창
     const [modalPosition, setModalPosition] = useState({top:0, left:0}); // 모달 위치
 
@@ -42,7 +43,18 @@ const Post = () => {
 
                 if(postSnapshot.exists){
                     const postData = postSnapshot.data();
+                    const currentDate = new Date();
+
+                    // 마감 시간이 지났다면 post_status를 false로 업데이트
+                    if (new Date(postData.post_deadline) < currentDate && postData.post_status) {
+                        await updateDoc(postRef, { post_status: false });
+                        postData.post_status = false;
+                    }
                     setPost(postData);
+
+                    if (postData.post_party_members && postData.post_party_members.includes(user.uid)) {
+                        setIsJoined(true);
+                    }
 
                     if (postData.post_liked_users && postData.post_liked_users.includes(user.uid)) {
                         setIsInteresting(true);
@@ -171,15 +183,37 @@ const Post = () => {
     }
 
     // 파티 참여 핸들러
-    const handleJoinClick = () => {
+    const formatDeadlineDate = (date) => {
+        return date.toISOString().slice(0, 16);
+      };
+    const handleJoinClick = async () => {
+        const postDocRef = doc(db, "posts", postId);
         try {
-
+            if (post.post_status && post.post_currentparti < post.post_maxparti) {
+                if(post.post_currentparti+1 === post.post_maxparti) {
+                    const currentTime = new Date();
+                    const formatted = formatDeadlineDate(currentTime);
+                    await updateDoc(postDocRef, {
+                        post_deadline: formatted,
+                        post_currentparti: increment(1),
+                        post_party_members: arrayUnion(user.uid)
+                    });
+                } else {
+                await updateDoc(postDocRef, {
+                    post_currentparti: increment(1),
+                    post_party_members: arrayUnion(user.uid),
+                });
+            }
+                alert("파티 참여 성공");
+                navigate('/chats/');
+            } else {
+                alert("모집이 마감된 게시글입니다.");
+                navigate(0);
+            }
         } catch (error) {
-
-        } finally {
-            navigate(`/chats/`);
+            console.error("파티 참여 중 오류가 발생했습니다.", error);
         }
-    }
+    };
 
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
@@ -228,12 +262,14 @@ const Post = () => {
                 <ContentTop>
                     <TitleAndImg>
                         <Title>{post.post_title}</Title>
-                        <img 
-                            src={More} 
-                            style={{transform:"rotate(90deg)", cursor:"pointer"}}
-                            ref={modalButtonRef}
-                            onClick={handleModalClick} // 클릭 시 모달 열기
-                        />
+                        {user.uid === post.post_user_id ?
+                            <img 
+                                src={More} 
+                                style={{transform:"rotate(90deg)", cursor:"pointer"}}
+                                ref={modalButtonRef}
+                                onClick={handleModalClick} // 클릭 시 모달 열기
+                            />: null}
+                        
                         <Modal 
                             postId={postId}
                             isOpen={isOpen} 
@@ -268,7 +304,12 @@ const Post = () => {
                 <SubmitArea>
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
-                    <Participate $isexpired={leftDays === '마감'} onClick={handleJoinClick}>참여하기</Participate>
+                    <Participate
+                        $isexpired={leftDays === '마감' || isJoined} // 마감이거나 이미 참여한 경우 비활성화
+                        onClick={isJoined || leftDays === '마감' ? null : handleJoinClick} // 이미 참여한 경우 클릭 불가
+                    >
+                        {isJoined ? '참여 완료' : '참여하기'}
+                    </Participate>
                 </SubmitArea>
             </Wrapper>
         </>

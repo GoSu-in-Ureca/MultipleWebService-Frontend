@@ -1,6 +1,7 @@
-import { deleteDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 // isOpen : 모달 열려있는지 여부
@@ -15,7 +16,7 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
   // 게시글 수정
   const handleUpdateClick = () => {
     navigate(`/update/${postId}`);
-  }
+  };
 
   // 게시글 삭제
   const handleDeleteClick = async () => {
@@ -26,14 +27,31 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   // 게시글 강제 마감
+  const formatDate = (date) => {
+    return date.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM" 형식으로 변환
+  };
   const handleDeadlineClick = async () => {
+    try {
+      const postDocRef = doc(db, "posts", postId);
 
-  }
+      const currentDate = new Date();
+      const formattedDate = formatDate(currentDate);
 
-  return(
+      await updateDoc(postDocRef, {
+        post_deadline: formattedDate,
+        post_status: false,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
     <ModalOverlay onClick={onClose}>
       <ModalBox
         style={{

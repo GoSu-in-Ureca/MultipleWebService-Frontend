@@ -74,7 +74,7 @@ const InterestItem = ({post, user}) => {
         <>
             <Wrapper onClick={handlePostClick}>
                 <ThumbnailArea $thumbnailurl={post.post_images[0] || "/assets/BG/defaultImage.png"}>
-                    <Dday>D-{leftDays}</Dday>
+                    <Dday>{leftDays === "마감" ? `마감` : `D-${leftDays}`}</Dday>
                     <InterestArea>
                         <HeartIcon src={heart}/>
                         <InterestCount>{post.post_interest}</InterestCount>
