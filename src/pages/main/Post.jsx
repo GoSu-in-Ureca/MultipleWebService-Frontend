@@ -198,7 +198,7 @@ const Post = () => {
                 <ImageSlider>
                     <ImageInner>
                         {post.post_images.length > 0 ? post.post_images.map((image, index) => (
-                            <Image src={image}/>
+                            <Image src={image} key={index}/>
                         )) : <Image src={"/assets/BG/defaultImage.png"} />}
                     </ImageInner>
                 </ImageSlider>
@@ -235,6 +235,7 @@ const Post = () => {
                             onClick={handleModalClick} // 클릭 시 모달 열기
                         />
                         <Modal 
+                            postId={postId}
                             isOpen={isOpen} 
                             onClose={()=>setIsOpen(false)}
                             modalPosition={modalPosition} // 모달 위치 props 전달
