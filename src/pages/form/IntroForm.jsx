@@ -2,6 +2,9 @@ import styled from "styled-components";
 import logo from "/assets/branding/logo.svg";
 import { useNavigate } from "react-router-dom";
 
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase";
+
 const IntroForm = () => {
     const navigate = useNavigate();
 
@@ -13,6 +16,18 @@ const IntroForm = () => {
         navigate('/signup');
     }
 
+    const handleGoogleNavigate = async () => {
+        const provider = new GoogleAuthProvider();
+
+        try {
+            // 구글 로그인 시도
+            const result = await signInWithPopup(auth, provider);
+            navigate("/main"); // 로그인 성공 후 메인 페이지로 이동
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <>
             <Wrapper>
@@ -21,7 +36,7 @@ const IntroForm = () => {
                 <KakaoSignUpButton>
                     카카오로 시작하기
                 </KakaoSignUpButton>
-                <GoogleSignUpButton>
+                <GoogleSignUpButton onClick={handleGoogleNavigate}>
                     구글로 시작하기
                 </GoogleSignUpButton>
                 <EmailSignUpButton onClick={handleSignUpNavigate}>
