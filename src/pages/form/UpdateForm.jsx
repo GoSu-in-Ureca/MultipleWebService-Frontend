@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { increaseExpAndLevel } from "../../function/Exp";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
+import { getDownloadURL } from "firebase/storage";
 
 const UpdateForm = () => {
     const navigate = useNavigate();
+    const {postId} = useParams();
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPictures, setSelectedPictures] = useState([]);
     const [selectedPictureAlert, setSelectedPictureAlert] = useState("");
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [deadline, setDeadline] = useState("");
     const [totalPrice, setTotalPrice] = useState(0);
-    const [participants, setParticipants] = useState(0);
+    const [participants, setParticipants] = useState(2);
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
 
@@ -54,6 +61,75 @@ const UpdateForm = () => {
         );
       };
 
+    // 제출
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        const uploadedImageUrls = [];
+        const currentUser = auth.currentUser;
+        const userName = currentUser.displayName;
+        const currentDateTime = new Date().toISOString();
+
+        for (const file of selectedPictures) {
+            const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
+            try {
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+                uploadedImageUrls.push(downloadURL);
+            } catch (error) {
+                console.error('이미지 업로드 중 오류 발생:', error);
+                return;
+            }
+        }
+
+        try {
+            await updateDoc(collection(db, 'posts'), {
+                post_user_id: currentUser.uid,
+                post_user_name: userName,
+                post_category: selectedCategory,
+                post_title: title,
+                post_content: content,
+                post_createdAt: currentDateTime,
+                post_updatedAt: currentDateTime,
+                post_status: true,
+                post_deadline: deadline,
+                totalPrice: totalPrice,
+                post_maxparti: participants,
+                post_currentparti: 1,
+                post_cost: participants > 0 ? Math.ceil(totalPrice / participants) : 0,
+                post_interest: 0,
+                post_images: uploadedImageUrls,
+                post_view: 0,
+                post_liked_users: [],
+            });
+
+            alert('게시글이 성공적으로 등록되었습니다!');
+
+            const userSnapshot = await getDocs(
+                query(collection(db, "users"), where("user_id", "==", currentUser.uid)
+            ));
+
+            if(!userSnapshot.empty){
+                const userDoc = userSnapshot.docs[0];
+                const userDocId = userDoc.id;
+
+                // 사용자 문서 업데이트
+                await updateDoc(userSnapshot.docs[0].ref, {
+                    user_recruit: increment(1),
+                });
+                // 경험치와 레벨 증가
+                await increaseExpAndLevel(userDocId, 3);
+            } else {
+                console.log("사용자 문서를 찾을 수 없습니다.");
+              }
+
+            navigate('/main');
+        } catch (error) {
+            console.error('게시글 등록 중 오류 발생:', error);
+            alert('게시글 등록에 실패했습니다.');
+        }
+    };
+    
+
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
 
     return (
@@ -63,15 +139,15 @@ const UpdateForm = () => {
                     <BackButton onClick={handleIntroNavigate}/>
                     <Title>게시글 작성</Title>
                 </Header>
-                <Form>
+                <Form onSubmit={handleUpload}>
                     <SettingSubject>카테고리</SettingSubject>
                     <CategoryList>
                         {categories.map((category, index) => (
                             <CategoryItem
-                            key={index}
-                            category={category}
-                            selectedCategory={selectedCategory}
-                            onCategorySelect={handleCategorySelect}
+                                key={index}
+                                category={category}
+                                selectedCategory={selectedCategory}
+                                onCategorySelect={handleCategorySelect}
                             />
                         ))}
                     </CategoryList>
@@ -93,11 +169,11 @@ const UpdateForm = () => {
                         </SelectedPictureWrapper>
                     </PictureInputArea>
                     <SettingSubject>제목</SettingSubject>
-                    <TitleInputArea />
+                    <TitleInputArea value={title} onChange={(e) => setTitle(e.target.value)}/>
                     <SettingSubject>내용</SettingSubject>
-                    <ContentInputArea />
+                    <ContentInputArea value={content} onChange={(e) => setContent(e.target.value)}/>
                     <SettingSubject>마감 기한 설정</SettingSubject>
-                    <DeadLineInput />
+                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}/>
                     <SettingSubject>가격 및 모집 인원</SettingSubject>
                     <PPInputArea>
                         <EstimatePriceArea value={totalPrice}
@@ -176,10 +252,7 @@ const Title = styled.div`
     margin-left: 132px;
 `;
 
-const Form = styled.form.attrs({
-    action: "#",
-    method: "POST"
-})``;
+const Form = styled.form``;
 
 const SettingSubject = styled.div`
     font-size: 14px;
@@ -376,7 +449,8 @@ const ParticipantsInputArea = styled.input.attrs({
     id: "participants",
     name: "participants",
     required: "required",
-    min: "0"
+    min: "2",
+    max: "10",
 })`
     width: 160px;
     height: 30px;

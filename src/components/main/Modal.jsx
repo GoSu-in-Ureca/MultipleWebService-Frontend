@@ -1,18 +1,29 @@
+import { deleteDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { db } from '../../firebase';
 
 // isOpen : 모달 열려있는지 여부
 // onClose : 모달 닫기
 // children : 모달 안에 들어갈 내용
 
-const Modal = ({isOpen, onClose, modalPosition}) => {
+const Modal = ({isOpen, onClose, modalPosition, postId}) => {
   const navigate = useNavigate();
 
   if(!isOpen) return null;
 
   const handleUpdateClick = () => {
-    navigate('/update');
-}
+    navigate(`/update/${postId}`);
+  }
+
+  const handleDeleteClick = async () => {
+    try{
+      await deleteDoc(doc(db, 'posts', postId));
+      navigate(-1);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return(
     <ModalOverlay onClick={onClose}>
@@ -25,7 +36,7 @@ const Modal = ({isOpen, onClose, modalPosition}) => {
         onClick={(e)=>e.stopPropagation()}>
         {/* children */}
         <UpdateButton onClick={handleUpdateClick}>수정</UpdateButton>
-        <DelButton>삭제</DelButton>
+        <DelButton onClick={handleDeleteClick}>삭제</DelButton>
         <EndButton>모집 마감</EndButton>
       </ModalBox>
     </ModalOverlay>
