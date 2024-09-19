@@ -30,8 +30,9 @@ const Post = () => {
     // 모달 위치 설정
     const handleModalClick = () => {
         const rect = modalButtonRef.current.getBoundingClientRect();
-        setModalPosition({top: rect.top + window.scrollY, left: rect.left+window.scrollX}); // 모달 위치
+        setModalPosition({top: rect.top, left: rect.left+window.scrollX}); // 모달 위치
         setIsOpen(true); // 모달 열기
+        document.body.style.overflow = 'hidden';
     }
 
     // 게시글 불러오기
@@ -215,6 +216,7 @@ const Post = () => {
         }
     };
 
+
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
     }
@@ -222,7 +224,7 @@ const Post = () => {
     const handleBackClick = () => {
         navigate(-1);
     }
-
+    
     return (
         <>
             <Wrapper>
@@ -234,6 +236,7 @@ const Post = () => {
                         {post.post_images.length > 0 ? post.post_images.map((image, index) => (
                             <Image src={image} key={index}/>
                         )) : <Image src={"/assets/BG/defaultImage.png"} />}
+
                     </ImageInner>
                 </ImageSlider>
                 <TagsAndWriteTime>
@@ -269,11 +272,13 @@ const Post = () => {
                                 ref={modalButtonRef}
                                 onClick={handleModalClick} // 클릭 시 모달 열기
                             />: null}
-                        
                         <Modal 
                             postId={postId}
                             isOpen={isOpen} 
-                            onClose={()=>setIsOpen(false)}
+                            onClose={()=>{
+                                setIsOpen(false);
+                                document.body.style.overflow = 'unset';
+                            }}
                             modalPosition={modalPosition} // 모달 위치 props 전달
                         />
                     </TitleAndImg>
@@ -451,12 +456,13 @@ const ContentTop = styled.div`
 `;
 
 const ContentMiddle = styled.div`
-    min-height: calc(100vh - 650px);
-    padding: 25px;
+    min-height: calc(100vh - 740px);
+    padding: 25px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
     color: #676767;
     font-size: 12px;
+    overflow-y: scroll;
 `;
 
 const TitleAndImg =styled.div`
