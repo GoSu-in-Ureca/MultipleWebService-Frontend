@@ -160,7 +160,13 @@ const Post = () => {
 
     // 파티 참여 핸들러
     const handleJoinClick = () => {
-        
+        try {
+
+        } catch (error) {
+
+        } finally {
+            navigate(`/chats/`);
+        }
     }
 
     const handleAuthorClick = () => {
@@ -381,7 +387,7 @@ const ContentTop = styled.div`
 `;
 
 const ContentMiddle = styled.div`
-    min-height: calc(100vh - 740px);
+    min-height: calc(100vh - 650px);
     padding: 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
