@@ -7,6 +7,7 @@ import Heart from "/assets/Icon/heart-gray.svg";
 import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
+import Modal from "../../components/main/Modal.jsx";
 
 import { db, auth } from "../../firebase";
 import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
@@ -20,6 +21,17 @@ const Post = () => {
     const [author, setAuthor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isInteresting, setIsInteresting] = useState(false);
+    const [isOpen, setIsOpen] = useState(false); // 모달 창
+    const [modalPosition, setModalPosition] = useState({top:0, left:0}); // 모달 위치
+
+    const modalButtonRef = useRef(null); // 미트볼 아이콘 위치 참조
+
+    // 모달 위치 설정
+    const handleModalClick = () => {
+        const rect = modalButtonRef.current.getBoundingClientRect();
+        setModalPosition({top: rect.top + window.scrollY, left: rect.left+window.scrollX}); // 모달 위치
+        setIsOpen(true); // 모달 열기
+    }
 
     // 게시글 불러오기
     useEffect(() => {
@@ -205,7 +217,17 @@ const Post = () => {
                 <ContentTop>
                     <TitleAndImg>
                         <Title>{post.post_title}</Title>
-                        <img src={More} style={{transform:"rotate(90deg)"}}/>
+                        <img 
+                            src={More} 
+                            style={{transform:"rotate(90deg)", cursor:"pointer"}}
+                            ref={modalButtonRef}
+                            onClick={handleModalClick} // 클릭 시 모달 열기
+                        />
+                        <Modal 
+                            isOpen={isOpen} 
+                            onClose={()=>setIsOpen(false)}
+                            modalPosition={modalPosition} // 모달 위치 props 전달
+                        />
                     </TitleAndImg>
                     <Writer>
                         <span>작성자</span> 
