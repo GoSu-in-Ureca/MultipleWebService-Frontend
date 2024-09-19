@@ -158,6 +158,11 @@ const Post = () => {
         }
     }
 
+    // 파티 참여 핸들러
+    const handleJoinClick = () => {
+        
+    }
+
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
     }
@@ -165,7 +170,7 @@ const Post = () => {
     const handleBackClick = () => {
         navigate(-1);
     }
-    
+
     return (
         <>
             <Wrapper>
@@ -174,9 +179,9 @@ const Post = () => {
                 </Header>
                 <ImageSlider>
                     <ImageInner>
-                        {post.post_images.map((image, index) => (
+                        {post.post_images.length > 0 ? post.post_images.map((image, index) => (
                             <Image src={image}/>
-                        ))}
+                        )) : <Image src={"/assets/BG/defaultImage.png"} />}
                     </ImageInner>
                 </ImageSlider>
                 <TagsAndWriteTime>
@@ -205,7 +210,7 @@ const Post = () => {
                 <ContentTop>
                     <TitleAndImg>
                         <Title>{post.post_title}</Title>
-                        <img src={More} style={{transform:"rotate(90deg)"}}/>
+                        <img src={More} style={{transform:"rotate(90deg)", marginTop: "4px"}}/>
                     </TitleAndImg>
                     <Writer>
                         <span>작성자</span> 
@@ -234,7 +239,7 @@ const Post = () => {
                 <SubmitArea>
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
-                    <Participate $isexpired={leftDays === '마감'}>참여하기</Participate>
+                    <Participate $isexpired={leftDays === '마감'} onClick={handleJoinClick}>참여하기</Participate>
                 </SubmitArea>
             </Wrapper>
         </>
@@ -377,7 +382,7 @@ const ContentTop = styled.div`
 
 const ContentMiddle = styled.div`
     min-height: calc(100vh - 740px);
-    padding: 25px 14px 25px 25px;
+    padding: 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
     color: #676767;
@@ -387,6 +392,7 @@ const ContentMiddle = styled.div`
 const TitleAndImg =styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
 `;
 
 const Title = styled.div`
