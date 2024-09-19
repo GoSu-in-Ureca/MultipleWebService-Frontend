@@ -29,8 +29,9 @@ const Post = () => {
     // 모달 위치 설정
     const handleModalClick = () => {
         const rect = modalButtonRef.current.getBoundingClientRect();
-        setModalPosition({top: rect.top + window.scrollY, left: rect.left+window.scrollX}); // 모달 위치
+        setModalPosition({top: rect.top, left: rect.left+window.scrollX}); // 모달 위치
         setIsOpen(true); // 모달 열기
+        document.body.style.overflow = 'hidden';
     }
 
     // 게시글 불러오기
@@ -170,17 +171,6 @@ const Post = () => {
         }
     }
 
-    // 파티 참여 핸들러
-    const handleJoinClick = () => {
-        try {
-
-        } catch (error) {
-
-        } finally {
-            navigate(`/chats/`);
-        }
-    }
-
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
     }
@@ -188,7 +178,7 @@ const Post = () => {
     const handleBackClick = () => {
         navigate(-1);
     }
-
+    
     return (
         <>
             <Wrapper>
@@ -197,9 +187,9 @@ const Post = () => {
                 </Header>
                 <ImageSlider>
                     <ImageInner>
-                        {post.post_images.length > 0 ? post.post_images.map((image, index) => (
+                        {post.post_images.map((image, index) => (
                             <Image src={image}/>
-                        )) : <Image src={"/assets/BG/defaultImage.png"} />}
+                        ))}
                     </ImageInner>
                 </ImageSlider>
                 <TagsAndWriteTime>
@@ -229,14 +219,21 @@ const Post = () => {
                     <TitleAndImg>
                         <Title>{post.post_title}</Title>
                         <img 
-                            src={More} 
-                            style={{transform:"rotate(90deg)", cursor:"pointer"}}
+                            src={More}
+                            style={{
+                                transform:"rotate(90deg)", 
+                                cursor:"pointer",
+                                paddingTop: "5px"
+                            }}
                             ref={modalButtonRef}
                             onClick={handleModalClick} // 클릭 시 모달 열기
                         />
                         <Modal 
                             isOpen={isOpen} 
-                            onClose={()=>setIsOpen(false)}
+                            onClose={()=>{
+                                setIsOpen(false);
+                                document.body.style.overflow = 'unset';
+                            }}
                             modalPosition={modalPosition} // 모달 위치 props 전달
                         />
                     </TitleAndImg>
@@ -267,7 +264,7 @@ const Post = () => {
                 <SubmitArea>
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
-                    <Participate $isexpired={leftDays === '마감'} onClick={handleJoinClick}>참여하기</Participate>
+                    <Participate $isexpired={leftDays === '마감'}>참여하기</Participate>
                 </SubmitArea>
             </Wrapper>
         </>
@@ -409,12 +406,13 @@ const ContentTop = styled.div`
 `;
 
 const ContentMiddle = styled.div`
-    min-height: calc(100vh - 650px);
-    padding: 25px;
+    min-height: calc(100vh - 740px);
+    padding: 25px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
     color: #676767;
     font-size: 12px;
+    overflow-y: scroll;
 `;
 
 const TitleAndImg =styled.div`
