@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import messagesend from "/assets/Icon/message-send.svg";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
-import { database } from "../../firebase";
-import { onValue, ref } from "firebase/database";
+import { auth, database } from "../../firebase";
+import { onValue, push, ref, set } from "firebase/database";
 
 const Chat = () => {
     const navigate = useNavigate();
     const {chatId} = useParams();
-    const reference = ref(database, `/chats/${chatId}`);
+    const reference = ref(database, `/chatRoom/${chatId}`);
     const [messageList, setMessageList] = useState([]); // 메시지 목록 상태
     const [newMessage, setNewMessage] = useState("");
+    const currentUser = auth.currentUser;
 
     // 채팅방의 메시지를 실시간으로 불러오기
     useEffect(() => {
@@ -27,7 +28,7 @@ const Chat = () => {
             }
         });
 
-        return () => unsubscribe(); // Cleanup on component unmount
+        return () => unsubscribe();
     }, [chatId]);
 
     // 메시지 전송 핸들러
@@ -36,8 +37,8 @@ const Chat = () => {
 
         try {
             const messageRef = push(reference); // 새 메시지 위치 참조
-            await messageRef.set({
-                senderId: "currentUserId", // 현재 사용자 ID, 실제로는 Firebase Auth에서 가져와야 함
+            await set(messageRef, {
+                senderId: currentUser.uid,
                 text: newMessage,
                 createdAt: new Date().toISOString(),
             });
@@ -49,7 +50,7 @@ const Chat = () => {
     };
 
     const handleIntroNavigate = () => {
-        navigate(-1);
+        navigate(`/chats`);
     }
 
     return (
@@ -63,12 +64,28 @@ const Chat = () => {
                     <Tag>모집중</Tag>
                     <PostTitle>노트북 거치대 공동구매 하실 분</PostTitle>
                 </PostInfoArea>
+                <InitialSystemMessage>
+                    <p>새로운 채팅방이 생성됐습니다.</p>
+                    <p>운영 정책을 위반한 메세지로 신고 접수 시 사용에 제한이 있을 수 있습니다.</p>
+                </InitialSystemMessage>
                 <MessageList>
-
+                    {messageList.map((message) => (
+                        <MessageItem key={message.id} isMyMessage={message.senderId === currentUser.uid}>
+                            <MessageSendTime>오후 12:35</MessageSendTime>
+                            <MessageBubble isMyMessage={message.senderId === currentUser.uid}>
+                                {message.text}
+                            </MessageBubble>
+                            <MessageProfile isMyMessage={message.senderId === currentUser.uid}></MessageProfile>
+                        </MessageItem>
+                    ))}
                 </MessageList>
                 <MessageInputArea>
-                    <MessageInput />
-                    <MessageSend src={messagesend}/>
+                    <MessageInput 
+                        value={newMessage} 
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                    />
+                    <MessageSend src={messagesend} onClick={handleSendMessage}/>
                 </MessageInputArea>
             </Wrapper>
         </>
@@ -144,9 +161,48 @@ const PostTitle = styled.div`
     margin-left: 9px;
 `;
 
+const InitialSystemMessage = styled.div`
+    text-align: center;
+    font-size: 8px;
+    color: #808284;
+    line-height: 3px;
+`;
+
 const MessageList = styled.div`
     display: flex;
     flex-direction: column;
+    width: 350px;
+`;
+
+const MessageItem = styled.div`
+    display: flex;
+    justify-content: ${({ isMyMessage }) => (isMyMessage ? "flex-end" : "flex-start")};
+    margin-bottom: 10px;
+`;
+
+const MessageProfile = styled.img`
+    display: ${({isMyMessage}) => ((isMyMessage ? "none" : ""))};
+    width: 28px;
+    height: 28px;
+`;
+
+const MessageBubble = styled.div`
+    max-width: 80%;
+    min-height: 32px;
+    padding: 10px 14px;
+    font-size: 10px;
+    color: ${({ isMyMessage }) => (isMyMessage ? "white" : "black")};
+    background-color: ${({ isMyMessage }) => (isMyMessage ? "#BFA9FF" : "#F7F7F7")};
+    border-radius: ${({ isMyMessage }) => (isMyMessage ? "20px 20px 0 20px" : "20px 20px 20px 0")};
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+const MessageSendTime = styled.div`
+    height: 100%;
+    font-size: 8px;
+    display: flex;
+    align-items: flex-end;
+    margin: 0 4px;
 `;
 
 const MessageInputArea = styled.div`
