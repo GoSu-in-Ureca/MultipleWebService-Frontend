@@ -86,7 +86,7 @@ export const RouterList = () => [
         element: <UserUploadMoreList />,
       },
       {
-        path: "interest",
+        path: "interest/:userDocId",
         element: <UserInterestMoreList />,
       },
       {

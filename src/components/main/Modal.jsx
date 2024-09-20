@@ -31,7 +31,9 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
 
   // 게시글 강제 마감
   const formatDate = (date) => {
-    return date.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM" 형식으로 변환
+    const offset = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - offset);
+    return localDate.toISOString().slice(0, 16);
   };
   const handleDeadlineClick = async () => {
     try {

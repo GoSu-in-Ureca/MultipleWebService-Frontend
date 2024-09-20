@@ -76,7 +76,6 @@ const UserUploadList = () => {
         navigate(-1);
     }
 
-    // console.log(fireposts);
     return (
         <>
             <Wrapper>
