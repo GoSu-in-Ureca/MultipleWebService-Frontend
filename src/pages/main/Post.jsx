@@ -203,7 +203,7 @@ const Post = () => {
                 } else {
                 await updateDoc(postDocRef, {
                     post_currentparti: increment(1),
-                    post_party_members: arrayUnion(user.uid),
+                    post_parti_members: arrayUnion(user.uid),
                 });
             }
             const userSnapshot = await getDocs(
@@ -286,7 +286,7 @@ const Post = () => {
                         {user.uid === post.post_user_id ?
                             <img 
                                 src={More} 
-                                style={{transform:"rotate(90deg)", cursor:"pointer"}}
+                                style={{transform:"rotate(90deg)", cursor:"pointer", marginTop:"5px"}}
                                 ref={modalButtonRef}
                                 onClick={handleModalClick} // 클릭 시 모달 열기
                             />: null}
@@ -331,7 +331,7 @@ const Post = () => {
                         $isexpired={leftDays === '마감' || isJoined || user.uid === post.post_user_id}
                         onClick={isJoined || leftDays === '마감' ? null : handleJoinClick}
                     >
-                        {isJoined ? '참여 완료' : '참여하기'}
+                        {isJoined ? '참여 중' : '참여하기'}
                     </Participate>
                 </SubmitArea>
             </Wrapper>

@@ -1,36 +1,114 @@
 import React from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import backbutton from "/assets/Icon/navigate_before.svg";
 import NavigationUser from "../../components/main/NavigationUser";
 import InterestMoreItem from "../../components/user/InterestMoreItem";
-import data from "../../hotPostData.json"
 import SortFilter from "../../components/main/SortFilter";
-import { useRecoilState } from "recoil";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useRecoilState } from "recoil";
 import { selectedSortState } from "../../recoil/atoms";
+import Loading from "../../Loading";
+
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const UserInterestMoreList = () => {
-    const [sort, setSort] = useRecoilState(selectedSortState);
-    const [sortedData, setSortedData] = useState(data);
-
-    useEffect(() => {
-        let sortedArray = [...data];
-        if (sort === "최신순") {
-            sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        } else if (sort === "시간임박순") {
-            sortedArray.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-        } else if (sort === "인원임박순") {
-            sortedArray.sort((a, b) => {
-                let subA = a.maxParticipants - a.currentParticipants;
-                let subB = b.maxParticipants - b.currentParticipants;
-                return subA - subB;
-            });
-        }
-        setSortedData(sortedArray);
-    }, [sort]);
-
+    const {userDocId} = useParams();
     const navigate = useNavigate();
+    const [sort, setSort] = useRecoilState(selectedSortState);
+    const [user, setUser] = useState(null);
+    const [fireposts, setFireposts] = useState([]);
+    const [sortedData, setSortedData] = useState([]);
+    const [loadingUser, setLoadingUser] = useState(true);
+    const [loadingPosts, setLoadingPosts] = useState(true);
+
+    // 현재 페이지의 사용자 데이터 가져오기
+    const fetchUser = async () => {
+        try {
+            const userDocRef = doc(db, 'users', userDocId);
+            const userSnapshot = await getDoc(userDocRef);
+            if (userSnapshot.exists()) {
+                setUser(userSnapshot.data());
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoadingUser(false);
+        }
+    };
+
+    // 게시글 전체 불러오기
+    const fetchPost = async () => {
+        if (!user) return;
+        try {
+            const queryCollection = query(
+                collection(db, 'posts'),
+                where('post_user_name', '==', user.user_name)
+            );
+            const postSnapshot = await getDocs(queryCollection);
+            const postsArray = postSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+            postsArray.sort((a, b) => new Date(b.post_createdAt) - new Date(a.post_createdAt));
+
+            setFireposts(postsArray);
+            setSortedData(postsArray);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoadingPosts(false);
+        }
+    };
+
+    // 배열 정렬 메서드 => 시각과 참가자
+    const timeOrder = (targetArr) => {
+        return targetArr.sort((a, b) =>
+            new Date(a.post_deadline) - new Date(b.post_deadline)
+        );
+    }
+    const participantOrder = (targetArr) => {
+        return targetArr.sort((a, b) => {
+            let subA = a.post_maxparti - a.post_currentparti;
+            let subB = b.post_maxparti - b.post_currentparti;
+            return subA - subB;
+        })
+    }
+
+    // 필터 옵션 상태가 바뀔때마다 재정렬
+    useEffect(() => {
+        let posts = [...fireposts];
+         console.log(sort)
+
+        if (posts.length === 0) {
+            setSortedData([]);
+            return;
+        }
+
+        posts.sort((a, b) => new Date(b.post_createdAt) - new Date(a.post_createdAt));
+
+        if (sort === "시간임박순") {
+            setSortedData(timeOrder(posts));
+        } else if (sort === "인원임박순") {
+            setSortedData(participantOrder(posts));
+        }
+    }, [sort, fireposts, selectedSortState]);
+
+    // 사용자 데이터 로드
+    useEffect(() => {
+        fetchUser();
+    }, [userDocId]);
+
+    // 사용자 데이터 로드가 끝난 후 게시글 데이터 로드
+    useEffect(() => {
+        if (user) {
+            fetchPost();
+        }
+    }, [user]);
+
+    // 모든 데이터가 로드될 때까지 로딩 화면 표시
+    if (loadingUser || loadingPosts) {
+        return <Loading />;
+    }
 
     const handleIntroNavigate = () => {
         navigate(-1);
@@ -41,10 +119,10 @@ const UserInterestMoreList = () => {
             <Wrapper>
                 <Header>
                     <BackButton onClick={handleIntroNavigate}/>
-                    <Title>찜한 게시글</Title>
+                    <Title>{user.user_name}님이 저장한 게시글</Title>
                 </Header>
                 <FilterWrapper>
-                    <SortFilter />
+                    <SortFilter sort={sort} setSort={setSort}/>
                 </FilterWrapper>
                 <InterestList>
                     {sortedData.map((post, index) => (
@@ -98,7 +176,7 @@ const BackButton = styled.img.attrs({
 const Title = styled.div`
     font-size: 16px;
     font-weight: bold;
-    margin-left: 125px;
+    margin-left: 68px;
 `;
 
 const FilterWrapper = styled.div`

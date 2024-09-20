@@ -5,7 +5,7 @@ import { increaseExpAndLevel } from "../../function/Exp";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
-import { addDoc, collection, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 import { db, storage, auth } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -101,6 +101,7 @@ const UploadForm = () => {
                 post_images: uploadedImageUrls,
                 post_view: 0,
                 post_liked_users: [],
+                post_parti_members: [currentUser.uid],
             });
 
             alert('게시글이 성공적으로 등록되었습니다!');
