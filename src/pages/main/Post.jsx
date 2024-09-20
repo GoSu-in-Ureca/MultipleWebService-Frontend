@@ -10,8 +10,9 @@ import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
 import Modal from "../../components/main/Modal.jsx";
 
-import { db, auth } from "../../firebase";
+import { db, auth, database } from "../../firebase";
 import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
+import { ref, update } from "firebase/database";
 
 const Post = () => {
     const navigate = useNavigate();
@@ -190,6 +191,7 @@ const Post = () => {
       };
     const handleJoinClick = async () => {
         const postDocRef = doc(db, "posts", postId);
+        const realtimeChatRoomRef = ref(database, `chatRoom/${post.post_chatroom_id}`);
         try {
             if (post.post_status && post.post_currentparti < post.post_maxparti) {
                 if(post.post_currentparti+1 === post.post_maxparti) {
@@ -223,8 +225,18 @@ const Post = () => {
                 console.log("사용자 문서를 찾을 수 없습니다.");
             }
 
+            // 파이어스토어에 추가
+            await updateDoc(postDocRef, {
+                room_parti: arrayUnion(user.uid),
+              });
+
+            // Realtime Database에 사용자 추가
+            await update(realtimeChatRoomRef, {
+                participants: arrayUnion(user.uid),
+            });
+
             alert("파티 참여 성공");
-            navigate('/chats/');
+            navigate(`/chats/${post.post_chatroom_id}`);
             } else {
                 alert("모집이 마감된 게시글입니다.");
                 navigate(0);

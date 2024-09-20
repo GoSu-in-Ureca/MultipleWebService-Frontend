@@ -174,6 +174,7 @@ const UserMain = () => {
             console.log("프로필 업데이트 중 오류 발생: ", error);
         }
       };
+      
       const handleGoogleLinkClick = async () => {
         const currentUser = auth.currentUser;
 
