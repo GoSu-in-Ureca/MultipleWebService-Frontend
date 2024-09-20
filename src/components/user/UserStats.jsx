@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import toolTip from '/assets/Icon/tool-tip.svg';
 
 const UserStats = ({user}) => {
     return (
@@ -13,7 +14,17 @@ const UserStats = ({user}) => {
             </Box>
                 <LevelBox>
                     <LevelLayout>
-                        <Level>활동 레벨</Level><LevelNum>LV.{user.user_level}</LevelNum>
+                        <LevelAndTooltip>
+                            <Level>활동 레벨</Level>
+                            <TooltipInfo>
+                                <ToolTipIcon></ToolTipIcon>
+                                <ToolTip>
+                                    <p style={{fontSize: "10px", fontWeight: "bold"}}>활동 레벨이란?</p>
+                                    <p style={{fontSize: "9px"}}>파티 모집 횟수와 참여 횟수에 따라 책정된 레벨입니다.</p>
+                                </ToolTip>
+                            </TooltipInfo>
+                        </LevelAndTooltip>
+                        <LevelNum>LV.{user.user_level}</LevelNum>
                     </LevelLayout>
                     <LevelGraph src={`/assets/Icon/level${user.user_level}.svg`}></LevelGraph>
                 </LevelBox>
@@ -82,9 +93,61 @@ const LevelLayout = styled.div`
     position: absolute;
 `;
 
+const LevelAndTooltip = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3px;
+`;
+
 const Level = styled.span`
     font-size: 13px;
     font-family: 'Pretendard-Medium';
+`;
+
+
+const TooltipInfo = styled.div`
+    cursor: pointer;
+    &:hover > div {
+        visibility: visible;
+        opacity: 1;
+    }  
+`;
+
+const ToolTipIcon = styled.img.attrs({
+    src: toolTip,
+    alt: "tool-tip Image"
+})`
+    width: 11px;
+    height: 11px;
+`;
+
+const ToolTip = styled.div`
+    visibility: hidden;
+    font-size: 0.8vw;
+    width: 135px;
+    background-color: white;
+    color: black;
+    border-radius: 10px;
+    padding: 7px 10px;
+    position: absolute;
+    left: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flow;
+    z-index: 2;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+    
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 0.6vw;
+        border-style: solid;
+        border-color: white transparent transparent transparent;
+    }
 `;
 
 const LevelNum = styled.span`
@@ -94,6 +157,6 @@ const LevelNum = styled.span`
 
 const LevelGraph = styled.img`
     width: 115px;
-    position: relative;
+    /* position: relative; */
     padding-top: 22px;
 `;
