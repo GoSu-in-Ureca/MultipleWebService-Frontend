@@ -60,8 +60,7 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
           position: "absolute",
           top: `${modalPosition.top}px`,
           left: `${modalPosition.left}px`,
-        }} 
-        onClick={(e)=>e.stopPropagation()}>
+        }}>
         {/* children */}
         <UpdateButton onClick={handleUpdateClick}>수정</UpdateButton>
         <DelButton onClick={handleDeleteClick}>삭제</DelButton>
