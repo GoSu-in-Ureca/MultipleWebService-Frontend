@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import UserStats from "../../components/user/UserStats";
 import InterestList from "../../components/user/InterestList";
@@ -7,9 +7,11 @@ import Loading from "../../Loading";
 import NavigationUser from "../../components/main/NavigationUser";
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { auth, db } from "../../firebase";
-import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut } from "firebase/auth";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+
+import { auth, db, storage } from "../../firebase";
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut, getAuth, updateProfile } from "firebase/auth";
+import { uploadBytesResumable, getDownloadURL, ref as strRef, uploadBytes } from "firebase/storage";
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 
 const UserMain = () => {
     const navigate = useNavigate();
@@ -19,6 +21,7 @@ const UserMain = () => {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [password, setPassword] = useState("");
     const [currentUserDocId, setCurrentUserDocId] = useState(null);
+    const inputOpenImageRef = useRef(null);
 
     // 로그인한 사용자의 Firestore 문서 ID 가져오기
     useEffect(() => {
@@ -115,6 +118,57 @@ const UserMain = () => {
         }
       }
 
+      // 프로필 사진 변경하기
+      const handleOpenImageRef = () => {
+        inputOpenImageRef.current.click(); // 클릭을 억지로 하도록 함
+      };
+    
+      // 프로필 이미지 업데이트
+      const handleProfileUpdate = async (event) => { 
+        const file = event.target.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB 제한
+        const allowedExtensions = ["jpg", "jpeg", "png"];
+
+        if(file && file.size > maxSize){
+            alert("파일 크기는 2MB를 초과할 수 없습니다.");
+            return;
+        }
+
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if(!allowedExtensions.includes(fileExtension)){
+            alert("유효한 파일 형식이 아닙니다.");
+            return;
+        }
+
+        try{
+            const user = auth.currentUser; // 현재 유저에 대한 정보 
+
+            if(user){
+                // 프로필 이미지 Firebase Storage에 업로드
+                const imageRef = strRef(storage, `profileImages/${user.uid}`);
+                await uploadBytes(imageRef, file);
+                const profileImageUrl = await getDownloadURL(imageRef);
+
+                // Firestore 업데이트
+                await updateDoc(doc(db, "users", currentUserDocId), {
+                    profile_image_url: profileImageUrl,
+                });
+
+                await updateProfile(user, {
+                    photoURL: profileImageUrl,
+                });
+
+                setUser((prevUser)=>({
+                    ...prevUser,
+                    profile_image_url: profileImageUrl,
+                }));
+
+            }
+        }catch(error){
+            console.log("프로필 업데이트 중 오류 발생: ", error);
+        }
+      };
+
     return (
         <>
             <Wrapper>
@@ -124,13 +178,20 @@ const UserMain = () => {
                         <ProfileAreaLeft>
                             <ProfileImage src={user.profile_image_url || "/defaultImage/profile.png"}/>
                             {currentUserDocId === userDocId && (
-                                <EditProfileButton >프로필 사진 변경하기</EditProfileButton>
+                                <EditProfileButton onClick={handleOpenImageRef}>프로필 사진 변경하기</EditProfileButton>
                             )}
                             <UserName>{user.user_name}</UserName>
                             <Department>{user.user_department}/{user.user_onoffline}</Department>
                             {currentUserDocId === userDocId && (
                                 <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
                             )}
+                            <input 
+                                onChange={handleProfileUpdate}
+                                type="file" 
+                                ref={inputOpenImageRef}
+                                style={{display: 'none'}}
+                                accept='image/jpeg, image/png' // 파일 종류 제한
+                            />
                         </ProfileAreaLeft>
                         <ProfileAreaRight>
                             <UserStats user={user}/>
@@ -230,6 +291,7 @@ const ProfileImage = styled.img`
 `;
 
 const EditProfileButton = styled.div`
+    cursor: pointer;
     font-size: 10px;
     font-family: 'Pretendard-Regular';
     color: #404041;
