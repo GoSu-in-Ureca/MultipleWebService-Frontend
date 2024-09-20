@@ -1,18 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import NavigationChat from "../../components/main/NavigationChat";
 import ChatItem from "../../components/chat/ChatItem";
-import data from "../../postData.json"
+
+import { ref, onValue } from "firebase/database";
+import { database } from "../../firebase";
 
 const ChatList = () => {
+    const [chatRooms, setChatRooms] = useState([]);
+
+    // 채팅 목록 불러오기
+    useEffect(() => {
+        const chatRoomsRef = ref(database, "chatRooms");
+        const unsubscribe = onValue(chatRoomsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const roomsArray = Object.keys(data).map((key) => ({
+                    id: key,
+                    ...data[key],
+                }));
+                setChatRooms(roomsArray);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     return (
         <>
             <Wrapper>
                 <Title>채팅</Title>
                 <ChatListWrapper>
-                    {data.map((chatData, index) => (
-                        <ChatItem key={index} chat={chatData} />
+                    {chatRooms.map((chatroom, index) => (
+                        <ChatItem key={index} chatroom={chatroom} />
                     ))}
                 </ChatListWrapper>
             </Wrapper>

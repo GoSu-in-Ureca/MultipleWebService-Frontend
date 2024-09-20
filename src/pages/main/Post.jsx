@@ -54,7 +54,7 @@ const Post = () => {
                     }
                     setPost(postData);
 
-                    if (postData.post_party_members && postData.post_party_members.includes(user.uid)) {
+                    if (postData.post_parti_members && postData.post_parti_members.includes(user.uid)) {
                         setIsJoined(true);
                     }
 
