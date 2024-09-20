@@ -1,12 +1,14 @@
 import styled from "styled-components";
 import more from "/assets/Icon/More.svg";
 import profile from "/assets/BG/ProfileExample.svg";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ChatItem = ({chatroom}) => {
+    const navigate = useNavigate();
 
     // 개별 채팅방으로 이동
     const handleChatRoomNavigate = () => {
-
+        navigate(`/chats/${chatroom.room_id}}`);
     }
 
     return (
@@ -15,9 +17,9 @@ const ChatItem = ({chatroom}) => {
                 <ProfileImage />
                 <MainArea>
                     <TextArea>
-                    <span>{chatroom.title}</span>
+                    <span>{chatroom.room_name}</span>
                     </TextArea>
-                    <ChatContent>가장 최근 대화 내용</ChatContent>
+                    <ChatContent>{chatroom.messages ? chatroom.messages : `아직 대화 내용이 없습니다`}</ChatContent>
                 </MainArea>
                 <InfoArea>
                     <MoreIcon />

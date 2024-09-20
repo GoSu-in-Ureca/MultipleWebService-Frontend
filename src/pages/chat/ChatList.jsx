@@ -11,7 +11,7 @@ const ChatList = () => {
 
     // 채팅 목록 불러오기
     useEffect(() => {
-        const chatRoomsRef = ref(database, "chatRooms");
+        const chatRoomsRef = ref(database, "chatRoom");
         const unsubscribe = onValue(chatRoomsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -26,12 +26,16 @@ const ChatList = () => {
         return () => unsubscribe();
     }, []);
 
+    const sortedData = chatRooms.sort((a, b) => 
+        new Date(b.room_createdat) - new Date(a.room_createdat)
+    );
+
     return (
         <>
             <Wrapper>
-                <Title>채팅</Title>
+                <Title>채팅방 목록</Title>
                 <ChatListWrapper>
-                    {chatRooms.map((chatroom, index) => (
+                    {sortedData.map((chatroom, index) => (
                         <ChatItem key={index} chatroom={chatroom} />
                     ))}
                 </ChatListWrapper>
@@ -46,7 +50,6 @@ export default ChatList;
 // styled components
 
 const Wrapper = styled.div`
-    font-family: "Pretendard-Medium";
     width: 390px;
     display: flex;
     flex-wrap: wrap;
