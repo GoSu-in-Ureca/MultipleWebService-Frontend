@@ -2,14 +2,20 @@ import styled from "styled-components";
 import more from "/assets/Icon/More.svg";
 import profile from "/assets/BG/ProfileExample.svg";
 
-const ChatItem = ({chat}) => {
+const ChatItem = ({chatroom}) => {
+
+    // 개별 채팅방으로 이동
+    const handleChatRoomNavigate = () => {
+
+    }
+
     return (
         <>
-            <Wrapper>
+            <Wrapper onClick={handleChatRoomNavigate}>
                 <ProfileImage />
                 <MainArea>
                     <TextArea>
-                    <span>{chat.title}</span>
+                    <span>{chatroom.title}</span>
                     </TextArea>
                     <ChatContent>가장 최근 대화 내용</ChatContent>
                 </MainArea>
