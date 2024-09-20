@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import profile from "/assets/BG/ProfileExample2.jpg";
 import dot from "/assets/Icon/dot.svg";
 import { useNavigate } from "react-router-dom";
 import { increment } from "firebase/firestore";
