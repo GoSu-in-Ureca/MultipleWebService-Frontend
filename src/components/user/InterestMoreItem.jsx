@@ -1,26 +1,43 @@
 import styled from "styled-components";
-import profile from "/assets/BG/ProfileExample2.jpg";
 import dot from "/assets/Icon/dot.svg";
+import { useNavigate } from "react-router-dom";
 
 const InterestMoreItem = ({post}) => {
-    const deadLineDate = new Date(post.deadline);
+    const navigate = useNavigate();
+    const deadLineDate = new Date(post.post_deadline);
     const leftDays = Math.ceil((deadLineDate-Date.now()) / (1000*60*60*24));
+
+    const handlePostClick = () => {
+        incrementViewCount(post.id);
+        navigate(`/main/${post.id}`);
+    }
+
+    const incrementViewCount = async (postId) => {
+        try{
+            const postDocRef = doc(db, "posts", postId);
+            await updateDoc(postDocRef, {
+                post_view: increment(1),
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <>
-            <Wrapper>
-            <ProfileImage />
+            <Wrapper onClick={handlePostClick}>
+            <ProfileImage src={post.post_images[0] || "/assets/BG/defaultImage.png"}/>
                 <MainArea>
                     <TextArea>
-                        {post.title}
+                        {post.post_title}
                     </TextArea>
-                    <Content>{post.content}</Content>
+                    <Content>{post.post_content}</Content>
                     <InfoArea>
-                        <LeftDays>D-{leftDays}</LeftDays>
+                        <LeftDays $isExpired={leftDays <= 0}>{leftDays > 0 ? `D-${leftDays}` : "마감"}</LeftDays>
                         <DotIcon />
-                        <SubText>{post.author}</SubText>
+                        <SubText>{post.post_user_name}</SubText>
                         <DotIcon />
-                        <PartyStatus>참여 인원 <span style={{color: "#7F52FF"}}>{post.currentParticipants}</span> / {post.maxParticipants}</PartyStatus>
+                        <PartyStatus>참여 인원 <span style={{color: "#7F52FF"}}>{post.post_currentparti}</span> / {post.post_maxparti}</PartyStatus>
                     </InfoArea>
                 </MainArea>
             </Wrapper>
@@ -46,10 +63,7 @@ const Wrapper = styled.div`
     }
 `;
 
-const ProfileImage = styled.img.attrs({
-    src: profile,
-    alt: "Profile Image"
-})`
+const ProfileImage = styled.img`
     width: 70px;
     height: 70px;
     border-radius: 11px;
@@ -103,7 +117,7 @@ const LeftDays = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 19.5px;
-    background-color: #7F52FF;
+    background-color: ${props => props.$isExpired ? "#BCBEC0" : "#7F52FF"};
 `;
 
 const DotIcon = styled.img.attrs({

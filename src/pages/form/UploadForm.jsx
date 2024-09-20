@@ -6,8 +6,9 @@ import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
 import { addDoc, collection, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
-import { db, storage, auth } from "../../firebase";
+import { db, storage, auth, database } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as databaseRef, push, set } from "firebase/database";
 
 const UploadForm = () => {
     const navigate = useNavigate();
@@ -83,7 +84,8 @@ const UploadForm = () => {
         }
 
         try {
-            await addDoc(collection(db, 'posts'), {
+            // post 문서 추가
+            const postRef = await addDoc(collection(db, 'posts'), {
                 post_user_id: currentUser.uid,
                 post_user_name: userName,
                 post_category: selectedCategory,
@@ -101,18 +103,37 @@ const UploadForm = () => {
                 post_images: uploadedImageUrls,
                 post_view: 0,
                 post_liked_users: [],
+                post_parti_members: [currentUser.uid],
             });
 
-            alert('게시글이 성공적으로 등록되었습니다!');
+            // 채팅방 생성
+            const chatRoomRef = databaseRef(database, "chatRoom");
+            const newChatRoomRef = push(chatRoomRef);
+            const roomId = newChatRoomRef.key;
+            await set(newChatRoomRef, {
+                room_id: roomId,
+                room_name: title,
+                room_createdat: new Date().toISOString(),
+                room_host: currentUser.uid,
+                room_parti: [currentUser.uid],
+                room_lastMessage: "",
+                room_lastMessagedat: new Date().toISOString(),
+                messages: {},
+            });
 
+            // post에 채팅방 id 추가
+            await updateDoc(postRef, {
+                post_chatroom_id: roomId,
+            });
+            
             const userSnapshot = await getDocs(
                 query(collection(db, "users"), where("user_id", "==", currentUser.uid)
             ));
-
+            
             if(!userSnapshot.empty){
                 const userDoc = userSnapshot.docs[0];
                 const userDocId = userDoc.id;
-
+                
                 // 사용자 문서 업데이트
                 await updateDoc(userSnapshot.docs[0].ref, {
                     user_recruit: increment(1),
@@ -121,16 +142,17 @@ const UploadForm = () => {
                 await increaseExpAndLevel(userDocId, 3);
             } else {
                 console.log("사용자 문서를 찾을 수 없습니다.");
-              }
-
-            navigate('/main');
+            }
+            
+            alert('게시글이 성공적으로 등록되었습니다!');
+            navigate(`/chats/${roomId}`);
         } catch (error) {
             console.error('게시글 등록 중 오류 발생:', error);
             alert('게시글 등록에 실패했습니다.');
+            return;
         }
     };
     
-
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
 
     return (

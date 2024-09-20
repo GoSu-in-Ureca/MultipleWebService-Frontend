@@ -22,6 +22,7 @@ const UserMain = () => {
     const [password, setPassword] = useState("");
     const [currentUserDocId, setCurrentUserDocId] = useState(null);
     const inputOpenImageRef = useRef(null);
+    const [isGoogleLinked, setIsGoogleLinked] = useState(false);
 
     // 로그인한 사용자의 Firestore 문서 ID 가져오기
     useEffect(() => {
@@ -36,6 +37,12 @@ const UserMain = () => {
                     if (!querySnapshot.empty) {
                         setCurrentUserDocId(querySnapshot.docs[0].id); // 로그인한 사용자의 문서 ID 설정
                     }
+
+                    // 구글 계정 연동 여부 확인
+                    const googleLinked = currentUser.providerData.some(
+                        (provider) => provider.providerId === "google.com"
+                    );
+                    setIsGoogleLinked(googleLinked);
                 } catch (error) {
                     console.error("Error fetching user document:", error);
                 }
@@ -71,7 +78,6 @@ const UserMain = () => {
         try {
           await signOut(auth);
           navigate("/intro");
-          console.log('Success to Logout');
         } catch (error) {
           console.error(error);
         }
@@ -168,6 +174,20 @@ const UserMain = () => {
             console.log("프로필 업데이트 중 오류 발생: ", error);
         }
       };
+      const handleGoogleLinkClick = async () => {
+        const currentUser = auth.currentUser;
+
+        if(!currentUser) return ;
+
+        try{
+            const provider = new GoogleAuthProvider();
+            await linkWithPopup(currentUser, provider);
+
+            console.log("success");
+        } catch(error) {
+            console.log(error);
+        }
+      }
 
     return (
         <>
@@ -200,6 +220,9 @@ const UserMain = () => {
                 </InfoBox>
                 <InterestList/>
                 <UploadList/>
+                {!isGoogleLinked && (
+                    <GoogleLinkButton onClick={handleGoogleLinkClick}>Google 계정 연동</GoogleLinkButton>
+                )}
                 {currentUserDocId === userDocId && (
                     <Secession onClick={handleSecessionAlert}>회원탈퇴</Secession>
                 )}
@@ -335,6 +358,7 @@ const Secession = styled.div`
     font-size: 11px;
     color: #ff7474;
     margin-bottom: 12px;
+    margin-top: 12px;
 
     &:hover{
         cursor: pointer;
@@ -399,4 +423,22 @@ const Input = styled.input`
     height: 30px;
     width: 200px;
     text-align: center;
+`;
+
+const GoogleLinkButton = styled.div`
+    width: 289px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: #BCBEC0 1px solid;
+    border-radius: 39px;
+    margin-top: 13px;
+    font-size: 14px;
+    font-weight: bold;
+
+    &:hover{
+        cursor: pointer;
+    }
 `;

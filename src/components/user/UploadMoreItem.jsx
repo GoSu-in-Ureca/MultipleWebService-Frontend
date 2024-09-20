@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import profile from "/assets/BG/ProfileExample2.jpg";
 import dot from "/assets/Icon/dot.svg";
 import { useNavigate } from "react-router-dom";
 import { increment } from "firebase/firestore";
@@ -40,7 +39,7 @@ const UploadMoreItem = ({post}) => {
                 </TitleArea>
                 <Content>{post.post_content}</Content>
                 <InfoArea>
-                    <LeftDays>{leftDays > 0 ? `D-${leftDays}` : "마감"}</LeftDays>
+                    <LeftDays $isExpired={leftDays <= 0}>{leftDays > 0 ? `D-${leftDays}` : "마감"}</LeftDays>
                     <DotIcon />
                     <PartyStatus>
                         참여 인원 <span style={{ color: "#7F52FF" }}>{post.post_currentparti}</span> / {post.post_maxparti}
@@ -134,7 +133,7 @@ const LeftDays = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 19.5px;
-    background-color: #7F52FF;
+    background-color: ${props => props.$isExpired ? "#BCBEC0" : "#7F52FF"};
 `;
 
 const DotIcon = styled.img.attrs({

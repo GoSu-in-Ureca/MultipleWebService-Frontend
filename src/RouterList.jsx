@@ -67,7 +67,7 @@ export const RouterList = () => [
         element: <UploadForm />,
       },
       {
-        path: "update",
+        path: "update/:postId",
         element: <UpdateForm />,
       },
     ],
@@ -86,7 +86,7 @@ export const RouterList = () => [
         element: <UserUploadMoreList />,
       },
       {
-        path: "interest",
+        path: "interest/:userDocId",
         element: <UserInterestMoreList />,
       },
       {

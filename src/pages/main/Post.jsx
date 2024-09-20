@@ -1,12 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
 import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
+import Modal from "../../components/main/Modal.jsx";
 
 import { db, auth } from "../../firebase";
 import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
@@ -20,6 +22,19 @@ const Post = () => {
     const [author, setAuthor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isInteresting, setIsInteresting] = useState(false);
+    const [isJoined, setIsJoined] = useState(false);
+    const [isOpen, setIsOpen] = useState(false); // 모달 창
+    const [modalPosition, setModalPosition] = useState({top:0, left:0}); // 모달 위치
+
+    const modalButtonRef = useRef(null); // 미트볼 아이콘 위치 참조
+
+    // 모달 위치 설정
+    const handleModalClick = () => {
+        const rect = modalButtonRef.current.getBoundingClientRect();
+        setModalPosition({top: rect.top, left: rect.left+window.scrollX}); // 모달 위치
+        setIsOpen(true); // 모달 열기
+        document.body.style.overflow = 'hidden';
+    }
 
     // 게시글 불러오기
     useEffect(() => {
@@ -30,7 +45,18 @@ const Post = () => {
 
                 if(postSnapshot.exists){
                     const postData = postSnapshot.data();
+                    const currentDate = new Date();
+
+                    // 마감 시간이 지났다면 post_status를 false로 업데이트
+                    if (new Date(postData.post_deadline) < currentDate && postData.post_status) {
+                        await updateDoc(postRef, { post_status: false });
+                        postData.post_status = false;
+                    }
                     setPost(postData);
+
+                    if (postData.post_parti_members && postData.post_parti_members.includes(user.uid)) {
+                        setIsJoined(true);
+                    }
 
                     if (postData.post_liked_users && postData.post_liked_users.includes(user.uid)) {
                         setIsInteresting(true);
@@ -158,6 +184,57 @@ const Post = () => {
         }
     }
 
+    // 파티 참여 핸들러
+    const formatDeadlineDate = (date) => {
+        return date.toISOString().slice(0, 16);
+      };
+    const handleJoinClick = async () => {
+        const postDocRef = doc(db, "posts", postId);
+        try {
+            if (post.post_status && post.post_currentparti < post.post_maxparti) {
+                if(post.post_currentparti+1 === post.post_maxparti) {
+                    const currentTime = new Date();
+                    const formatted = formatDeadlineDate(currentTime);
+                    await updateDoc(postDocRef, {
+                        post_deadline: formatted,
+                        post_currentparti: increment(1),
+                        post_party_members: arrayUnion(user.uid)
+                    });
+                } else {
+                await updateDoc(postDocRef, {
+                    post_currentparti: increment(1),
+                    post_parti_members: arrayUnion(user.uid),
+                });
+            }
+            const userSnapshot = await getDocs(
+                query(collection(db, "users"), where("user_id", "==", user.uid)
+            ));
+            if(!userSnapshot.empty){
+                const userDoc = userSnapshot.docs[0];
+                const userDocId = userDoc.id;
+
+                // 사용자 문서 업데이트
+                await updateDoc(userSnapshot.docs[0].ref, {
+                    user_join: increment(1),
+                });
+                // 경험치와 레벨 증가
+                await increaseExpAndLevel(userDocId, 2);
+            } else {
+                console.log("사용자 문서를 찾을 수 없습니다.");
+            }
+
+            alert("파티 참여 성공");
+            navigate('/chats/');
+            } else {
+                alert("모집이 마감된 게시글입니다.");
+                navigate(0);
+            }
+        } catch (error) {
+            console.error("파티 참여 중 오류가 발생했습니다.", error);
+        }
+    };
+
+
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
     }
@@ -174,9 +251,10 @@ const Post = () => {
                 </Header>
                 <ImageSlider>
                     <ImageInner>
-                        {post.post_images.map((image, index) => (
-                            <Image src={image}/>
-                        ))}
+                        {post.post_images.length > 0 ? post.post_images.map((image, index) => (
+                            <Image src={image} key={index}/>
+                        )) : <Image src={"/assets/BG/defaultImage.png"} />}
+
                     </ImageInner>
                 </ImageSlider>
                 <TagsAndWriteTime>
@@ -205,7 +283,22 @@ const Post = () => {
                 <ContentTop>
                     <TitleAndImg>
                         <Title>{post.post_title}</Title>
-                        <img src={More} style={{transform:"rotate(90deg)"}}/>
+                        {user.uid === post.post_user_id ?
+                            <img 
+                                src={More} 
+                                style={{transform:"rotate(90deg)", cursor:"pointer", marginTop:"5px"}}
+                                ref={modalButtonRef}
+                                onClick={handleModalClick} // 클릭 시 모달 열기
+                            />: null}
+                        <Modal 
+                            postId={postId}
+                            isOpen={isOpen} 
+                            onClose={()=>{
+                                setIsOpen(false);
+                                document.body.style.overflow = 'unset';
+                            }}
+                            modalPosition={modalPosition} // 모달 위치 props 전달
+                        />
                     </TitleAndImg>
                     <Writer>
                         <span>작성자</span> 
@@ -234,7 +327,12 @@ const Post = () => {
                 <SubmitArea>
                     <HeartIcon src={isInteresting ? HeartBlack : Heart}
                                 onClick={handleHeartClick} />
-                    <Participate $isexpired={leftDays === '마감'}>참여하기</Participate>
+                    <Participate
+                        $isexpired={leftDays === '마감' || isJoined || user.uid === post.post_user_id}
+                        onClick={isJoined || leftDays === '마감' ? null : handleJoinClick}
+                    >
+                        {isJoined ? '참여 중' : '참여하기'}
+                    </Participate>
                 </SubmitArea>
             </Wrapper>
         </>
@@ -382,11 +480,13 @@ const ContentMiddle = styled.div`
     font-family: 'Pretendard-Medium';
     color: #676767;
     font-size: 12px;
+    overflow-y: scroll;
 `;
 
 const TitleAndImg =styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
 `;
 
 const Title = styled.div`
