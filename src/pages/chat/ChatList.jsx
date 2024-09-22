@@ -3,7 +3,7 @@ import styled from "styled-components";
 import NavigationChat from "../../components/main/NavigationChat";
 import ChatItem from "../../components/chat/ChatItem";
 
-import { ref, onValue, query, orderByChild } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { auth, database } from "../../firebase";
 
 const ChatList = () => {
@@ -87,4 +87,5 @@ const ChatListWrapper = styled.div`
     align-items: center;
     background-color: white;
     width: 100%;
+    min-height: calc(100vh - 142px);
 `;

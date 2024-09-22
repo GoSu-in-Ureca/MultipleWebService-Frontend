@@ -1,29 +1,28 @@
 import styled from "styled-components";
 import more from "/assets/Icon/More.svg";
-import profile from "/assets/BG/ProfileExample.svg";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ChatItem = ({chatroom}) => {
     const navigate = useNavigate();
 
     // 개별 채팅방으로 이동
     const handleChatRoomNavigate = () => {
-        navigate(`/chats/${chatroom.room_id}}`);
+        navigate(`/chats/${chatroom.room_id}`);
     }
 
     return (
         <>
             <Wrapper onClick={handleChatRoomNavigate}>
-                <ProfileImage />
+                <ThumbnailImage src={chatroom.room_thumbnail}/>
                 <MainArea>
                     <TextArea>
                     <span>{chatroom.room_name}</span>
                     </TextArea>
-                    <ChatContent>{chatroom.messages ? chatroom.messages : `아직 대화 내용이 없습니다`}</ChatContent>
+                    <ChatContent>{chatroom.room_lastMessage}</ChatContent>
                 </MainArea>
                 <InfoArea>
                     <MoreIcon />
-                    <LatestTime>2분 전</LatestTime>
+                    <LatestTime>{chatroom.room_lastMessageat}</LatestTime>
                 </InfoArea>
             </Wrapper>
         </>
@@ -49,17 +48,15 @@ const Wrapper = styled.div`
     }
 `;
 
-const ProfileImage = styled.img.attrs({
-    src: profile,
-    alt: "Profile Image"
-})`
+const ThumbnailImage = styled.img`
     width: 34px;
     height: 34px;
     border-radius: 34px;
     background-color: gray;
     margin-left: 20px;
     margin-right: 13px;
-    align-self: center;
+    object-fit: cover;
+    object-position: center;
 `;
 
 const MainArea = styled.div`
