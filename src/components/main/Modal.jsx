@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { database, db } from '../../firebase';
+import { ref, remove } from 'firebase/database';
 
 // isOpen : 모달 열려있는지 여부
 // onClose : 모달 닫기
 // children : 모달 안에 들어갈 내용
 
-const Modal = ({isOpen, onClose, modalPosition, postId}) => {
+const Modal = ({isOpen, onClose, modalPosition, postId, post}) => {
   const navigate = useNavigate();
 
   if(!isOpen) return null;
@@ -22,6 +23,9 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
   const handleDeleteClick = async () => {
     try{
       await deleteDoc(doc(db, 'posts', postId));
+
+      await remove(ref(database, `chatRoom/${post.post_chatroom_id}`));
+
       alert('게시글이 성공적으로 삭제되었습니다!');
       navigate(-1);
     } catch (error) {

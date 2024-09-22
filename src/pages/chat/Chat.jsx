@@ -21,7 +21,7 @@ const Chat = () => {
     const [post, setPost] = useState(null);
     const currentUser = auth.currentUser;
 
-    // Fetch current user data
+    // 현재 사용자 불러오기
     useEffect(() => {
         const queryCollection = query(
             collection(db, "users"),
@@ -43,7 +43,7 @@ const Chat = () => {
         fetchUser();
     }, []);
 
-    // Fetch post data
+    // 관련 게시글 불러오기
     useEffect(() => {
         const fetchPost = async () => {
             const queryCollection = query(
@@ -76,7 +76,7 @@ const Chat = () => {
         return () => unsubscribe();
     }, [chatId]);
 
-    // Fetch messages
+    // 메세지 새로고침
     useEffect(() => {
         const unsubscribe = onValue(reference, (snapshot) => {
             const data = snapshot.val();
@@ -165,7 +165,7 @@ const Chat = () => {
                         <Title>채팅</Title>
                     </Header>
                     <PostInfoArea onClick={() => handlePostNavigate(post.id)}>
-                        <Tag>
+                        <Tag isexpired={post && new Date(post.post_deadline) >= new Date() ? "모집중" : "마감"}>
                             {post && new Date(post.post_deadline) >= new Date()
                                 ? "모집중"
                                 : "마감"}
@@ -216,7 +216,7 @@ const Chat = () => {
 
 export default Chat;
 
-// Separate components for MyMessage and OtherMessage
+// Message 아이템 컴포넌트 분리함
 
 const MyMessageItem = ({ message, formatTime }) => (
     <MyMessageItemWrapper>
@@ -313,7 +313,7 @@ const Tag = styled.div`
     justify-content: center;
     width: 48px;
     height: 20px;
-    background-color: #7f52ff;
+    background-color: ${({ isexpired }) => (isexpired === '마감' ? '#808080' : '#7f52ff')};
     border-radius: 20px;
     color: white;
     font-weight: 400;
@@ -361,7 +361,7 @@ const MyMessageBubble = styled.div`
     width: fit-content;
     font-size: 10px;
     color: white;
-    background-color: #bfa9ff;
+    background-color: #9872ff;
     border-radius: 20px 20px 0 20px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
@@ -378,6 +378,7 @@ const MessageProfile = styled.img`
     height: 28px;
     border-radius: 28px;
     margin-right: 8px;
+    object-fit: cover;
 
     &:hover {
         cursor: pointer;
