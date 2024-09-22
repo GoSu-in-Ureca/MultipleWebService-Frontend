@@ -165,7 +165,7 @@ const Chat = () => {
                         <Title>채팅</Title>
                     </Header>
                     <PostInfoArea onClick={() => handlePostNavigate(post.id)}>
-                        <Tag>
+                        <Tag isexpired={post && new Date(post.post_deadline) >= new Date() ? "모집중" : "마감"}>
                             {post && new Date(post.post_deadline) >= new Date()
                                 ? "모집중"
                                 : "마감"}
@@ -216,7 +216,7 @@ const Chat = () => {
 
 export default Chat;
 
-// MEssage 아이템 컴포넌트 분리함
+// Message 아이템 컴포넌트 분리함
 
 const MyMessageItem = ({ message, formatTime }) => (
     <MyMessageItemWrapper>
@@ -313,7 +313,7 @@ const Tag = styled.div`
     justify-content: center;
     width: 48px;
     height: 20px;
-    background-color: #7f52ff;
+    background-color: ${({ isexpired }) => (isexpired === '마감' ? '#808080' : '#7f52ff')};
     border-radius: 20px;
     color: white;
     font-weight: 400;
@@ -361,7 +361,7 @@ const MyMessageBubble = styled.div`
     width: fit-content;
     font-size: 10px;
     color: white;
-    background-color: #bfa9ff;
+    background-color: #9872ff;
     border-radius: 20px 20px 0 20px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;

@@ -309,6 +309,7 @@ const Post = () => {
                         <Modal 
                             postId={postId}
                             isOpen={isOpen} 
+                            post={post}
                             onClose={()=>{
                                 setIsOpen(false);
                                 document.body.style.overflow = 'unset';
