@@ -21,7 +21,7 @@ const Chat = () => {
     const [post, setPost] = useState(null);
     const currentUser = auth.currentUser;
 
-    // Fetch current user data
+    // 현재 사용자 불러오기
     useEffect(() => {
         const queryCollection = query(
             collection(db, "users"),
@@ -43,7 +43,7 @@ const Chat = () => {
         fetchUser();
     }, []);
 
-    // Fetch post data
+    // 관련 게시글 불러오기
     useEffect(() => {
         const fetchPost = async () => {
             const queryCollection = query(
@@ -76,7 +76,7 @@ const Chat = () => {
         return () => unsubscribe();
     }, [chatId]);
 
-    // Fetch messages
+    // 메세지 새로고침
     useEffect(() => {
         const unsubscribe = onValue(reference, (snapshot) => {
             const data = snapshot.val();
@@ -216,7 +216,7 @@ const Chat = () => {
 
 export default Chat;
 
-// Separate components for MyMessage and OtherMessage
+// MEssage 아이템 컴포넌트 분리함
 
 const MyMessageItem = ({ message, formatTime }) => (
     <MyMessageItemWrapper>
@@ -378,6 +378,7 @@ const MessageProfile = styled.img`
     height: 28px;
     border-radius: 28px;
     margin-right: 8px;
+    object-fit: cover;
 
     &:hover {
         cursor: pointer;
