@@ -5,6 +5,17 @@ import { useNavigate } from "react-router-dom";
 const ChatItem = ({chatroom}) => {
     const navigate = useNavigate();
 
+    // 시간 포맷 함수
+    const getTimeDifference = (createdAt) => {
+        const postDate = new Date(createdAt);
+        const now = new Date();
+        const diff = (now - postDate) / 1000;
+
+        if(diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+        if(diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+        return `${Math.floor(diff / 86400)}일 전`;
+    };
+
     // 개별 채팅방으로 이동
     const handleChatRoomNavigate = () => {
         navigate(`/chats/${chatroom.room_id}`);
@@ -22,7 +33,7 @@ const ChatItem = ({chatroom}) => {
                 </MainArea>
                 <InfoArea>
                     <MoreIcon />
-                    <LatestTime>{chatroom.room_lastMessageat}</LatestTime>
+                    <LatestTime>{getTimeDifference(chatroom.room_lastMessagedat)}</LatestTime>
                 </InfoArea>
             </Wrapper>
         </>
@@ -77,6 +88,10 @@ const TextArea = styled.div`
 const ChatContent = styled.div`
     font-size: 12px;
     color: #676767;
+    width: 230px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
 const InfoArea = styled.div`
@@ -84,7 +99,7 @@ const InfoArea = styled.div`
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-end;
-    margin-left: 20px;
+    width: 50px;
 `;
 
 const MoreIcon = styled.img.attrs({
@@ -93,6 +108,10 @@ const MoreIcon = styled.img.attrs({
 })`
     width: 24px;
     height: 24px;
+
+    &:hover{
+        cursor: pointer;
+    }
 `;
 
 const LatestTime = styled.div`

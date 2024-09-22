@@ -37,7 +37,7 @@ const ChatList = () => {
     }, [currentUser]);
 
     const sortedData = chatRooms.sort((a, b) => 
-        new Date(b.room_createdat) - new Date(a.room_createdat)
+        new Date(b.room_lastMessagedat) - new Date(a.room_lastMessagedat)
     );
 
     return (
