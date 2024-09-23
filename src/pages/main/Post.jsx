@@ -13,7 +13,7 @@ import Modal from "../../components/main/Modal.jsx";
 
 import { db, auth, database } from "../../firebase";
 import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
-import { get, ref, update } from "firebase/database";
+import { get, push, ref, set, update } from "firebase/database";
 
 const Post = () => {
     const navigate = useNavigate();
@@ -239,6 +239,16 @@ const Post = () => {
                         room_parti: participants,
                     });
                 }
+
+                // 시스템 메시지 전송하기
+                const messagesRef = ref(database, `chatRoom/${post.post_chatroom_id}/messages`);
+                const messageRef = push(messagesRef);
+                const messageData = {
+                    text: `${user.displayName}님이 입장하셨습니다.`,
+                    createdat: new Date().toISOString(),
+                    senderid: null
+                };
+                await set(messageRef, messageData);
 
                 alert("파티 참여 성공");
                 navigate(`/chats/${post.post_chatroom_id}`);
