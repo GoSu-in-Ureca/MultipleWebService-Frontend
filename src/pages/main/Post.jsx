@@ -5,6 +5,7 @@ import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
+import HomeButton from "/assets/Icon/home-navigation.svg";
 import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
@@ -12,7 +13,7 @@ import Modal from "../../components/main/Modal.jsx";
 
 import { db, auth, database } from "../../firebase";
 import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
-import { get, ref, update } from "firebase/database";
+import { get, push, ref, set, update } from "firebase/database";
 
 const Post = () => {
     const navigate = useNavigate();
@@ -239,6 +240,26 @@ const Post = () => {
                     });
                 }
 
+                // 시스템 메시지 전송하기
+                const messagesRef = ref(database, `chatRoom/${post.post_chatroom_id}/messages`);
+                const messageRef = push(messagesRef);
+                const messageData = {
+                    senderid: "system",
+                    text: `${user.displayName}님이 입장하셨습니다.`,
+                    createdat: new Date().toISOString(),
+                };
+                await set(messageRef, messageData);
+                // **최대 인원 도달 시 모집 마감 시스템 메시지 전송**
+                if (post.post_currentparti + 1 === post.post_maxparti) {
+                    const closingMessageRef = push(messagesRef);
+                    const closingMessageData = {
+                    senderid: "system",
+                    text: `참가 인원이 모두 모집되어 모집이 마감되었습니다.`,
+                    createdat: new Date().toISOString(),
+                    };
+                    await set(closingMessageRef, closingMessageData);
+                }
+
                 alert("파티 참여 성공");
                 navigate(`/chats/${post.post_chatroom_id}`);
             } else {
@@ -258,12 +279,17 @@ const Post = () => {
     const handleBackClick = () => {
         navigate(-1);
     }
+
+    const handleHomeClick = () => {
+        navigate('/main');
+    }
     
     return (
         <>
             <Wrapper>
                 <Header>
                     <img src={PrevButton} onClick={handleBackClick} style={{cursor: 'pointer'}}/>
+                    <img src={HomeButton} onClick={handleHomeClick} style={{cursor: 'pointer'}}/>
                 </Header>
                 <ImageSlider>
                     <ImageInner>
@@ -373,8 +399,10 @@ const Header = styled.div`
     width: 390px;
     height: 52px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     padding-left: 10px;
+    padding-right: 20px;
     box-sizing: border-box;
 
     &:hover{

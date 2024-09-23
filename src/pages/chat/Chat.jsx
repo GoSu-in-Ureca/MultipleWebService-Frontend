@@ -5,8 +5,8 @@ import messagesend from "/assets/Icon/message-send.svg";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
 import { auth, database, db } from "../../firebase";
-import { onValue, push, ref, set, update } from "firebase/database";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { get, onValue, push, ref, set, update } from "firebase/database";
+import { arrayRemove, collection, doc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 
 const Chat = () => {
     const navigate = useNavigate();
@@ -65,7 +65,7 @@ const Chat = () => {
         fetchPost();
     }, []);
 
-    // Fetch chat room name
+    // 타이틀 동기화
     useEffect(() => {
         const unsubscribe = onValue(chatRoomRef, (snapshot) => {
             const data = snapshot.val();
@@ -92,7 +92,7 @@ const Chat = () => {
         return () => unsubscribe();
     }, [chatId]);
 
-    // Send message handler
+    // 메세지 전송 핸들러
     const handleSendMessage = async () => {
         if (newMessage.trim() === "") return;
 
@@ -122,17 +122,62 @@ const Chat = () => {
         }
     };
 
-    // Profile click handler
+    // 채팅방 및 파티 나가기 핸들러
+    const handleLeaveChatRoom = async () => {
+        try {
+            // 현재 채팅방의 참가자 목록
+            const chatRoomRef = ref(database, `/chatRoom/${chatId}`);
+            const snapshot = await get(chatRoomRef);
+            const chatRoomData = snapshot.val();
+            let participants = chatRoomData?.room_parti || [];
+    
+            // 참가자 목록에서 제거
+            participants = participants.filter(uid => uid !== currentUser.uid);
+    
+            // 참가자 목록 업데이트
+            await update(chatRoomRef, {
+                room_parti: participants,
+            });
+
+            // Firestore의 posts 컬렉션에서도 제거하기
+            if (post && post.id) {
+                const postDocRef = doc(db, "posts", post.id);
+          
+                await updateDoc(postDocRef, {
+                  post_parti_members: arrayRemove(currentUser.uid),
+                  post_currentparti: increment(-1), // 현재 인원 수 감소
+                  post_status: true,
+                });
+              } else {
+                console.error("게시글 정보를 불러오지 못했습니다.");
+              }
+    
+            // 시스템 메시지 전송
+            const messagesRef = ref(database, `chatRoom/${chatId}/messages`);
+            const messageRef = push(messagesRef);
+            const messageData = {
+                senderid: "system",
+                text: `${user.user_name}(${user.user_department}/${user.user_onoffline})님이 퇴장하셨습니다.`,
+                createdat: new Date().toISOString(),
+            };
+            await set(messageRef, messageData);
+    
+            navigate(`/chats`);
+        } catch (error) {
+            console.error("채팅방 퇴장 중 오류 발생:", error);
+            alert("채팅방 퇴장 중 오류가 발생했습니다.");
+        }
+    };
+
     const handleProfileClick = (senderdocid) => {
         navigate(`/user/main/${senderdocid}`);
     };
 
-    // Navigate to post
     const handlePostNavigate = (postdocid) => {
         navigate(`/main/${postdocid}`);
     };
 
-    // Scroll to bottom
+    // 브라우저 바닥 스크롤
     const scrollToBottom = () => {
         if (messageEndRef.current) {
             messageEndRef.current.scrollIntoView({ behavior: "auto" });
@@ -163,6 +208,7 @@ const Chat = () => {
                     <Header>
                         <BackButton onClick={handleIntroNavigate} />
                         <Title>채팅</Title>
+                        <LeaveButton onClick={handleLeaveChatRoom}>파티 나가기</LeaveButton>
                     </Header>
                     <PostInfoArea onClick={() => handlePostNavigate(post.id)}>
                         <Tag isexpired={post && new Date(post.post_deadline) >= new Date() ? "모집중" : "마감"}>
@@ -181,22 +227,45 @@ const Chat = () => {
                     </p>
                 </InitialSystemMessage>
                 <MessageList>
-                    {messageList.map((message) =>
-                        message.senderid === currentUser.uid ? (
-                            <MyMessageItem
-                                key={message.id}
-                                message={message}
-                                formatTime={formatTime}
+                    {messageList.map((message) => {
+                    const senderId = message.senderid || '';
+                    const messageType = message.type || '';
+
+                    if (senderId === 'system') {
+                        if (messageType === 'postUpdate') {
+                        return (
+                            <PostUpdateMessageItem
+                            key={message.id}
+                            message={message}
                             />
-                        ) : (
-                            <OtherMessageItem
-                                key={message.id}
-                                message={message}
-                                formatTime={formatTime}
-                                handleProfileClick={handleProfileClick}
+                        );
+                        } else {
+                        return (
+                            <SystemMessageItem
+                            key={message.id}
+                            message={message}
                             />
-                        )
-                    )}
+                        );
+                        }
+                    } else if (senderId === currentUser.uid) {
+                        return (
+                        <MyMessageItem
+                            key={message.id}
+                            message={message}
+                            formatTime={formatTime}
+                        />
+                        );
+                    } else {
+                        return (
+                        <OtherMessageItem
+                            key={message.id}
+                            message={message}
+                            formatTime={formatTime}
+                            handleProfileClick={handleProfileClick}
+                        />
+                        );
+                    }
+                    })}
                     <div ref={messageEndRef} />
                 </MessageList>
                 <MessageInputArea>
@@ -250,6 +319,18 @@ const OtherMessageItem = ({
     </OtherMessageItemWrapper>
 );
 
+const SystemMessageItem = ({ message }) => (
+    <SystemMessageWrapper>
+        <SystemMessageText>{message.text}</SystemMessageText>
+    </SystemMessageWrapper>
+);
+
+const PostUpdateMessageItem = ({ message }) => (
+    <PostUpdateMessageWrapper>
+        <PostUpdateMessageText>{message.text}</PostUpdateMessageText>
+    </PostUpdateMessageWrapper>
+);
+
 // Styled components
 
 const Wrapper = styled.div`
@@ -295,6 +376,20 @@ const Title = styled.div`
     margin-left: 140px;
 `;
 
+const LeaveButton = styled.button`
+    margin-left: auto;
+    margin-right: 10px;
+    background-color: transparent;
+    border: none;
+    color: #7f52ff;
+    font-size: 9px;
+    cursor: pointer;
+
+    &:hover {
+        cursor: pointer;
+    }
+`;
+
 const PostInfoArea = styled.div`
     display: flex;
     justify-content: flex-start;
@@ -325,6 +420,7 @@ const PostTitle = styled.div`
     font-size: 13px;
     font-weight: bold;
     margin-left: 9px;
+    margin-right: 21px;
 `;
 
 const InitialSystemMessage = styled.div`
@@ -424,6 +520,32 @@ const MessageSendTime = styled.div`
     margin: 0 4px;
 `;
 
+const PostUpdateMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const PostUpdateMessageText = styled.div`
+    font-size: 8px;
+    color: #ff0d0d;
+    font-weight: bold;
+    background-color: #FFDBDB;
+    border-radius: 9px;
+    padding: 4px 14px;
+`;
+
+const SystemMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const SystemMessageText = styled.div`
+    font-size: 8px;
+    color: #BFA9FF;
+`;
+
 const MessageInputArea = styled.div`
     width: 390px;
     height: 78px;
@@ -452,4 +574,3 @@ const MessageInput = styled.input.attrs({
 const MessageSend = styled.img`
     width: 40px;
 `;
-

@@ -25,9 +25,10 @@ const ChatList = () => {
                 }));
                 
                 // 현재 사용자가 속한 채팅방만 필터링
-                const userChatRooms = roomsArray.filter((room) =>
-                    room.room_parti.includes(currentUser.uid)
-                );
+                const userChatRooms = roomsArray.filter((room) => {
+                    const participants = room.room_parti;
+                    return Array.isArray(participants) && participants.includes(currentUser.uid);
+                });
                 
                 setChatRooms(userChatRooms);
             }
