@@ -244,11 +244,21 @@ const Post = () => {
                 const messagesRef = ref(database, `chatRoom/${post.post_chatroom_id}/messages`);
                 const messageRef = push(messagesRef);
                 const messageData = {
+                    senderid: "system",
                     text: `${user.displayName}님이 입장하셨습니다.`,
                     createdat: new Date().toISOString(),
-                    senderid: null
                 };
                 await set(messageRef, messageData);
+                // **최대 인원 도달 시 모집 마감 시스템 메시지 전송**
+                if (post.post_currentparti + 1 === post.post_maxparti) {
+                    const closingMessageRef = push(messagesRef);
+                    const closingMessageData = {
+                    senderid: "system",
+                    text: `참가 인원이 모두 모집되어 모집이 마감되었습니다.`,
+                    createdat: new Date().toISOString(),
+                    };
+                    await set(closingMessageRef, closingMessageData);
+                }
 
                 alert("파티 참여 성공");
                 navigate(`/chats/${post.post_chatroom_id}`);

@@ -157,7 +157,7 @@ const Chat = () => {
             const messageRef = push(messagesRef);
             const messageData = {
                 senderid: "system",
-                text: `${currentUser.displayName}님이 퇴장하셨습니다.`,
+                text: `${user.user_name}(${user.user_department}/${user.user_onoffline})님이 퇴장하셨습니다.`,
                 createdat: new Date().toISOString(),
             };
             await set(messageRef, messageData);
@@ -227,27 +227,45 @@ const Chat = () => {
                     </p>
                 </InitialSystemMessage>
                 <MessageList>
-                {messageList.map((message) =>
-                    message.senderid === 'system' ? (
-                        <SystemMessageItem
-                        key={message.id}
-                        message={message}
-                        />
-                    ) : message.senderid === currentUser.uid ? (
+                    {messageList.map((message) => {
+                    const senderId = message.senderid || '';
+                    const messageType = message.type || '';
+
+                    if (senderId === 'system') {
+                        if (messageType === 'postUpdate') {
+                        return (
+                            <PostUpdateMessageItem
+                            key={message.id}
+                            message={message}
+                            />
+                        );
+                        } else {
+                        return (
+                            <SystemMessageItem
+                            key={message.id}
+                            message={message}
+                            />
+                        );
+                        }
+                    } else if (senderId === currentUser.uid) {
+                        return (
                         <MyMessageItem
-                        key={message.id}
-                        message={message}
-                        formatTime={formatTime}
+                            key={message.id}
+                            message={message}
+                            formatTime={formatTime}
                         />
-                    ) : (
+                        );
+                    } else {
+                        return (
                         <OtherMessageItem
-                        key={message.id}
-                        message={message}
-                        formatTime={formatTime}
-                        handleProfileClick={handleProfileClick}
+                            key={message.id}
+                            message={message}
+                            formatTime={formatTime}
+                            handleProfileClick={handleProfileClick}
                         />
-                    )
-                    )}
+                        );
+                    }
+                    })}
                     <div ref={messageEndRef} />
                 </MessageList>
                 <MessageInputArea>
@@ -303,20 +321,15 @@ const OtherMessageItem = ({
 
 const SystemMessageItem = ({ message }) => (
     <SystemMessageWrapper>
-      <SystemMessageText>{message.text}</SystemMessageText>
+        <SystemMessageText>{message.text}</SystemMessageText>
     </SystemMessageWrapper>
-  );
-  
-  const SystemMessageWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
-  `;
-  
-  const SystemMessageText = styled.div`
-    font-size: 10px;
-    color: #808284;
-  `;
+);
+
+const PostUpdateMessageItem = ({ message }) => (
+    <PostUpdateMessageWrapper>
+        <PostUpdateMessageText>{message.text}</PostUpdateMessageText>
+    </PostUpdateMessageWrapper>
+);
 
 // Styled components
 
@@ -505,6 +518,32 @@ const MessageSendTime = styled.div`
     display: flex;
     align-items: flex-end;
     margin: 0 4px;
+`;
+
+const PostUpdateMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const PostUpdateMessageText = styled.div`
+    font-size: 8px;
+    color: #ff0d0d;
+    font-weight: bold;
+    background-color: #FFDBDB;
+    border-radius: 9px;
+    padding: 4px 14px;
+`;
+
+const SystemMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const SystemMessageText = styled.div`
+    font-size: 8px;
+    color: #BFA9FF;
 `;
 
 const MessageInputArea = styled.div`
