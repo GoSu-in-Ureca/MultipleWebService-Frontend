@@ -5,6 +5,7 @@ import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
+import HomeButton from "/assets/Icon/home-navigation.svg";
 import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
@@ -258,12 +259,17 @@ const Post = () => {
     const handleBackClick = () => {
         navigate(-1);
     }
+
+    const handleHomeClick = () => {
+        navigate('/main');
+    }
     
     return (
         <>
             <Wrapper>
                 <Header>
                     <img src={PrevButton} onClick={handleBackClick} style={{cursor: 'pointer'}}/>
+                    <img src={HomeButton} onClick={handleHomeClick} style={{cursor: 'pointer'}}/>
                 </Header>
                 <ImageSlider>
                     <ImageInner>
@@ -373,8 +379,10 @@ const Header = styled.div`
     width: 390px;
     height: 52px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     padding-left: 10px;
+    padding-right: 20px;
     box-sizing: border-box;
 
     &:hover{
