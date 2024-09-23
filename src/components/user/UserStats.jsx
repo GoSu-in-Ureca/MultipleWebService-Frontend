@@ -141,8 +141,6 @@ const ToolTip = styled.div`
     &::after {
         content: "";
         position: absolute;
-        top: 100%;
-        left: 50%;
         transform: translateX(-50%);
         border-width: 0.6vw;
         border-style: solid;
