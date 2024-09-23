@@ -116,8 +116,9 @@ const UploadForm = () => {
                 room_createdat: new Date().toISOString(),
                 room_host: currentUser.uid,
                 room_parti: [currentUser.uid],
-                room_lastMessage: "",
+                room_lastMessage: "최근 대화 내역이 존재하지 않습니다",
                 room_lastMessagedat: new Date().toISOString(),
+                room_thumbnail: uploadedImageUrls[0] || "/assets/BG/defaultImage.png",
                 messages: {},
             });
 
@@ -125,6 +126,16 @@ const UploadForm = () => {
             await updateDoc(postRef, {
                 post_chatroom_id: roomId,
             });
+
+            // 참여했다는 메세지 전송
+            const messagesRef = databaseRef(database, `chatRoom/${roomId}/messages`);
+            const messageRef = push(messagesRef);
+            const messageData = {
+                senderid: "system",
+                text: `${currentUser.displayName}님이 입장하셨습니다.`,
+                createdat: new Date().toISOString(),
+            };
+            await set(messageRef, messageData);
             
             const userSnapshot = await getDocs(
                 query(collection(db, "users"), where("user_id", "==", currentUser.uid)
@@ -154,6 +165,11 @@ const UploadForm = () => {
     };
     
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
+
+    // 현재 시각
+    const now = new Date().toISOString().slice(0, 16); // 현재 날짜와 시간 형식화
+    // 10일 후 시각
+    const maxDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
 
     return (
         <>
@@ -196,7 +212,8 @@ const UploadForm = () => {
                     <SettingSubject>내용</SettingSubject>
                     <ContentInputArea value={content} onChange={(e) => setContent(e.target.value)}/>
                     <SettingSubject>마감 기한 설정</SettingSubject>
-                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}/>
+                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}
+                                    min={now} max={maxDate}/>
                     <SettingSubject>가격 및 모집 인원</SettingSubject>
                     <PPInputArea>
                         <EstimatePriceArea value={totalPrice}

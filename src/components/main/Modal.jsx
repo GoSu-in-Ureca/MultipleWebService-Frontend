@@ -1,20 +1,24 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { database, db } from '../../firebase';
+import { ref, remove } from 'firebase/database';
+import { ref as databaseRef, push, set } from 'firebase/database';
 
 // isOpen : 모달 열려있는지 여부
 // onClose : 모달 닫기
 // children : 모달 안에 들어갈 내용
 
-const Modal = ({isOpen, onClose, modalPosition, postId}) => {
+const Modal = ({isOpen, onClose, modalPosition, postId, post}) => {
   const navigate = useNavigate();
 
   if(!isOpen) return null;
 
   // 게시글 수정
-  const handleUpdateClick = () => {
+  const handleUpdateClick = async () => {
+    await sendSystemMessage("게시글이 수정되었습니다.");
+    onClose();
     navigate(`/update/${postId}`);
   };
 
@@ -22,6 +26,12 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
   const handleDeleteClick = async () => {
     try{
       await deleteDoc(doc(db, 'posts', postId));
+
+      await remove(ref(database, `chatRoom/${post.post_chatroom_id}`));
+
+      await sendSystemMessage("작성자에 의해 모집이 마감되었습니다.");
+      onClose();
+
       alert('게시글이 성공적으로 삭제되었습니다!');
       navigate(-1);
     } catch (error) {
@@ -50,6 +60,24 @@ const Modal = ({isOpen, onClose, modalPosition, postId}) => {
       window.location.reload();
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  // 시스템 메시지 전송
+  const sendSystemMessage = async (messageText) => {
+    try {
+      const chatRoomId = post.post_chatroom_id;
+      const messagesRef = databaseRef(database, `chatRoom/${chatRoomId}/messages`);
+      const messageRef = push(messagesRef);
+      const messageData = {
+        senderid: "system",
+        text: messageText,
+        createdat: new Date().toISOString(),
+        type: "postUpdate",
+      };
+      await set(messageRef, messageData);
+    } catch (error) {
+      console.error(error);
     }
   };
 

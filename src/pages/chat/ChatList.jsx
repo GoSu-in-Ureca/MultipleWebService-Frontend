@@ -4,14 +4,18 @@ import NavigationChat from "../../components/main/NavigationChat";
 import ChatItem from "../../components/chat/ChatItem";
 
 import { ref, onValue } from "firebase/database";
-import { database } from "../../firebase";
+import { auth, database } from "../../firebase";
 
 const ChatList = () => {
     const [chatRooms, setChatRooms] = useState([]);
+    const currentUser = auth.currentUser;
 
     // 채팅 목록 불러오기
     useEffect(() => {
+        if (!currentUser) return;
+        
         const chatRoomsRef = ref(database, "chatRoom");
+        
         const unsubscribe = onValue(chatRoomsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -19,15 +23,22 @@ const ChatList = () => {
                     id: key,
                     ...data[key],
                 }));
-                setChatRooms(roomsArray);
+                
+                // 현재 사용자가 속한 채팅방만 필터링
+                const userChatRooms = roomsArray.filter((room) => {
+                    const participants = room.room_parti;
+                    return Array.isArray(participants) && participants.includes(currentUser.uid);
+                });
+                
+                setChatRooms(userChatRooms);
             }
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [currentUser]);
 
     const sortedData = chatRooms.sort((a, b) => 
-        new Date(b.room_createdat) - new Date(a.room_createdat)
+        new Date(b.room_lastMessagedat) - new Date(a.room_lastMessagedat)
     );
 
     return (
@@ -77,4 +88,5 @@ const ChatListWrapper = styled.div`
     align-items: center;
     background-color: white;
     width: 100%;
+    min-height: calc(100vh - 142px);
 `;
