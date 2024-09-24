@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import UploadMoreItem from "../../components/user/UploadMoreItem";
 import NavigationUser from "../../components/main/NavigationUser";
-import Loading from "../../Loading";
 import UserUploadSkeleton from '../../components/user/UserUploadSkeleton';
 
 import { db } from "../../firebase";

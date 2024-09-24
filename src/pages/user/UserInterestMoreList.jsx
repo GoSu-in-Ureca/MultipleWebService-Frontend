@@ -8,7 +8,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { selectedSortState } from "../../recoil/atoms";
-import Loading from "../../Loading";
 import UserInterestSkeleton from '../../components/user/UserInterestSkeleton';
 
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
