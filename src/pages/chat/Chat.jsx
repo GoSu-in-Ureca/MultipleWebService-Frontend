@@ -93,7 +93,7 @@ const Chat = () => {
     }, [chatId]);
 
     // 메세지 전송 핸들러
-    const handleSendMessage = async (e) => {
+    const handleSendMessage = async (event) => {
         event.preventDefault();
 
         if (newMessage.trim() === "") return;
@@ -182,7 +182,7 @@ const Chat = () => {
     // 브라우저 바닥 스크롤
     const scrollToBottom = () => {
         if (messageEndRef.current) {
-            messageEndRef.current.scrollIntoView({ behavior: "auto" });
+            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     };
     useEffect(() => {
