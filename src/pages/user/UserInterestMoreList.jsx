@@ -44,7 +44,7 @@ const UserInterestMoreList = () => {
         try {
             const queryCollection = query(
                 collection(db, 'posts'),
-                where('post_user_name', '==', user.user_name)
+                where('post_liked_users', 'array-contains', user.user_id)
             );
             const postSnapshot = await getDocs(queryCollection);
             const postsArray = postSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
