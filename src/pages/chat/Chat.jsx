@@ -99,6 +99,8 @@ const Chat = () => {
         if (newMessage.trim() === "") return;
 
         try {
+            const messageType = isValidUrl(newMessage.trim()) ? "url" : "text";
+
             const messageRef = push(reference);
             const messageData = {
                 senderid: currentUser.uid,
@@ -107,6 +109,7 @@ const Chat = () => {
                 senderdepartment: user.user_department,
                 senderonoffline: user.user_onoffline,
                 text: newMessage,
+                type: messageType,
                 createdat: new Date().toISOString(),
                 senderPhotoURL: currentUser.photoURL,
             };
@@ -203,6 +206,15 @@ const Chat = () => {
         navigate(`/chats`);
     };
 
+    const isValidUrl = (string) => {
+        try {
+          const url = new URL(string);
+          return url.protocol === "http:" || url.protocol === "https:";
+        } catch (_) {
+          return false;
+        }
+      };      
+
     return (
         <>
             <Wrapper>
@@ -291,7 +303,15 @@ export default Chat;
 const MyMessageItem = ({ message, formatTime }) => (
     <MyMessageItemWrapper>
         <MyMessageContent>
+        {message.type === 'url' ? (
+            <MyMessageBubble>
+            <MessageLink href={message.text} target="_blank" rel="noopener noreferrer">
+                {message.text}
+            </MessageLink>
+            </MyMessageBubble>
+        ) : (
             <MyMessageBubble>{message.text}</MyMessageBubble>
+        )}
         </MyMessageContent>
         <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
     </MyMessageItemWrapper>
@@ -302,23 +322,32 @@ const OtherMessageItem = ({
     formatTime,
     handleProfileClick,
 }) => (
-    <OtherMessageItemWrapper>
-        <MessageProfile
-            src={message.senderPhotoURL}
-            onClick={() => handleProfileClick(message.senderdocid)}
-        />
-        <NameAndMessageArea>
-            <SenderInfoArea>
-                <Name>{message.sendername}</Name>
-                <Department>
-                    {message.senderdepartment}/{message.senderonoffline}
-                </Department>
-            </SenderInfoArea>
-            <OtherMessageBubble>{message.text}</OtherMessageBubble>
-        </NameAndMessageArea>
-        <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
-    </OtherMessageItemWrapper>
+<OtherMessageItemWrapper>
+    <MessageProfile
+    src={message.senderPhotoURL}
+    onClick={() => handleProfileClick(message.senderdocid)}
+    />
+    <NameAndMessageArea>
+    <SenderInfoArea>
+        <Name>{message.sendername}</Name>
+        <Department>
+        {message.senderdepartment}/{message.senderonoffline}
+        </Department>
+    </SenderInfoArea>
+    {message.type === 'url' ? (
+        <OtherMessageBubble>
+        <MessageLink href={message.text} target="_blank" rel="noopener noreferrer">
+            {message.text}
+        </MessageLink>
+        </OtherMessageBubble>
+    ) : (
+        <OtherMessageBubble>{message.text}</OtherMessageBubble>
+    )}
+    </NameAndMessageArea>
+    <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
+</OtherMessageItemWrapper>
 );
+  
 
 const SystemMessageItem = ({ message }) => (
     <SystemMessageWrapper>
@@ -574,4 +603,9 @@ const MessageInput = styled.input.attrs({
 
 const MessageSend = styled.img`
     width: 40px;
+`;
+
+const MessageLink = styled.a`
+  color: white;
+  word-break: break-all;
 `;
