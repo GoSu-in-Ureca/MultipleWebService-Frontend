@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import styled from "styled-components";
 import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
@@ -9,6 +10,7 @@ import HomeButton from "/assets/Icon/home-navigation.svg";
 import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
+import shareicon from "/assets/Icon/share.svg";
 import Modal from "../../components/main/Modal.jsx";
 
 import { db, auth, database } from "../../firebase";
@@ -17,7 +19,8 @@ import { get, push, ref, set, update } from "firebase/database";
 
 const Post = () => {
     const navigate = useNavigate();
-
+    const [currentURL, setCurrentURL] = useState(window.location.href);
+    const [isCopy, setIsCopy] = useState(false);
     const {postId} = useParams();
     const [user, setUser] = useState(auth.currentUser);
     const [currentUser, setCurrentUser] = useState(null);
@@ -289,6 +292,12 @@ const Post = () => {
         }
     };
 
+    const handleShareClick = () => {
+        setIsCopy(true)
+        setTimeout(() => {
+            setIsCopy(false)
+        }, 2000);
+    }
 
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
@@ -383,6 +392,13 @@ const Post = () => {
                             <span>/인</span>
                         </span>
                     </Price>
+                    <Share>
+                        <span>링크복사</span>
+                        <CopyToClipboard text={currentURL} onCopy={handleShareClick}>
+                            <ShareIcon src={shareicon}/>
+                        </CopyToClipboard>
+                        <ShareResultMessage $iscopy={isCopy}>복사되었습니다</ShareResultMessage>
+                    </Share>
                 </ContentTop>
                 <ContentMiddle>{post.post_content}</ContentMiddle>
                 <SubmitArea>
@@ -537,7 +553,7 @@ const ContentTop = styled.div`
 `;
 
 const ContentMiddle = styled.div`
-    min-height: calc(100vh - 740px);
+    min-height: calc(100vh - 700px);
     padding: 25px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
@@ -562,7 +578,6 @@ const Writer = styled.div`
     margin-top: 18px;
     display: flex;
     gap: 43px;
-    
 `;
 
 const WriterName = styled.div`
@@ -576,7 +591,6 @@ const Time = styled.div`
     gap: 32px;
 `;
 
-
 const PeopleNum = styled.div`
     display: flex;
     gap: 32px;
@@ -587,9 +601,33 @@ const PeopleNum = styled.div`
 const Price = styled.div`
     display: flex;
     align-items: center;
-    gap: 52px;
+    gap: 55px;
     margin-top: 9px;
-    `;
+`;
+
+const Share = styled.div`
+    display: flex;
+    align-items: center;
+    margin-top: 9px;
+`;
+
+const ShareIcon = styled.img`
+    height: 12px;
+    object-fit: cover;
+    object-position: center;
+    margin-left: 32px;
+
+    &:hover{
+        cursor: pointer;
+    }
+`;
+
+const ShareResultMessage = styled.span`
+    display: ${(props) => (props.$iscopy ? "" : "none")};
+    font-size: 11px;
+    color: #DADADA;
+    margin-left: 10px;
+`;
 
 const Highlight = styled.span`
     font-family: 'Pretendard-SemiBold';
