@@ -9,6 +9,7 @@
 8. styled-componenets
 9. intersection-observer
 10. firebase
+11. react-copy-to-clipboard
 ---
 ### 실행 명령어
 ###### 내 pc에서만 접속 가능
