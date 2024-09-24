@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -94,7 +95,9 @@ const Modal = ({isOpen, onClose, modalPosition, postId, post}) => {
         }}>
         {/* children */}
         <UpdateButton onClick={handleUpdateClick}>수정</UpdateButton>
+        <DivisionLine />
         <DelButton onClick={handleDeleteClick}>삭제</DelButton>
+        <DivisionLine />
         <EndButton onClick={handleDeadlineClick}>모집 마감</EndButton>
       </ModalBox>
     </ModalOverlay>
@@ -105,12 +108,12 @@ export default Modal;
 
 const ModalOverlay = styled.div`
   /* visibility: hidden; */
-   position : fixed;
-   top: 0;
-   left: 0;
-   width: 100%;
-   height: 100%;
-   background: rgba(0, 0, 0, 0.5);
+  position : fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -131,18 +134,26 @@ const UpdateButton = styled.div`
   cursor: pointer;
   border: 0;
   padding: 15px 15px 10px 15px;
+  width: 80%;
+  text-align: center;
 `;
 
 const DelButton = styled.div`
   cursor: pointer;
   border: 0;
-  padding: 10px 20px 10px 20px;
-  border-top: 1px solid #e9e9e9;
-  border-bottom: 1px solid #e9e9e9;
+  padding: 10px 15px;
 `;
 
 const EndButton = styled.div`
   cursor: pointer;
   border: 0;
   padding: 10px 15px 15px 15px;
+`;
+
+const DivisionLine = styled.hr`
+  width: 70%;
+  height: 1px;
+  background-color: #e9e9e9;
+  border: 0;
+  margin: 0;
 `;
