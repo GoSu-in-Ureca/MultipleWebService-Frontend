@@ -12,6 +12,7 @@ import logo from "/assets/branding/logo.svg"
 import upload from "/assets/Icon/UploadButton.svg";
 import { selectedCategoryState } from "../../recoil/atoms";
 import { useRecoilState } from "recoil";
+import MainSkeleton from '../../components/main/HotPostListSkeleton';
 
 const Main = () => {
 
@@ -19,12 +20,20 @@ const Main = () => {
     const [toggleState, setToggleState] = useState(false);
     const [selectedCategory, setSelectedCategory] = useRecoilState(selectedCategoryState);
 
+    // useEffect(() => {
+    //     // 데이터 로드 시뮬레이션
+    //     setTimeout(() => {
+    //         setIsLoading(false);  // 일정 시간 후 로딩 상태 해제
+    //     }, 1000);
+    // }, []);
+
     const handleUploadFormNavigate = () => {
         navigate('/upload');
     }
     const handleLogoClick = () => {
         navigate('/main', {replace: true});
     }
+    
 
     return (
         <>

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
+import PostSkeleton from '../../components/main/PostSkeleton.jsx';
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
 import HomeButton from "/assets/Icon/home-navigation.svg";
@@ -129,7 +130,7 @@ const Post = () => {
     }, [post]);
 
     if (loading) { // 게시글 데이터 불러오기 전까지 보여줌
-        return <Loading />;
+        return < PostSkeleton/>;
     }
 
     // 작성일 마감일 format 메서드

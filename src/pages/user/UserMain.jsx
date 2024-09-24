@@ -4,6 +4,7 @@ import UserStats from "../../components/user/UserStats";
 import InterestList from "../../components/user/InterestList";
 import UploadList from "../../components/user/UploadList";
 import Loading from "../../Loading";
+import UserSkeleton from '../../components/main/UserSkeleton';
 import NavigationUser from "../../components/main/NavigationUser";
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -71,7 +72,7 @@ const UserMain = () => {
 
     // 데이터 로딩 중 처리
     if (!user || currentUserDocId === null) {
-        return <Loading />;
+        return <UserSkeleton />;
       }
 
     const handleLogout = async () => {

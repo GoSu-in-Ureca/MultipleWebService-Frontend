@@ -3,6 +3,7 @@ import HotPostItem from "./HotPostItem";
 import { useEffect, useState } from "react";
 import { selectedCategoryState } from "../../recoil/atoms";
 import { useRecoilState } from "recoil";
+import HotPostListSkeleton from './HotPostListSkeleton';
 
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -12,10 +13,12 @@ const HotPostList = () => {
     const [firePosts, setFirePosts] = useState([]);
     const [sortedData, setSortedData] = useState([]);
     const [selectedCategory, setSelectedCatogory] = useRecoilState(selectedCategoryState);
+    const [isLoading, setIsLoading] = useState(true); // 로딩 상태
 
     // db에서 불러오기
     const fetchPosts = async () => {
         try{
+            setIsLoading(true);
             const postsCollection = collection(db, "posts");
             let postsQuery;
 
@@ -35,6 +38,8 @@ const HotPostList = () => {
             setFirePosts(resultposts);
         } catch (error) {
             console.log(error);
+        } finally{
+            setIsLoading(false);
         }
     }
 
@@ -53,6 +58,11 @@ const HotPostList = () => {
     useEffect(() => {
         fetchPosts();
     }, [selectedCategory]);
+
+    if (isLoading) {
+        // 로딩 중일 때는 스켈레톤 컴포넌트 렌더링
+        return <HotPostListSkeleton />;
+    }
 
     return (
         <>
