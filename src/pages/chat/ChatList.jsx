@@ -68,7 +68,7 @@ const Wrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
     background-color: white;
-    margin-bottom: 90px;
+    margin-bottom: 65px;
 `;
 
 const Title = styled.div`
@@ -88,5 +88,5 @@ const ChatListWrapper = styled.div`
     align-items: center;
     background-color: white;
     width: 100%;
-    min-height: calc(100vh - 142px);
+    min-height: calc(100vh - 118px);
 `;

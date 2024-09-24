@@ -274,8 +274,8 @@ const Wrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
     background-color: white;
-    margin-bottom: 90px;
-    min-height: calc(100vh - 90px);
+    margin-bottom: 65px;
+    min-height: calc(100vh - 65px);
 `;
 
 const InfoBox = styled.div`

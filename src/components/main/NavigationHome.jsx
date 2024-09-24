@@ -74,9 +74,9 @@ export default NavigationHome;
 
 const Wrapper = styled.nav`
   position: fixed;
-  top: calc(100vh - 90px);
+  top: calc(100vh - 65px);
   width: 390px;
-  height: 90px;
+  height: 65px;
   display: flex;
   background-color: white;
   box-shadow: 0px -4px 10px -4px rgba(0, 0, 0, 0.1);
@@ -88,18 +88,18 @@ const NavItem = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  margin-top: 18px;
-  margin-bottom: 9px;
+  margin-top: 14px;
+  margin-bottom: 12px;
   cursor: pointer;
 `;
 
 const NavIcon = styled.img`
-  width: 29px;
-  height: 29px;
+  width: 20px;
+  height: 20px;
 `;
 
 const PlainText = styled.div`
-  font-size: 13px;
+  font-size: 10px;
   font-weight: bold;
   margin-top: 9px;
   color: #000;
