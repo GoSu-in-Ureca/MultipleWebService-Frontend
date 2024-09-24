@@ -145,7 +145,7 @@ const DayItem = styled.div`
 const ChatContent = styled.div`
     font-size: 12px;
     color: #676767;
-    width: 230px;
+    width: 250px;
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

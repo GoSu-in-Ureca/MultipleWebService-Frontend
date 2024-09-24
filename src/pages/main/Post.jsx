@@ -20,8 +20,9 @@ const Post = () => {
 
     const {postId} = useParams();
     const [user, setUser] = useState(auth.currentUser);
-    const [post, setPost] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const [author, setAuthor] = useState(null);
+    const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isInteresting, setIsInteresting] = useState(false);
     const [isJoined, setIsJoined] = useState(false);
@@ -37,6 +38,23 @@ const Post = () => {
         setIsOpen(true); // 모달 열기
         document.body.style.overflow = 'hidden';
     }
+
+    // 사용자 문서 참조
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const queryCollection = query(collection(db, "users"), where("user_id", "==", user.uid));
+            try{
+                const userSnapshot = await getDocs(queryCollection);
+                const userData = userSnapshot.docs[0].data();
+
+                setCurrentUser(userData);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        fetchCurrentUser();
+    }, []);
 
     // 게시글 불러오기
     useEffect(() => {
@@ -245,7 +263,7 @@ const Post = () => {
                 const messageRef = push(messagesRef);
                 const messageData = {
                     senderid: "system",
-                    text: `${user.displayName}님이 입장하셨습니다.`,
+                    text: `${user.displayName}(${currentUser.user_department}/${currentUser.user_onoffline})님이 입장하셨습니다.`,
                     createdat: new Date().toISOString(),
                 };
                 await set(messageRef, messageData);
