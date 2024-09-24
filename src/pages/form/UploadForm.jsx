@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { increaseExpAndLevel } from "../../function/Exp";
@@ -20,6 +20,24 @@ const UploadForm = () => {
     const [deadline, setDeadline] = useState("");
     const [totalPrice, setTotalPrice] = useState(0);
     const [participants, setParticipants] = useState(2);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    // 사용자 문서 참조
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const queryCollection = query(collection(db, "users"), where("user_id", "==", auth.currentUser.uid));
+            try{
+                const userSnapshot = await getDocs(queryCollection);
+                const userData = userSnapshot.docs[0].data();
+
+                setCurrentUser(userData);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        fetchCurrentUser();
+    }, []);
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
 
@@ -67,8 +85,6 @@ const UploadForm = () => {
     const handleUpload = async (e) => {
         e.preventDefault();
         const uploadedImageUrls = [];
-        const currentUser = auth.currentUser;
-        const userName = currentUser.displayName;
         const currentDateTime = new Date().toISOString();
 
         for (const file of selectedPictures) {
@@ -86,8 +102,8 @@ const UploadForm = () => {
         try {
             // post 문서 추가
             const postRef = await addDoc(collection(db, 'posts'), {
-                post_user_id: currentUser.uid,
-                post_user_name: userName,
+                post_user_id: currentUser.user_id,
+                post_user_name: currentUser.user_name,
                 post_category: selectedCategory,
                 post_title: title,
                 post_content: content,
@@ -103,7 +119,7 @@ const UploadForm = () => {
                 post_images: uploadedImageUrls,
                 post_view: 0,
                 post_liked_users: [],
-                post_parti_members: [currentUser.uid],
+                post_parti_members: [currentUser.user_id],
             });
 
             // 채팅방 생성
@@ -114,10 +130,11 @@ const UploadForm = () => {
                 room_id: roomId,
                 room_name: title,
                 room_createdat: new Date().toISOString(),
-                room_host: currentUser.uid,
-                room_parti: [currentUser.uid],
-                room_lastMessage: "",
+                room_host: currentUser.user_id,
+                room_parti: [currentUser.user_id],
+                room_lastMessage: "최근 대화 내역이 존재하지 않습니다",
                 room_lastMessagedat: new Date().toISOString(),
+                room_thumbnail: uploadedImageUrls[0] || "/assets/BG/defaultImage.png",
                 messages: {},
             });
 
@@ -125,9 +142,19 @@ const UploadForm = () => {
             await updateDoc(postRef, {
                 post_chatroom_id: roomId,
             });
+
+            // 참여했다는 메세지 전송
+            const messagesRef = databaseRef(database, `chatRoom/${roomId}/messages`);
+            const messageRef = push(messagesRef);
+            const messageData = {
+                senderid: "system",
+                text: `${currentUser.user_name}(${currentUser.user_department}/${currentUser.user_onoffline})님이 입장하셨습니다.`,
+                createdat: new Date().toISOString(),
+            };
+            await set(messageRef, messageData);
             
             const userSnapshot = await getDocs(
-                query(collection(db, "users"), where("user_id", "==", currentUser.uid)
+                query(collection(db, "users"), where("user_id", "==", currentUser.user_id)
             ));
             
             if(!userSnapshot.empty){
@@ -154,6 +181,11 @@ const UploadForm = () => {
     };
     
       const estimatePerMember = participants > 0 ? Math.ceil(totalPrice / participants) : 0;
+
+    // 현재 시각
+    const now = new Date().toISOString().slice(0, 16); // 현재 날짜와 시간 형식화
+    // 10일 후 시각
+    const maxDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
 
     return (
         <>
@@ -196,7 +228,8 @@ const UploadForm = () => {
                     <SettingSubject>내용</SettingSubject>
                     <ContentInputArea value={content} onChange={(e) => setContent(e.target.value)}/>
                     <SettingSubject>마감 기한 설정</SettingSubject>
-                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}/>
+                    <DeadLineInput value={deadline} onChange={(e) => setDeadline(e.target.value)}
+                                    min={now} max={maxDate}/>
                     <SettingSubject>가격 및 모집 인원</SettingSubject>
                     <PPInputArea>
                         <EstimatePriceArea value={totalPrice}

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import PostItem from "./PostItem";
+import PostListSkeleton from './PostListSkeleton';
 import { selectedSortState } from "../../recoil/atoms";
 import { selectedCategoryState } from "../../recoil/atoms";
 import { useRecoilState } from "recoil";
@@ -14,10 +15,12 @@ const PostList = ({toggleState}) => {
     const [firePosts, setFirePosts] = useState([]);
     const [sortedData, setSortedData] = useState(firePosts);
     const [selectedCategory, setSelectedCatogory] = useRecoilState(selectedCategoryState);
+    const [isLoading, setIsLoading] = useState(true); // 로딩 상태
 
     // db에서 불러오기
     const fetchPosts = async () => {
         try{
+            setIsLoading(true);
             const postsCollection = collection(db, "posts");
             let postsQuery;
 
@@ -36,6 +39,8 @@ const PostList = ({toggleState}) => {
             setFirePosts(resultposts);
         } catch (error) {
             console.log(error);
+        }finally{
+            setIsLoading(false);
         }
     }
     useEffect(() => {
@@ -86,6 +91,11 @@ const PostList = ({toggleState}) => {
             }
         }
     }, [sort, toggleState, firePosts, selectedCategory]);
+
+    if (isLoading) {
+        // 로딩 중일 때는 스켈레톤 컴포넌트 렌더링
+        return <PostListSkeleton />;
+    }
 
     return (
         <>

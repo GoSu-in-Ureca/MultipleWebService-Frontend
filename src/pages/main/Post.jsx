@@ -1,25 +1,32 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import styled from "styled-components";
 import { increaseExpAndLevel } from "../../function/Exp";
 import Loading from "../../Loading.jsx";
+import PostSkeleton from '../../components/main/PostSkeleton.jsx';
 import PrevButton from "/assets/Icon/navigate_before.svg";
 import Heart from "/assets/Icon/heart-gray.svg";
+import HomeButton from "/assets/Icon/home-navigation.svg";
 import HeartBlack from "/assets/Icon/heart-black.svg";
 import View from "/assets/Icon/view.svg";
 import More from "/public/assets/Icon/More.svg";
+import shareicon from "/assets/Icon/share.svg";
 import Modal from "../../components/main/Modal.jsx";
 
-import { db, auth } from "../../firebase";
+import { db, auth, database } from "../../firebase";
 import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
+import { get, push, ref, set, update } from "firebase/database";
 
 const Post = () => {
     const navigate = useNavigate();
-
+    const [currentURL, setCurrentURL] = useState(window.location.href);
+    const [isCopy, setIsCopy] = useState(false);
     const {postId} = useParams();
     const [user, setUser] = useState(auth.currentUser);
-    const [post, setPost] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const [author, setAuthor] = useState(null);
+    const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isInteresting, setIsInteresting] = useState(false);
     const [isJoined, setIsJoined] = useState(false);
@@ -35,6 +42,23 @@ const Post = () => {
         setIsOpen(true); // 모달 열기
         document.body.style.overflow = 'hidden';
     }
+
+    // 사용자 문서 참조
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const queryCollection = query(collection(db, "users"), where("user_id", "==", user.uid));
+            try{
+                const userSnapshot = await getDocs(queryCollection);
+                const userData = userSnapshot.docs[0].data();
+
+                setCurrentUser(userData);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        fetchCurrentUser();
+    }, []);
 
     // 게시글 불러오기
     useEffect(() => {
@@ -127,7 +151,7 @@ const Post = () => {
     }, [post]);
 
     if (loading) { // 게시글 데이터 불러오기 전까지 보여줌
-        return <Loading />;
+        return < PostSkeleton/>;
     }
 
     // 작성일 마감일 format 메서드
@@ -190,41 +214,76 @@ const Post = () => {
       };
     const handleJoinClick = async () => {
         const postDocRef = doc(db, "posts", postId);
+        const realtimeChatRoomRef = ref(database, `chatRoom/${post.post_chatroom_id}`);
         try {
             if (post.post_status && post.post_currentparti < post.post_maxparti) {
-                if(post.post_currentparti+1 === post.post_maxparti) {
-                    const currentTime = new Date();
-                    const formatted = formatDeadlineDate(currentTime);
+                const currentTime = new Date();
+                const formatted = formatDeadlineDate(currentTime);
+
+                // 마감일자 업데이트 (인원 최대일 때)
+                if(post.post_currentparti + 1 === post.post_maxparti) {
                     await updateDoc(postDocRef, {
                         post_deadline: formatted,
                         post_currentparti: increment(1),
-                        post_party_members: arrayUnion(user.uid)
+                        post_parti_members: arrayUnion(user.uid)
                     });
                 } else {
-                await updateDoc(postDocRef, {
-                    post_currentparti: increment(1),
-                    post_parti_members: arrayUnion(user.uid),
-                });
-            }
-            const userSnapshot = await getDocs(
-                query(collection(db, "users"), where("user_id", "==", user.uid)
-            ));
-            if(!userSnapshot.empty){
-                const userDoc = userSnapshot.docs[0];
-                const userDocId = userDoc.id;
+                    await updateDoc(postDocRef, {
+                        post_currentparti: increment(1),
+                        post_parti_members: arrayUnion(user.uid),
+                    });
+                }
 
-                // 사용자 문서 업데이트
-                await updateDoc(userSnapshot.docs[0].ref, {
-                    user_join: increment(1),
-                });
-                // 경험치와 레벨 증가
-                await increaseExpAndLevel(userDocId, 2);
-            } else {
-                console.log("사용자 문서를 찾을 수 없습니다.");
-            }
+                // 사용자 정보 업데이트
+                const userSnapshot = await getDocs(query(collection(db, "users"), where("user_id", "==", user.uid)));
+                if(!userSnapshot.empty){
+                    const userDoc = userSnapshot.docs[0];
+                    await updateDoc(userSnapshot.docs[0].ref, {
+                        user_join: increment(1),
+                    });
+                    // 경험치와 레벨 증가
+                    await increaseExpAndLevel(userDoc.id, 2);
+                }
 
-            alert("파티 참여 성공");
-            navigate('/chats/');
+                // Realtime Database에서 room_parti 업데이트
+                const snapshot = await get(realtimeChatRoomRef);
+                let participants = snapshot.val()?.room_parti || [];
+                
+                // 배열로 저장되도록 구조 개선
+                if (!Array.isArray(participants)) {
+                    participants = Object.values(participants);
+                }
+
+                if (!participants.includes(user.uid)) {
+                    participants.push(user.uid);
+
+                    await update(realtimeChatRoomRef, {
+                        room_parti: participants,
+                    });
+                }
+
+                // 시스템 메시지 전송하기
+                const messagesRef = ref(database, `chatRoom/${post.post_chatroom_id}/messages`);
+                const messageRef = push(messagesRef);
+                const messageData = {
+                    senderid: "system",
+                    text: `${user.displayName}(${currentUser.user_department}/${currentUser.user_onoffline})님이 입장하셨습니다.`,
+                    createdat: new Date().toISOString(),
+                };
+                await set(messageRef, messageData);
+                // **최대 인원 도달 시 모집 마감 시스템 메시지 전송**
+                if (post.post_currentparti + 1 === post.post_maxparti) {
+                    const closingMessageRef = push(messagesRef);
+                    const closingMessageData = {
+                    senderid: "system",
+                    text: `참가 인원이 모두 모집되어 모집이 마감되었습니다.`,
+                    createdat: new Date().toISOString(),
+                    };
+                    await set(closingMessageRef, closingMessageData);
+                }
+
+                alert("파티 참여 성공");
+                navigate(`/chats/${post.post_chatroom_id}`);
             } else {
                 alert("모집이 마감된 게시글입니다.");
                 navigate(0);
@@ -234,6 +293,12 @@ const Post = () => {
         }
     };
 
+    const handleShareClick = () => {
+        setIsCopy(true)
+        setTimeout(() => {
+            setIsCopy(false)
+        }, 2000);
+    }
 
     const handleAuthorClick = () => {
         navigate(`/user/main/${author.id}`);
@@ -242,12 +307,17 @@ const Post = () => {
     const handleBackClick = () => {
         navigate(-1);
     }
+
+    const handleHomeClick = () => {
+        navigate('/main');
+    }
     
     return (
         <>
             <Wrapper>
                 <Header>
                     <img src={PrevButton} onClick={handleBackClick} style={{cursor: 'pointer'}}/>
+                    <img src={HomeButton} onClick={handleHomeClick} style={{cursor: 'pointer'}}/>
                 </Header>
                 <ImageSlider>
                     <ImageInner>
@@ -293,6 +363,7 @@ const Post = () => {
                         <Modal 
                             postId={postId}
                             isOpen={isOpen} 
+                            post={post}
                             onClose={()=>{
                                 setIsOpen(false);
                                 document.body.style.overflow = 'unset';
@@ -322,6 +393,13 @@ const Post = () => {
                             <span>/인</span>
                         </span>
                     </Price>
+                    <Share>
+                        <span>링크복사</span>
+                        <CopyToClipboard text={currentURL} onCopy={handleShareClick}>
+                            <ShareIcon src={shareicon}/>
+                        </CopyToClipboard>
+                        <ShareResultMessage $iscopy={isCopy}>복사되었습니다</ShareResultMessage>
+                    </Share>
                 </ContentTop>
                 <ContentMiddle>{post.post_content}</ContentMiddle>
                 <SubmitArea>
@@ -356,8 +434,10 @@ const Header = styled.div`
     width: 390px;
     height: 52px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     padding-left: 10px;
+    padding-right: 20px;
     box-sizing: border-box;
 
     &:hover{
@@ -474,7 +554,7 @@ const ContentTop = styled.div`
 `;
 
 const ContentMiddle = styled.div`
-    min-height: calc(100vh - 740px);
+    min-height: calc(100vh - 700px);
     padding: 25px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
     font-family: 'Pretendard-Medium';
@@ -499,7 +579,6 @@ const Writer = styled.div`
     margin-top: 18px;
     display: flex;
     gap: 43px;
-    
 `;
 
 const WriterName = styled.div`
@@ -513,7 +592,6 @@ const Time = styled.div`
     gap: 32px;
 `;
 
-
 const PeopleNum = styled.div`
     display: flex;
     gap: 32px;
@@ -524,9 +602,33 @@ const PeopleNum = styled.div`
 const Price = styled.div`
     display: flex;
     align-items: center;
-    gap: 52px;
+    gap: 55px;
     margin-top: 9px;
-    `;
+`;
+
+const Share = styled.div`
+    display: flex;
+    align-items: center;
+    margin-top: 9px;
+`;
+
+const ShareIcon = styled.img`
+    height: 12px;
+    object-fit: cover;
+    object-position: center;
+    margin-left: 32px;
+
+    &:hover{
+        cursor: pointer;
+    }
+`;
+
+const ShareResultMessage = styled.span`
+    display: ${(props) => (props.$iscopy ? "" : "none")};
+    font-size: 11px;
+    color: #DADADA;
+    margin-left: 10px;
+`;
 
 const Highlight = styled.span`
     font-family: 'Pretendard-SemiBold';
@@ -576,4 +678,4 @@ const Author = styled.div`
     &:hover {
         cursor: pointer;
     }
-`
+`;

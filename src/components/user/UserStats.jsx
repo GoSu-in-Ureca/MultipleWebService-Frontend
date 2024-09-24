@@ -136,16 +136,6 @@ const ToolTip = styled.div`
     display: flow;
     z-index: 2;
     box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-    
-
-    &::after {
-        content: "";
-        position: absolute;
-        transform: translateX(-50%);
-        border-width: 0.6vw;
-        border-style: solid;
-        border-color: white transparent transparent transparent;
-    }
 `;
 
 const LevelNum = styled.span`

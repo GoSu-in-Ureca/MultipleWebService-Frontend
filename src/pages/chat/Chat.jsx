@@ -1,20 +1,82 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import messagesend from "/assets/Icon/message-send.svg";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
-import { database } from "../../firebase";
-import { onValue, ref } from "firebase/database";
+import { auth, database, db } from "../../firebase";
+import { get, onValue, push, ref, set, update } from "firebase/database";
+import { arrayRemove, collection, doc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 
 const Chat = () => {
     const navigate = useNavigate();
-    const {chatId} = useParams();
-    const reference = ref(database, `/chats/${chatId}`);
-    const [messageList, setMessageList] = useState([]); // 메시지 목록 상태
+    const { chatId } = useParams();
+    const messageEndRef = useRef(null);
+    const chatRoomRef = ref(database, `/chatRoom/${chatId}`);
+    const [chatRoomName, setChatRoomName] = useState("");
+    const reference = ref(database, `/chatRoom/${chatId}/messages`);
+    const [messageList, setMessageList] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [user, setUser] = useState(null);
+    const [post, setPost] = useState(null);
+    const currentUser = auth.currentUser;
 
-    // 채팅방의 메시지를 실시간으로 불러오기
+    // 현재 사용자 불러오기
+    useEffect(() => {
+        const queryCollection = query(
+            collection(db, "users"),
+            where("user_id", "==", currentUser.uid)
+        );
+        const fetchUser = async () => {
+            try {
+                const querySnapshot = await getDocs(queryCollection);
+
+                if (!querySnapshot.empty) {
+                    const userData = querySnapshot.docs[0].data();
+                    setUser({ ...userData, id: querySnapshot.docs[0].id });
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+    // 관련 게시글 불러오기
+    useEffect(() => {
+        const fetchPost = async () => {
+            const queryCollection = query(
+                collection(db, "posts"),
+                where("post_chatroom_id", "==", chatId)
+            );
+            try {
+                const querySnapshot = await getDocs(queryCollection);
+
+                if (!querySnapshot.empty) {
+                    const postData = querySnapshot.docs[0].data();
+                    setPost({ ...postData, id: querySnapshot.docs[0].id });
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchPost();
+    }, []);
+
+    // 타이틀 동기화
+    useEffect(() => {
+        const unsubscribe = onValue(chatRoomRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.room_name) {
+                setChatRoomName(data.room_name);
+            }
+        });
+        return () => unsubscribe();
+    }, [chatId]);
+
+    // 메세지 새로고침
     useEffect(() => {
         const unsubscribe = onValue(reference, (snapshot) => {
             const data = snapshot.val();
@@ -27,57 +89,250 @@ const Chat = () => {
             }
         });
 
-        return () => unsubscribe(); // Cleanup on component unmount
+        return () => unsubscribe();
     }, [chatId]);
 
-    // 메시지 전송 핸들러
-    const handleSendMessage = async () => {
-        if (newMessage.trim() === "") return; // 메시지가 비어있을 경우 전송 안 함
+    // 메세지 전송 핸들러
+    const handleSendMessage = async (event) => {
+        event.preventDefault();
+
+        if (newMessage.trim() === "") return;
 
         try {
-            const messageRef = push(reference); // 새 메시지 위치 참조
-            await messageRef.set({
-                senderId: "currentUserId", // 현재 사용자 ID, 실제로는 Firebase Auth에서 가져와야 함
+            const messageRef = push(reference);
+            const messageData = {
+                senderid: currentUser.uid,
+                senderdocid: user.id,
+                sendername: currentUser.displayName,
+                senderdepartment: user.user_department,
+                senderonoffline: user.user_onoffline,
                 text: newMessage,
-                createdAt: new Date().toISOString(),
+                createdat: new Date().toISOString(),
+                senderPhotoURL: currentUser.photoURL,
+            };
+            await set(messageRef, messageData);
+
+            const chatRoomRef = ref(database, `/chatRoom/${chatId}`);
+            await update(chatRoomRef, {
+                room_lastMessage: messageData.text,
+                room_lastMessagedat: messageData.createdat,
             });
 
-            setNewMessage(""); // 메시지 전송 후 입력창 초기화
+            setNewMessage("");
         } catch (error) {
             console.error("메시지 전송 오류:", error);
         }
     };
 
+    // 채팅방 및 파티 나가기 핸들러
+    const handleLeaveChatRoom = async () => {
+        try {
+            // 현재 채팅방의 참가자 목록
+            const chatRoomRef = ref(database, `/chatRoom/${chatId}`);
+            const snapshot = await get(chatRoomRef);
+            const chatRoomData = snapshot.val();
+            let participants = chatRoomData?.room_parti || [];
+    
+            // 참가자 목록에서 제거
+            participants = participants.filter(uid => uid !== currentUser.uid);
+    
+            // 참가자 목록 업데이트
+            await update(chatRoomRef, {
+                room_parti: participants,
+            });
+
+            // Firestore의 posts 컬렉션에서도 제거하기
+            if (post && post.id) {
+                const postDocRef = doc(db, "posts", post.id);
+          
+                await updateDoc(postDocRef, {
+                  post_parti_members: arrayRemove(currentUser.uid),
+                  post_currentparti: increment(-1), // 현재 인원 수 감소
+                  post_status: true,
+                });
+              } else {
+                console.error("게시글 정보를 불러오지 못했습니다.");
+              }
+    
+            // 시스템 메시지 전송
+            const messagesRef = ref(database, `chatRoom/${chatId}/messages`);
+            const messageRef = push(messagesRef);
+            const messageData = {
+                senderid: "system",
+                text: `${user.user_name}(${user.user_department}/${user.user_onoffline})님이 퇴장하셨습니다.`,
+                createdat: new Date().toISOString(),
+            };
+            await set(messageRef, messageData);
+    
+            navigate(`/chats`);
+        } catch (error) {
+            console.error("채팅방 퇴장 중 오류 발생:", error);
+            alert("채팅방 퇴장 중 오류가 발생했습니다.");
+        }
+    };
+
+    const handleProfileClick = (senderdocid) => {
+        navigate(`/user/main/${senderdocid}`);
+    };
+
+    const handlePostNavigate = (postdocid) => {
+        navigate(`/main/${postdocid}`);
+    };
+
+    // 브라우저 바닥 스크롤
+    const scrollToBottom = () => {
+        if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+    useEffect(() => {
+        scrollToBottom();
+    }, [messageList]);
+
+    // Time format function
+    const formatTime = (timestamp) => {
+        const date = new Date(timestamp);
+        const hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const ampm = hours >= 12 ? "오후" : "오전";
+        const formattedHours = hours % 12 || 12;
+        return `${ampm} ${formattedHours}:${minutes}`;
+    };
+
     const handleIntroNavigate = () => {
-        navigate(-1);
-    }
+        navigate(`/chats`);
+    };
 
     return (
         <>
             <Wrapper>
-                <Header>
-                    <BackButton onClick={handleIntroNavigate}/>
-                    <Title>채팅</Title>
-                </Header>
-                <PostInfoArea>
-                    <Tag>모집중</Tag>
-                    <PostTitle>노트북 거치대 공동구매 하실 분</PostTitle>
-                </PostInfoArea>
+                <FixArea>
+                    <Header>
+                        <BackButton onClick={handleIntroNavigate} />
+                        <Title>채팅</Title>
+                        <LeaveButton onClick={handleLeaveChatRoom}>파티 나가기</LeaveButton>
+                    </Header>
+                    <PostInfoArea onClick={() => handlePostNavigate(post.id)}>
+                        <Tag isexpired={post && new Date(post.post_deadline) >= new Date() ? "모집중" : "마감"}>
+                            {post && new Date(post.post_deadline) >= new Date()
+                                ? "모집중"
+                                : "마감"}
+                        </Tag>
+                        <PostTitle>{chatRoomName}</PostTitle>
+                    </PostInfoArea>
+                </FixArea>
+                <InitialSystemMessage>
+                    <p>새로운 채팅방이 생성됐습니다.</p>
+                    <p>
+                        운영 정책을 위반한 메세지로 신고 접수 시 사용에 제한이 있을 수
+                        있습니다.
+                    </p>
+                </InitialSystemMessage>
                 <MessageList>
+                    {messageList.map((message) => {
+                    const senderId = message.senderid || '';
+                    const messageType = message.type || '';
 
+                    if (senderId === 'system') {
+                        if (messageType === 'postUpdate') {
+                        return (
+                            <PostUpdateMessageItem
+                            key={message.id}
+                            message={message}
+                            />
+                        );
+                        } else {
+                        return (
+                            <SystemMessageItem
+                            key={message.id}
+                            message={message}
+                            />
+                        );
+                        }
+                    } else if (senderId === currentUser.uid) {
+                        return (
+                        <MyMessageItem
+                            key={message.id}
+                            message={message}
+                            formatTime={formatTime}
+                        />
+                        );
+                    } else {
+                        return (
+                        <OtherMessageItem
+                            key={message.id}
+                            message={message}
+                            formatTime={formatTime}
+                            handleProfileClick={handleProfileClick}
+                        />
+                        );
+                    }
+                    })}
+                    <div ref={messageEndRef} />
                 </MessageList>
                 <MessageInputArea>
-                    <MessageInput />
-                    <MessageSend src={messagesend}/>
+                    <form onSubmit={handleSendMessage}>
+                        <MessageInput
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                        />
+                    </form>
+                    <MessageSend src={messagesend} onClick={handleSendMessage} />
                 </MessageInputArea>
             </Wrapper>
         </>
     );
-}
+};
 
 export default Chat;
 
-// styled components
+// Message 아이템 컴포넌트 분리함
+
+const MyMessageItem = ({ message, formatTime }) => (
+    <MyMessageItemWrapper>
+        <MyMessageContent>
+            <MyMessageBubble>{message.text}</MyMessageBubble>
+        </MyMessageContent>
+        <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
+    </MyMessageItemWrapper>
+);
+
+const OtherMessageItem = ({
+    message,
+    formatTime,
+    handleProfileClick,
+}) => (
+    <OtherMessageItemWrapper>
+        <MessageProfile
+            src={message.senderPhotoURL}
+            onClick={() => handleProfileClick(message.senderdocid)}
+        />
+        <NameAndMessageArea>
+            <SenderInfoArea>
+                <Name>{message.sendername}</Name>
+                <Department>
+                    {message.senderdepartment}/{message.senderonoffline}
+                </Department>
+            </SenderInfoArea>
+            <OtherMessageBubble>{message.text}</OtherMessageBubble>
+        </NameAndMessageArea>
+        <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
+    </OtherMessageItemWrapper>
+);
+
+const SystemMessageItem = ({ message }) => (
+    <SystemMessageWrapper>
+        <SystemMessageText>{message.text}</SystemMessageText>
+    </SystemMessageWrapper>
+);
+
+const PostUpdateMessageItem = ({ message }) => (
+    <PostUpdateMessageWrapper>
+        <PostUpdateMessageText>{message.text}</PostUpdateMessageText>
+    </PostUpdateMessageWrapper>
+);
+
+// Styled components
 
 const Wrapper = styled.div`
     display: flex;
@@ -85,7 +340,13 @@ const Wrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
     width: 390px;
-    height: 100vh;
+    min-height: 100vh;
+    background-color: white;
+`;
+
+const FixArea = styled.div`
+    width: 390px;
+    position: fixed;
     background-color: white;
 `;
 
@@ -99,13 +360,13 @@ const Header = styled.div`
 
 const BackButton = styled.img.attrs({
     src: backbutton,
-    alt: "Back Button"
+    alt: "Back Button",
 })`
     width: 24px;
     height: 24px;
     margin-left: 10px;
 
-    &:hover{
+    &:hover {
         cursor: pointer;
     }
 `;
@@ -116,12 +377,30 @@ const Title = styled.div`
     margin-left: 140px;
 `;
 
+const LeaveButton = styled.button`
+    margin-left: auto;
+    margin-right: 10px;
+    background-color: transparent;
+    border: none;
+    color: #7f52ff;
+    font-size: 9px;
+    cursor: pointer;
+
+    &:hover {
+        cursor: pointer;
+    }
+`;
+
 const PostInfoArea = styled.div`
     display: flex;
     justify-content: flex-start;
     align-items: center;
     width: 100%;
     height: 38px;
+
+    &:hover {
+        cursor: pointer;
+    }
 `;
 
 const Tag = styled.div`
@@ -130,7 +409,7 @@ const Tag = styled.div`
     justify-content: center;
     width: 48px;
     height: 20px;
-    background-color: #7F52FF;
+    background-color: ${({ isexpired }) => (isexpired === '마감' ? '#808080' : '#7f52ff')};
     border-radius: 20px;
     color: white;
     font-weight: 400;
@@ -142,11 +421,130 @@ const PostTitle = styled.div`
     font-size: 13px;
     font-weight: bold;
     margin-left: 9px;
+    margin-right: 21px;
+`;
+
+const InitialSystemMessage = styled.div`
+    text-align: center;
+    font-size: 8px;
+    color: #808284;
+    line-height: 3px;
+    margin-top: 90px;
+    margin-bottom: 20px;
 `;
 
 const MessageList = styled.div`
     display: flex;
     flex-direction: column;
+    width: 350px;
+    margin-bottom: 78px;
+`;
+
+const MyMessageItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+    margin-bottom: 10px;
+`;
+
+const MyMessageContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+`;
+
+const MyMessageBubble = styled.div`
+    padding: 10px 14px;
+    width: fit-content;
+    font-size: 10px;
+    color: white;
+    background-color: #9872ff;
+    border-radius: 20px 20px 0 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+const OtherMessageItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 10px;
+`;
+
+const MessageProfile = styled.img`
+    width: 28px;
+    height: 28px;
+    border-radius: 28px;
+    margin-right: 8px;
+    object-fit: cover;
+
+    &:hover {
+        cursor: pointer;
+    }
+`;
+
+const NameAndMessageArea = styled.div`
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+`;
+
+const SenderInfoArea = styled.div`
+    display: flex;
+    font-size: 8px;
+    justify-content: flex-start;
+    margin-bottom: 5px;
+`;
+
+const Name = styled.div`
+    margin-right: 5px;
+`;
+
+const Department = styled.div`
+    color: #bcbec0;
+`;
+
+const OtherMessageBubble = styled.div`
+    padding: 10px 14px;
+    width: fit-content;
+    font-size: 10px;
+    color: black;
+    background-color: #f7f7f7;
+    border-radius: 20px 20px 20px 0;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+const MessageSendTime = styled.div`
+    height: 100%;
+    font-size: 8px;
+    display: flex;
+    align-items: flex-end;
+    margin: 0 4px;
+`;
+
+const PostUpdateMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const PostUpdateMessageText = styled.div`
+    font-size: 8px;
+    color: #ff0d0d;
+    font-weight: bold;
+    background-color: #FFDBDB;
+    border-radius: 9px;
+    padding: 4px 14px;
+`;
+
+const SystemMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const SystemMessageText = styled.div`
+    font-size: 8px;
+    color: #BFA9FF;
 `;
 
 const MessageInputArea = styled.div`
@@ -158,16 +556,15 @@ const MessageInputArea = styled.div`
     gap: 10px;
     position: fixed;
     bottom: 0px;
+    background-color: white;
 `;
 
 const MessageInput = styled.input.attrs({
     placeholder: "메세지를 입력해주세요",
 })`
-    display: flex;
-    
     width: 300px;
     height: 40px;
-    border: 1px solid #D9D9D9;
+    border: 1px solid #d9d9d9;
     border-radius: 21px;
     outline: none;
     padding: 14px 20px;
