@@ -29,7 +29,7 @@ const Modal = ({isOpen, onClose, modalPosition, postId, post}) => {
 
       await remove(ref(database, `chatRoom/${post.post_chatroom_id}`));
 
-      await sendSystemMessage("작성자에 의해 모집이 마감되었습니다.");
+      await sendSystemMessage("작성자에 의해 모집이 삭제되었습니다.");
       onClose();
 
       alert('게시글이 성공적으로 삭제되었습니다!');
@@ -56,6 +56,9 @@ const Modal = ({isOpen, onClose, modalPosition, postId, post}) => {
         post_deadline: formattedDate,
         post_status: false,
       });
+
+      await sendSystemMessage("작성자에 의해 모집이 마감되었습니다.");
+      onClose();
 
       window.location.reload();
     } catch (error) {
