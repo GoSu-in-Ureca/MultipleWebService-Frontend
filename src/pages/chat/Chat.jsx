@@ -93,7 +93,9 @@ const Chat = () => {
     }, [chatId]);
 
     // 메세지 전송 핸들러
-    const handleSendMessage = async () => {
+    const handleSendMessage = async (e) => {
+        event.preventDefault();
+
         if (newMessage.trim() === "") return;
 
         try {
@@ -269,13 +271,12 @@ const Chat = () => {
                     <div ref={messageEndRef} />
                 </MessageList>
                 <MessageInputArea>
-                    <MessageInput
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyDown={(e) =>
-                            e.key === "Enter" && handleSendMessage()
-                        }
-                    />
+                    <form onSubmit={handleSendMessage}>
+                        <MessageInput
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                        />
+                    </form>
                     <MessageSend src={messagesend} onClick={handleSendMessage} />
                 </MessageInputArea>
             </Wrapper>
