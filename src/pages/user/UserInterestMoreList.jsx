@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { selectedSortState } from "../../recoil/atoms";
 import Loading from "../../Loading";
+import UserInterestSkeleton from '../../components/user/UserInterestSkeleton';
 
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -107,7 +108,7 @@ const UserInterestMoreList = () => {
 
     // 모든 데이터가 로드될 때까지 로딩 화면 표시
     if (loadingUser || loadingPosts) {
-        return <Loading />;
+        return <UserInterestSkeleton />;
     }
 
     const handleIntroNavigate = () => {
@@ -119,7 +120,7 @@ const UserInterestMoreList = () => {
             <Wrapper>
                 <Header>
                     <BackButton onClick={handleIntroNavigate}/>
-                    <Title>{user.user_name}님이 저장한 게시글</Title>
+                    <Title>{user.user_name}님이 찜한 게시글</Title>
                 </Header>
                 <FilterWrapper>
                     <SortFilter sort={sort} setSort={setSort}/>

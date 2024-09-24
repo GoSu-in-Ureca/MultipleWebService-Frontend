@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import UploadMoreItem from "../../components/user/UploadMoreItem";
 import NavigationUser from "../../components/main/NavigationUser";
 import Loading from "../../Loading";
+import UserUploadSkeleton from '../../components/user/UserUploadSkeleton';
 
 import { db } from "../../firebase";
 import { collection, doc, getDoc, getDocs, where, query } from "firebase/firestore";
@@ -69,7 +70,7 @@ const UserUploadList = () => {
 
     // 모든 데이터가 로드될 때까지 로딩 화면 표시
     if (loadingUser || loadingPosts) {
-        return <Loading />;
+        return <UserUploadSkeleton />;
     }
 
     const handleIntroNavigate = () => {
@@ -118,7 +119,6 @@ const Header = styled.div`
     align-items: center;
     width: 100%;
     height: 52px;
-    margin-bottom: 25px;
 `;
 
 const BackButton = styled.img.attrs({

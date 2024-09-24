@@ -116,6 +116,6 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-bottom: 90px;
+    margin-bottom: 65px;
     min-height: calc(100vh - 540px);
 `;

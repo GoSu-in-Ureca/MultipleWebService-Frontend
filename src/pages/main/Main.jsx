@@ -20,20 +20,12 @@ const Main = () => {
     const [toggleState, setToggleState] = useState(false);
     const [selectedCategory, setSelectedCategory] = useRecoilState(selectedCategoryState);
 
-    // useEffect(() => {
-    //     // 데이터 로드 시뮬레이션
-    //     setTimeout(() => {
-    //         setIsLoading(false);  // 일정 시간 후 로딩 상태 해제
-    //     }, 1000);
-    // }, []);
-
     const handleUploadFormNavigate = () => {
         navigate('/upload');
     }
     const handleLogoClick = () => {
         navigate('/main', {replace: true});
     }
-    
 
     return (
         <>
@@ -109,7 +101,7 @@ const UploadIcon = styled.img.attrs({
     alt: "Upload Button"
   })`
     position: fixed;
-    bottom: 128px;
+    bottom: 78px;
     left: 50%;
     width: 55px;
     height: 55px;
