@@ -75,7 +75,7 @@ const Title = styled.div`
     width: 100%;
     height: 52px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 700;
     display: flex;
     justify-content: center;
     align-items: center;
