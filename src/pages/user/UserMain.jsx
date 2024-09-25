@@ -285,7 +285,7 @@ const InfoBox = styled.div`
 
 const Title = styled.div`
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 700;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -317,20 +317,20 @@ const ProfileImage = styled.img`
 const EditProfileButton = styled.div`
     cursor: pointer;
     font-size: 10px;
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     color: #404041;
     margin-top: 12px;
 `;
 
 const UserName = styled.div`
     font-size: 20px;
-    font-family: 'Pretendard-SemiBold';
+    font-weight: 600;
     margin-top: 15px;
 `;
 
 const Department = styled.div`
     font-size: 10px;
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     color: #BCBEC0;
     margin-top: 4px;
 `;
@@ -342,7 +342,7 @@ const LogoutButton = styled.div`
     border-radius: 20px;
     padding: 5px 12px 5px 12px;
     font-size: 9px;
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -360,6 +360,7 @@ const Secession = styled.div`
     color: #ff7474;
     margin-bottom: 12px;
     margin-top: 12px;
+    font-weight: 400;
 
     &:hover{
         cursor: pointer;

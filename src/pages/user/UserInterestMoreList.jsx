@@ -140,7 +140,6 @@ export default UserInterestMoreList;
 // styled components
 
 const Wrapper = styled.div`
-    font-family: "Pretendard-Medium";
     width: 390px;
     display: flex;
     flex-wrap: wrap;
@@ -148,8 +147,8 @@ const Wrapper = styled.div`
     justify-content: flex-start;
     align-items: center;
     background-color: white;
-    margin-bottom: 90px;
-    min-height: calc(100vh - 90px);
+    margin-bottom: 65px;
+    min-height: calc(100vh - 65px);
 `
 
 const Header = styled.div`
@@ -160,6 +159,7 @@ const Header = styled.div`
     height: 52px;
 `;
 
+
 const BackButton = styled.img.attrs({
     src: backbutton,
     alt: "Back Button"
@@ -167,6 +167,7 @@ const BackButton = styled.img.attrs({
     width: 24px;
     height: 24px;
     margin-left: 10px;
+    z-index: 1;
 
     &:hover{
         cursor: pointer;
@@ -174,9 +175,12 @@ const BackButton = styled.img.attrs({
 `;
 
 const Title = styled.div`
+    width: 390px;
+    display: flex;
+    justify-content: center;
+    position: absolute;
     font-size: 16px;
-    font-weight: bold;
-    margin-left: 68px;
+    font-weight: 600;
 `;
 
 const FilterWrapper = styled.div`
