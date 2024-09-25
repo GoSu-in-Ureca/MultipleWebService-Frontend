@@ -507,7 +507,7 @@ const PostTitle = styled.div`
 
 const InitialSystemMessage = styled.div`
     text-align: center;
-    font-size: 8px;
+    font-size: 9px;
     color: #808284;
     line-height: 3px;
     margin-top: 90px;
@@ -536,7 +536,8 @@ const MyMessageContent = styled.div`
 
 const MyMessageBubble = styled.div`
     padding: 10px 14px;
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 400;
     color: white;
     background-color: #9872ff;
     border-radius: 20px 20px 0 20px;
@@ -556,7 +557,7 @@ const OtherMessageItemWrapper = styled.div`
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    margin: 15px 0 0 0;
+    margin: 15px 0 5px 0;
 `;
 
 const MessageProfile = styled.img`
@@ -575,6 +576,7 @@ const NameAndMessageArea = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 80%;
+    gap: 3px;
 `;
 
 const SenderInfoArea = styled.div`
@@ -592,15 +594,18 @@ const MessageAndTimeArea = styled.div`
 
 const Name = styled.div`
     margin-right: 5px;
+    font-size: 10px;
 `;
 
 const Department = styled.div`
     color: #bcbec0;
+    font-size: 10px;
 `;
 
 const OtherMessageBubble = styled.div`
     padding: 10px 14px;
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 400;
     color: black;
     background-color: #f7f7f7;
     border-radius: 20px 20px 20px 0;
@@ -617,6 +622,7 @@ const OtherMessageLink = styled.a`
 const MessageSendTime = styled.div`
     height: 100%;
     font-size: 8px;
+    color: #808284;
     display: flex;
     align-items: flex-end;
     margin: 0 4px;
@@ -632,7 +638,7 @@ const PostUpdateMessageWrapper = styled.div`
 const PostUpdateMessageText = styled.div`
     font-size: 8px;
     color: #ff0d0d;
-    font-weight: bold;
+    font-weight: 400;
     background-color: #FFDBDB;
     border-radius: 9px;
     padding: 4px 14px;
@@ -657,11 +663,11 @@ const DateUpdateMessageText = styled.div`
 const SystemMessageWrapper = styled.div`
     display: flex;
     justify-content: center;
-    margin: 15px 0 0 0;
+    margin: 15px 0;
 `;
 
 const SystemMessageText = styled.div`
-    font-size: 8px;
+    font-size: 9px;
     color: #BFA9FF;
 `;
 
