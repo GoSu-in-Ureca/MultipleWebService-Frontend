@@ -221,12 +221,14 @@ const UserMain = () => {
                 </InfoBox>
                 <InterestList/>
                 <UploadList/>
-                {!isGoogleLinked && (
-                    <GoogleLinkButton onClick={handleGoogleLinkClick}>Google 계정 연동</GoogleLinkButton>
-                )}
-                {currentUserDocId === userDocId && (
-                    <Secession onClick={handleSecessionAlert}>회원탈퇴</Secession>
-                )}
+                <Footer>
+                    {!isGoogleLinked && (
+                        <GoogleLinkButton onClick={handleGoogleLinkClick}>구글 계정 연동</GoogleLinkButton>
+                    )}
+                    {currentUserDocId === userDocId && (
+                        <Secession onClick={handleSecessionAlert}>회원탈퇴</Secession>
+                    )}
+                </Footer>
             </Wrapper>
             <NavigationUser />
 
@@ -280,7 +282,7 @@ const Wrapper = styled.div`
 const InfoBox = styled.div`
     width: 100%;
     border-bottom: 4px solid #F4F4F4;
-    padding: 0px 0px 20px 10px;
+    padding: 0px 0px 27px 10px;
 `;
 
 const Title = styled.div`
@@ -356,11 +358,20 @@ const ProfileAreaRight = styled.div`
 `;
 
 const Secession = styled.div`
-    font-size: 11px;
+    font-size: 12px;
     color: #ff7474;
-    margin-bottom: 12px;
-    margin-top: 12px;
     font-weight: 400;
+    
+    width: 180px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    box-shadow: 0px 1px 4px rgba(116, 116, 116, 0.2);
+    border-radius: 39px;
+    margin-top: 13px;
+    margin-bottom: 20px;
 
     &:hover{
         cursor: pointer;
@@ -428,19 +439,29 @@ const Input = styled.input`
 `;
 
 const GoogleLinkButton = styled.div`
-    width: 289px;
-    height: 42px;
+    width: 180px;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: white;
-    border: #BCBEC0 1px solid;
+    box-shadow: 0px 1px 4px rgba(116, 116, 116, 0.2);
     border-radius: 39px;
     margin-top: 13px;
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: 400;
+    color: #404041;
 
     &:hover{
         cursor: pointer;
     }
+`;
+
+const Footer = styled.div`
+    width: 390px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 4px solid #F4F4F4;
+    padding-top: 10px;
 `;

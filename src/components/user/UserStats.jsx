@@ -140,7 +140,7 @@ const ToolTip = styled.div`
 
 const LevelNum = styled.span`
     font-size: 16px;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
 `;
 
 const LevelGraph = styled.img`
