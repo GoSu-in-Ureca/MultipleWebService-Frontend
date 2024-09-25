@@ -81,7 +81,7 @@ const MainArea = styled.div`
 
 const TextArea = styled.div`
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     width: 220px;
     white-space: nowrap;
     overflow: hidden;
@@ -90,6 +90,7 @@ const TextArea = styled.div`
 
 const Content = styled.div`
     font-size: 12px;
+    font-weight: 400;
     color: #BCBEC0;
     white-space: nowrap;
     overflow: hidden;
@@ -102,14 +103,15 @@ const InfoArea = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 170px;
+    width: 146px;
     height: 15px;
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 500;
 `;
 
 const LeftDays = styled.div`
     font-size: 8px;
+    font-weight: 500;
     color: white;
     width: 29px;
     height: 15px;
