@@ -277,6 +277,7 @@ const Post = () => {
                     senderid: "system",
                     text: `참가 인원이 모두 모집되어 모집이 마감되었습니다.`,
                     createdat: new Date().toISOString(),
+                    type: "postUpdate",
                     };
                     await set(closingMessageRef, closingMessageData);
                 }
