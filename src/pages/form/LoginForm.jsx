@@ -137,7 +137,7 @@ const PasswordField = styled.input.attrs({
 const LoginButton = styled.button.attrs({
     type: "submit"
 })`
-    width: 345px;
+    width: 330px;
     height: 42px;
     border-radius: 8px;
     border: hidden;
