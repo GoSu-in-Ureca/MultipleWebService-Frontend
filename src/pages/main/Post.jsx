@@ -426,7 +426,7 @@ const Wrapper = styled.div`
     background-color: white;
     width: 100%;
     max-width: 390px;
-    margin-bottom: 78px;
+    margin-bottom: 70px;
 `;
 
 const Header = styled.div`
@@ -485,7 +485,7 @@ const TagsAndWriteTime = styled.div`
 const Tags = styled.div`
     display: flex;
     gap: 6px;
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
   `;
 
 const DdayTag = styled.div`
@@ -516,7 +516,7 @@ const HeartAndView = styled.div`
     gap: 20px;
     padding: 10px 0px 0px 25px;
     color: #BCBEC0;
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     font-size: 10px;
 `;
 
@@ -547,16 +547,16 @@ const WriteTime = styled.div`
 const ContentTop = styled.div`
     padding: 4px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
     color: #676767;
     font-size: 12px;
 `;
 
 const ContentMiddle = styled.div`
-    min-height: calc(100vh - 700px);
+    min-height: calc(100vh - 710px);
     padding: 25px 14px 25px 25px;
     border-bottom: 4px solid #F4F4F4;
-    font-family: 'Pretendard-Medium';
+    font-weight: 400;
     color: #676767;
     font-size: 12px;
     overflow-y: scroll;
@@ -570,14 +570,14 @@ const TitleAndImg =styled.div`
 
 const Title = styled.div`
     font-size: 24px;
-    font-family: 'Pretendard-SemiBold';
+    font-weight: 600;
     color: black;
 `;
 
 const Writer = styled.div`
     margin-top: 18px;
     display: flex;
-    gap: 43px;
+    gap: 42px;
 `;
 
 const WriterName = styled.div`
@@ -601,7 +601,7 @@ const PeopleNum = styled.div`
 const Price = styled.div`
     display: flex;
     align-items: center;
-    gap: 55px;
+    gap: 52px;
     margin-top: 9px;
 `;
 
@@ -667,6 +667,7 @@ const Participate = styled.div`
     justify-content: center;
     align-items: center;
     font-size: 14px;
+    font-weight: 500;
 
     &:hover{
         cursor: ${(props) => (props.$isexpired ? "" : "pointer")};
