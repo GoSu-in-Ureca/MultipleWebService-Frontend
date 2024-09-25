@@ -19,6 +19,8 @@ const Chat = () => {
     const [newMessage, setNewMessage] = useState("");
     const [user, setUser] = useState(null);
     const [post, setPost] = useState(null);
+    const [currentTime, setCurrentTime] = useState(new Date().getDate());
+    const isFirstRender = useRef(true);
     const currentUser = auth.currentUser;
 
     // 현재 사용자 불러오기
@@ -39,7 +41,6 @@ const Chat = () => {
                 console.log(error);
             }
         };
-
         fetchUser();
     }, []);
 
@@ -91,6 +92,42 @@ const Chat = () => {
 
         return () => unsubscribe();
     }, [chatId]);
+
+    // // 날짜 변경 감지
+    // useEffect(() => {
+    //     const timer = setInterval(() => {
+    //         const now = new Date();
+    //         const date = now.getDate();
+    //         if (date !== currentTime) {
+    //             setCurrentTime(date);
+    //         }
+    //     }, 60000); // 1분마다 체크
+
+    //     return () => clearInterval(timer);
+    // }, [currentTime]);
+    // // 날짜 변경 시 메시지 전송
+    // useEffect(() => {
+    //     if (isFirstRender.current) {
+    //         isFirstRender.current = false;
+    //         return;
+    //     }
+    //     const dateSystemMessage = async () => {
+    //         try{
+    //             const messageRef = push(reference);
+    //             const messageData = {
+    //                 senderid: "system",
+    //                 text: `${new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+    //                 type: "date",
+    //                 createdat: new Date().toISOString(),
+    //             };
+    //             await set(messageRef, messageData);
+    //         } catch (error) {
+    //             console.log(error)
+    //         }
+    //     };
+
+    //     dateSystemMessage();
+    // }, [currentTime]);
 
     // 메세지 전송 핸들러
     const handleSendMessage = async (event) => {
@@ -247,12 +284,19 @@ const Chat = () => {
 
                     if (senderId === 'system') {
                         if (messageType === 'postUpdate') {
-                        return (
-                            <PostUpdateMessageItem
-                            key={message.id}
-                            message={message}
-                            />
-                        );
+                            return (
+                                <PostUpdateMessageItem
+                                key={message.id}
+                                message={message}
+                                />
+                            );
+                        } else if(messageType === 'date') {
+                            return (
+                                <DateUpdateMessageItem
+                                key={message.id}
+                                message={message}
+                                />
+                            )
                         } else {
                         return (
                             <SystemMessageItem
@@ -362,6 +406,12 @@ const PostUpdateMessageItem = ({ message }) => (
         <PostUpdateMessageText>{message.text}</PostUpdateMessageText>
     </PostUpdateMessageWrapper>
 );
+
+const DateUpdateMessageItem = ({ message }) => (
+    <DateUpdateMessageWrapper>
+        <DateUpdateMessageText>{message.text}</DateUpdateMessageText>
+    </DateUpdateMessageWrapper>
+)
 
 // Styled components
 
@@ -586,6 +636,21 @@ const PostUpdateMessageText = styled.div`
     background-color: #FFDBDB;
     border-radius: 9px;
     padding: 4px 14px;
+`;
+
+const DateUpdateMessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+`;
+
+const DateUpdateMessageText = styled.div`
+    font-size: 8px;
+    color: #6F6F6F;
+    font-weight: bold;
+    background-color: #F7F7F7;
+    border-radius: 9px;
+    padding: 4px 12px;
 `;
 
 // 시스템 메세지
