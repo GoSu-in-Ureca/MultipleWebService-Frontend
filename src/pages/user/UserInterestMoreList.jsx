@@ -8,7 +8,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { selectedSortState } from "../../recoil/atoms";
-import Loading from "../../Loading";
 import UserInterestSkeleton from '../../components/user/UserInterestSkeleton';
 
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
@@ -45,7 +44,7 @@ const UserInterestMoreList = () => {
         try {
             const queryCollection = query(
                 collection(db, 'posts'),
-                where('post_user_name', '==', user.user_name)
+                where('post_liked_users', 'array-contains', user.user_id)
             );
             const postSnapshot = await getDocs(queryCollection);
             const postsArray = postSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));

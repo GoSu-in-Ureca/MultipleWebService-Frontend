@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import CategoryItem from "../../components/form/CategoryItem";
 import backbutton from "/assets/Icon/navigate_before.svg";
 
-import { doc, getDoc, updateDoc, deleteField } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { database, db, storage } from "../../firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { update, ref as databaseRef } from "firebase/database";
