@@ -112,13 +112,14 @@ const ThumbnailImage = styled.img`
 const MainArea = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 5px;
 `;
 
 const TextArea = styled.div`
     display: flex;
     font-size: 13px;
-    `;
+    align-items: center;
+`;
 
 const Title = styled.div`
     font-size: 13px;
@@ -138,7 +139,7 @@ const DayItem = styled.div`
     font-size: 9px;
     font-weight: 400;
     color: white;
-    padding: 0 9.5px 0 9.5px;
+    padding: 3px 9px 3px 9px;
     border: 1px solid ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     border-radius: 19.5px;
     background-color: ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
@@ -152,6 +153,7 @@ const ChatContent = styled.div`
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-left: 2px;
 `;
 
 const InfoArea = styled.div`
