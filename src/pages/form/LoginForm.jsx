@@ -87,6 +87,7 @@ const Form = styled.form`
 `;
 
 const GuideText = styled.div`
+    font-weight: 400;
     font-size: 14px;
     color: #BCBEC0;
     text-align: left;
@@ -143,7 +144,7 @@ const LoginButton = styled.button.attrs({
     background-color: #7F52FF;
     color: white;
     font-size: 14px;
-    font-weight: bolder;
+    font-weight: 600;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -162,7 +163,8 @@ const ResultMessage = styled.div`
 `;
 
 const BackButton = styled.div`
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 400;
     text-align: center;
     margin-top: 10px;
     color: #c7c5c5;
