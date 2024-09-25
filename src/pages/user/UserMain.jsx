@@ -9,8 +9,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 
 import { auth, db, storage } from "../../firebase";
-import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut, getAuth, updateProfile } from "firebase/auth";
-import { uploadBytesResumable, getDownloadURL, ref as strRef, uploadBytes } from "firebase/storage";
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut, getAuth, updateProfile, GoogleAuthProvider, linkWithPopup } from "firebase/auth";
+import { getDownloadURL, ref as strRef, uploadBytes } from "firebase/storage";
 import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 
 const UserMain = () => {
