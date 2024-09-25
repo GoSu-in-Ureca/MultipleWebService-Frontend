@@ -91,7 +91,7 @@ export default InterestList;
 
 const Wrapper = styled.div`
     width: 390px;
-    padding: 15px 23px 32px 23px;
+    padding: 27px 23px 15px 23px;
     display: flex;
     flex-direction: column;
     align-items: center;
