@@ -169,10 +169,10 @@ const DayItem = styled.div`
     justify-content: center;
     align-items: center;
     height: 100%;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 500;
     color: white;
-    padding: 0 9.5px 0 9.5px;
+    padding: 3px 9px 3px 9px;
     border: 1px solid ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
     border-radius: 19.5px;
     background-color: ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
@@ -184,10 +184,10 @@ const CategoryItem = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 500;
     color: #404040;
-    padding: 0 9.5px 0 9.5px;
+    padding: 3px 9px 3px 9px;
     border: 1px solid #808264;
     border-radius: 19.5px;
 `;
@@ -198,10 +198,10 @@ const PartyStatus = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 500;
     color: #404040;
-    padding: 0 9.5px 0 9.5px;
+    padding: 3px 9px 3px 9px;
     border: 1px solid #808264;
     border-radius: 19.5px;
 `;
