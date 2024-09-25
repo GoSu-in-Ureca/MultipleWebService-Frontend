@@ -54,7 +54,6 @@ export default Main;
 // styled components
 
 const Wrapper = styled.div`
-    font-family: "Pretendard-Medium";
     width: 390px;
     display: flex;
     flex-wrap: wrap;
@@ -78,7 +77,7 @@ const Logo = styled.img.attrs({
 
 const Title = styled.div`
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     align-self: flex-start;
     padding-left: 23px;
 `;

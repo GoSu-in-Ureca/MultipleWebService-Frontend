@@ -167,6 +167,7 @@ const HeadItem = styled.div`
     border: 1px white solid;
     border-radius: 19.5px;
     font-size: 8px;
+    font-weight: 400;
     color: white;
     background-color: rgba(255, 255, 255, 0.5);
     margin-right: 6px;
@@ -196,6 +197,7 @@ const InterestIcon = styled.img.attrs({
 
 const InterestCount = styled.div`
     font-size: 8px;
+    font-weight: 400;
     color: white;
     display: flex;
     justify-content: center;
@@ -204,6 +206,7 @@ const InterestCount = styled.div`
 
 const Title = styled.div`
     font-size: 14px;
+    font-weight: 500;
     color: white;
     max-width: 120px;
     white-space: pre-wrap;
@@ -229,10 +232,10 @@ const AuthorProfile = styled.img`
 const AuthorName = styled.div`
     height: 20px;
     font-size: 11px;
+    font-weight: 400;
     color: white;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    /* align-items: center; */
     margin-left: 7px;
 `;

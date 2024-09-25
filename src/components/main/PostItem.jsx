@@ -170,7 +170,7 @@ const DayItem = styled.div`
     align-items: center;
     height: 100%;
     font-size: 8px;
-    font-weight: bold;
+    font-weight: 500;
     color: white;
     padding: 0 9.5px 0 9.5px;
     border: 1px solid ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};

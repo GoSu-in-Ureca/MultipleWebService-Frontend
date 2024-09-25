@@ -18,6 +18,8 @@ export default CategoryList;
 // styled components
 
 const Wrapper = styled.div`
+    font-weight: 400;
+    font-size: 12px;
     width: 372px;
     height: 30px;
     display: flex;

@@ -38,7 +38,7 @@ const ToggleIcon = styled.img`
 `;
 
 const Text = styled.div`
-    font-family: "Pretendard-Medium";
+    font-weight: 500;
     font-size: 11px;
     margin-left: 6px;
 
