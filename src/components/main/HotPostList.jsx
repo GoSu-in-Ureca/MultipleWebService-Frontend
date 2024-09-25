@@ -46,9 +46,15 @@ const HotPostList = () => {
     useEffect(() => {
         const topPosts = [...firePosts]
                         .sort((a, b) => {
-                            const aValue = a.post_interest;
-                            const bValue = b.post_interest;
-                            return bValue - aValue;
+                            const aInter = a.post_interest;
+                            const bInter = b.post_interest;
+                            const aView = a.post_view;
+                            const bView = b.post_view;
+                            if(aInter !== bInter){
+                                return bInter - aInter;
+                            } else {
+                                return bView - aView;
+                            }
                         })
                         .slice(0, 10);
 
