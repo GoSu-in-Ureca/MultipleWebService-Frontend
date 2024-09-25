@@ -89,7 +89,7 @@ const KakaoSignUpButton = styled.div`
     border-radius: 39px;
     margin-top: 93px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
 
     &:hover{
         cursor: pointer;
@@ -107,7 +107,7 @@ const GoogleSignUpButton = styled.div`
     border-radius: 39px;
     margin-top: 13px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
 
     &:hover{
         cursor: pointer;
@@ -125,7 +125,7 @@ const EmailSignUpButton = styled.div`
     border-radius: 39px;
     margin-top: 13px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
     color: white;
 
     &:hover{
@@ -138,10 +138,11 @@ const LoginGuideArea = styled.div`
     font-size: 10px;
     gap: 16px;
     margin-top: 8px;
+    font-weight: 400;
 `;
 
 const LoginLink = styled.p`
-    font-weight: bold;
+    font-weight: 600;
 
     &:hover{
         cursor: pointer;

@@ -206,7 +206,7 @@ const SignUpForm = () => {
 
                     <ChangeProfileButton
                             onClick={() => document.getElementById('fileInput').click()}
-                        >프로필 사진 변경하기
+                        >프로필 사진 등록하기
                     </ChangeProfileButton>
                     <FileValidation>{fileSizeAlert}</FileValidation>
                     <InputGuideText>
@@ -302,6 +302,8 @@ const Header = styled.div`
     align-items: center;
     width: 100%;
     height: 52px;
+    font-weight: 600;
+    font-size: 16px;
 `;
 
 const BackButton = styled.img.attrs({
@@ -345,7 +347,7 @@ const ProfileImageArea = styled.div`
 
 const ChangeProfileButton = styled.div`
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 400;
     margin-top: 14px;
 
     &:hover{
@@ -366,6 +368,7 @@ const InputGuideText = styled.div`
     display: flex;
     align-items: center;
     font-size: 14px;
+    font-weight: 400;
     color: #BCBEC0;
     width: 330px;
     text-align: left;
@@ -478,6 +481,7 @@ const Item = styled.div`
     margin-right: 10px;
     width: auto;
     font-size: 11px;
+    font-weight: 400;
     border-radius: 13px;
     background-color: ${({ $isSelected }) => ($isSelected ? 'black' : '#E2E2E2')};
     color: ${({ $isSelected }) => ($isSelected ? 'white' : '#808284')};
@@ -498,7 +502,7 @@ const SignUpButton = styled.button.attrs({
     background-color: #7F52FF;
     color: white;
     font-size: 14px;
-    font-weight: bolder;
+    font-weight: 600;
     display: flex;
     justify-content: center;
     align-items: center;
