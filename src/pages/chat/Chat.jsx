@@ -461,7 +461,6 @@ const InitialSystemMessage = styled.div`
     color: #808284;
     line-height: 3px;
     margin-top: 90px;
-    margin-bottom: 20px;
 `;
 
 const MessageList = styled.div`
