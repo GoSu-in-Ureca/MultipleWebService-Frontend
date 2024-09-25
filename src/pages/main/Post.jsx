@@ -631,7 +631,7 @@ const ShareResultMessage = styled.span`
 `;
 
 const Highlight = styled.span`
-    font-family: 'Pretendard-SemiBold';
+    font-weight: 600;
     color: #7F52FF;
 `;
 
