@@ -36,7 +36,7 @@ const Wrapper = styled.div`
 const Select = styled.select`
     border: none;
     outline: none;
-    font-family: "Pretendard-Medium";
+    font-weight: 500;
     font-size: 11px;
 `;
 
