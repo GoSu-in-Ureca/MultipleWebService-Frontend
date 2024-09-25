@@ -55,12 +55,12 @@ const PartyBox = styled.div`
 
 const Party = styled.span`
     font-size: 13px;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
 `;
 
 const PartyNum = styled.span`
     font-size: 20px;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
 `;
 
 const JoinBox = styled.div`
@@ -72,12 +72,12 @@ const JoinBox = styled.div`
 
 const Join = styled.span`
     font-size: 13px;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
 `;
 
 const JoinNum = styled.span`
     font-size: 20px;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
     `;
 
 const LevelBox = styled.div`
@@ -101,7 +101,7 @@ const LevelAndTooltip = styled.div`
 
 const Level = styled.span`
     font-size: 13px;
-    font-family: 'Pretendard-Medium';
+    font-weight: 500;
 `;
 
 
@@ -145,6 +145,5 @@ const LevelNum = styled.span`
 
 const LevelGraph = styled.img`
     width: 115px;
-    /* position: relative; */
     padding-top: 22px;
 `;

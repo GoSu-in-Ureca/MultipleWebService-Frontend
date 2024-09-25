@@ -107,12 +107,12 @@ const UploadPost = styled.div`
 `;
 
 const UploadPostTitle = styled.div`
-    font-family: 'Pretendard-SemiBold';
+    font-weight: 600;
     font-size: 16px;
 `;
 
 const WholeView = styled.div`
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     font-size: 12px;
     cursor: pointer;
 `;

@@ -103,7 +103,7 @@ const Dday = styled.div`
     background-color: rgba(255, 255, 255, 0.5);
     border: 0.3px solid #ffffff;
     border-radius: 20px;
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     font-size: 8px;
     color: white;
     display: flex;
@@ -134,7 +134,7 @@ const InterestCount = styled.div`
 `;
 
 const Title = styled.div`
-    font-weight: 800;
+    font-weight: 600;
     font-size: 12px;
     width: 120px;
     white-space: nowrap;
@@ -158,7 +158,7 @@ const ProfileImage = styled.img.attrs({
 `;
 
 const AuthorName = styled.div`
-    font-family: 'Pretendard-Regular';
+    font-weight: 400;
     font-size: 11px;
     margin-left: 4px;
 `;
