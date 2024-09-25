@@ -69,7 +69,9 @@ const ChatItem = ({chatroom}) => {
                     <ChatContent>{chatroom.room_lastMessage}</ChatContent>
                 </MainArea>
                 <InfoArea>
-                    <MoreIcon />
+                    <MoreIconLayout>
+                        <MoreIcon />
+                    </MoreIconLayout>
                     <LatestTime>{getTimeDifference(chatroom.room_lastMessagedat)}</LatestTime>
                 </InfoArea>
             </Wrapper>
@@ -116,11 +118,11 @@ const MainArea = styled.div`
 const TextArea = styled.div`
     display: flex;
     font-size: 13px;
-    font-weight: bold;
     `;
 
 const Title = styled.div`
     font-size: 13px;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -133,8 +135,8 @@ const DayItem = styled.div`
     justify-content: center;
     align-items: center;
     height: 100%;
-    font-size: 8px;
-    font-weight: bold;
+    font-size: 9px;
+    font-weight: 400;
     color: white;
     padding: 0 9.5px 0 9.5px;
     border: 1px solid ${(props) => (props.$isexpired ? "#808080" : "#7f52ff")};
@@ -144,6 +146,7 @@ const DayItem = styled.div`
 
 const ChatContent = styled.div`
     font-size: 12px;
+    font-weight: 400;
     color: #676767;
     width: 250px;
     overflow-x: hidden;
@@ -157,6 +160,10 @@ const InfoArea = styled.div`
     justify-content: space-between;
     align-items: flex-end;
     width: 50px;
+`;
+
+const MoreIconLayout = styled.div`
+    display: flex;
 `;
 
 const MoreIcon = styled.img.attrs({
@@ -173,5 +180,6 @@ const MoreIcon = styled.img.attrs({
 
 const LatestTime = styled.div`
     font-size: 11px;
+    font-weight: 400;
     color: #DADADA;
 `;
