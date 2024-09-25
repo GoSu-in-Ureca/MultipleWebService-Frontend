@@ -303,15 +303,15 @@ export default Chat;
 const MyMessageItem = ({ message, formatTime }) => (
     <MyMessageItemWrapper>
         <MyMessageContent>
-        {message.type === 'url' ? (
-            <MyMessageBubble>
-            <MessageLink href={message.text} target="_blank" rel="noopener noreferrer">
-                {message.text}
-            </MessageLink>
-            </MyMessageBubble>
-        ) : (
-            <MyMessageBubble>{message.text}</MyMessageBubble>
-        )}
+            {message.type === 'url' ? (
+                <MyMessageBubble>
+                    <MyMessageLink href={message.text} target="_blank" rel="noopener noreferrer">
+                        {message.text}
+                    </MyMessageLink>
+                </MyMessageBubble>
+            ) : (
+                <MyMessageBubble>{message.text}</MyMessageBubble>
+            )}
         </MyMessageContent>
         <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
     </MyMessageItemWrapper>
@@ -324,27 +324,29 @@ const OtherMessageItem = ({
 }) => (
 <OtherMessageItemWrapper>
     <MessageProfile
-    src={message.senderPhotoURL}
-    onClick={() => handleProfileClick(message.senderdocid)}
+        src={message.senderPhotoURL}
+        onClick={() => handleProfileClick(message.senderdocid)}
     />
     <NameAndMessageArea>
-    <SenderInfoArea>
-        <Name>{message.sendername}</Name>
-        <Department>
-        {message.senderdepartment}/{message.senderonoffline}
-        </Department>
-    </SenderInfoArea>
-    {message.type === 'url' ? (
-        <OtherMessageBubble>
-        <MessageLink href={message.text} target="_blank" rel="noopener noreferrer">
-            {message.text}
-        </MessageLink>
-        </OtherMessageBubble>
-    ) : (
-        <OtherMessageBubble>{message.text}</OtherMessageBubble>
-    )}
+        <SenderInfoArea>
+            <Name>{message.sendername}</Name>
+            <Department>
+            {message.senderdepartment}/{message.senderonoffline}
+            </Department>
+        </SenderInfoArea>
+        <MessageAndTimeArea>
+            {message.type === 'url' ? (
+                <OtherMessageBubble>
+                <OtherMessageLink href={message.text} target="_blank" rel="noopener noreferrer">
+                    {message.text}
+                </OtherMessageLink>
+                </OtherMessageBubble>
+            ) : (
+                <OtherMessageBubble>{message.text}</OtherMessageBubble>
+            )}
+            <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
+        </MessageAndTimeArea>
     </NameAndMessageArea>
-    <MessageSendTime>{formatTime(message.createdat)}</MessageSendTime>
 </OtherMessageItemWrapper>
 );
   
@@ -469,11 +471,12 @@ const MessageList = styled.div`
     margin-bottom: 78px;
 `;
 
+// 본인 메세지
 const MyMessageItemWrapper = styled.div`
     display: flex;
     flex-direction: row-reverse;
     align-items: flex-end;
-    margin-bottom: 10px;
+    margin: 10px 0 0 0;
 `;
 
 const MyMessageContent = styled.div`
@@ -484,19 +487,27 @@ const MyMessageContent = styled.div`
 
 const MyMessageBubble = styled.div`
     padding: 10px 14px;
-    width: fit-content;
     font-size: 10px;
     color: white;
     background-color: #9872ff;
     border-radius: 20px 20px 0 20px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    word-break: break-all;
 `;
 
+const MyMessageLink = styled.a`
+  color: white;
+  word-break: break-all;
+  white-space: normal;
+`;
+
+// 다른 사람 메세지
 const OtherMessageItemWrapper = styled.div`
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    margin-bottom: 10px;
+    margin: 15px 0 0 0;
 `;
 
 const MessageProfile = styled.img`
@@ -524,6 +535,12 @@ const SenderInfoArea = styled.div`
     margin-bottom: 5px;
 `;
 
+const MessageAndTimeArea = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+`
+
 const Name = styled.div`
     margin-right: 5px;
 `;
@@ -534,12 +551,18 @@ const Department = styled.div`
 
 const OtherMessageBubble = styled.div`
     padding: 10px 14px;
-    width: fit-content;
     font-size: 10px;
     color: black;
     background-color: #f7f7f7;
     border-radius: 20px 20px 20px 0;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    word-break: break-all;
+`;
+
+const OtherMessageLink = styled.a`
+  color: black;
+  word-break: break-all;
+  white-space: normal;
 `;
 
 const MessageSendTime = styled.div`
@@ -548,12 +571,13 @@ const MessageSendTime = styled.div`
     display: flex;
     align-items: flex-end;
     margin: 0 4px;
+    white-space: nowrap;
 `;
 
 const PostUpdateMessageWrapper = styled.div`
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
+    margin: 15px 0;
 `;
 
 const PostUpdateMessageText = styled.div`
@@ -565,10 +589,11 @@ const PostUpdateMessageText = styled.div`
     padding: 4px 14px;
 `;
 
+// 시스템 메세지
 const SystemMessageWrapper = styled.div`
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
+    margin: 15px 0 0 0;
 `;
 
 const SystemMessageText = styled.div`
@@ -603,9 +628,4 @@ const MessageInput = styled.input.attrs({
 
 const MessageSend = styled.img`
     width: 40px;
-`;
-
-const MessageLink = styled.a`
-  color: white;
-  word-break: break-all;
 `;
