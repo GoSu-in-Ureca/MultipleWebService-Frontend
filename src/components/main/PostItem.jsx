@@ -105,7 +105,7 @@ const PostItem = ({post}) => {
                         <InfoWrapper>
                             <DayItem $isexpired={leftDays === '마감'}>{leftDays === "마감" ? "마감" : `D-${leftDays}`}</DayItem>
                             <CategoryItem>{post.post_category}</CategoryItem>
-                            <PartyStatus><span style={{color: "#7F52FF"}}>{post.post_currentparti}</span> / {post.post_maxparti}</PartyStatus>
+                            <PartyStatus><span style={{color: "#7F52FF"}}>{post.post_currentparti}</span> &nbsp;/ {post.post_maxparti}</PartyStatus>
                         </InfoWrapper>
                         <TimeIndicator>{getTimeDifference(post.post_createdAt)}</TimeIndicator>
                     </Top>
@@ -185,7 +185,7 @@ const CategoryItem = styled.div`
     justify-content: center;
     align-items: center;
     font-size: 8px;
-    font-weight: bold;
+    font-weight: 500;
     color: #404040;
     padding: 0 9.5px 0 9.5px;
     border: 1px solid #808264;
@@ -193,18 +193,28 @@ const CategoryItem = styled.div`
 `;
 
 const PartyStatus = styled.div`
-    font-size: 11px;
-    margin-left: 8px;
+    height: 100%;
+    margin-left: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 8px;
+    font-weight: 500;
+    color: #404040;
+    padding: 0 9.5px 0 9.5px;
+    border: 1px solid #808264;
+    border-radius: 19.5px;
 `;
 
 const TimeIndicator = styled.div`
     color: #BCBEC0;
     font-size: 11px;
+    font-weight: 400;
 `;
 
 const Middle = styled.div`
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 10px;
     width: 240px;
     overflow: hidden;
@@ -234,5 +244,6 @@ const Author = styled.div`
     align-items: center;
     margin-left: 7px;
     font-size: 12px;
+    font-weight: 500;
     color: #404040;
 `;
