@@ -34,7 +34,7 @@ const Wrapper = styled.div`
 
 // categoryList
 const categories = [
-    "전체", "운동", "문화생활",
+    "전체", "문화생활", "운동",
     "공구", "맛집탐방", "여행",
     "쇼핑", "택시", "스터디", "기타"
 ];
