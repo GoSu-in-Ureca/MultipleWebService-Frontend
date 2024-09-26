@@ -16,7 +16,6 @@ const UploadIcon = styled.img.attrs({
     alt: "Upload Button"
 })`
     position: fixed;
-    
     width: 55px;
     height: 55px;
 `
