@@ -117,10 +117,10 @@ const UpdateForm = () => {
     for (const item of selectedPictures) {
       if (typeof item !== "string") {
         // File 객체인 경우 (새로 추가된 이미지)
-        const storageRef = storageRef(storage, `posts/${Date.now()}_${item.name}`);
+        const storageRef2 = storageRef(storage, `posts/${Date.now()}_${item.name}`);
         try {
-          await uploadBytes(storageRef, item);
-          const downloadURL = await getDownloadURL(storageRef);
+          await uploadBytes(storageRef2, item);
+          const downloadURL = await getDownloadURL(storageRef2);
           uploadedImageUrls.push(downloadURL);
         } catch (error) {
           console.error("이미지 업로드 중 오류 발생:", error);
@@ -134,9 +134,9 @@ const UpdateForm = () => {
 
     // 삭제된 이미지 처리
     for (const url of removedPictures) {
-      const storageRef = storageRef(storage, url);
+      const storageRef2 = storageRef(storage, url);
       try {
-        await deleteObject(storageRef);
+        await deleteObject(storageRef2);
       } catch (error) {
         console.error("이미지 삭제 중 오류 발생:", error);
       }
