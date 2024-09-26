@@ -399,9 +399,11 @@ const ContentInputArea = styled.textarea.attrs({
     type: "text",
     id: "content",
     name: "content",
-    placeholder: "상세 정보를 입력해주세요",
+    placeholder: "상세 정보를 입력해주세요 (마크다운 문법 지원)",
     required: "required"
 })`
+    font-family: "Pretendard";
+    font-weight: 400;
     width: 346px;
     height: 220px;
     resize: none;
