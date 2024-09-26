@@ -73,7 +73,7 @@ const InterestItem = ({post, user}) => {
     return (
         <>
             <Wrapper onClick={handlePostClick}>
-                <ThumbnailArea $thumbnailurl={post.post_images[0] || "/assets/BG/defaultImage.png"}>
+                <ThumbnailArea $thumbnailurl={post.post_images[0] || "/assets/BG/defaultImage_m.png"}>
                     <Dday>{leftDays === "마감" ? `마감` : `D-${leftDays}`}</Dday>
                     <InterestArea>
                         <HeartIcon src={heart}/>
@@ -82,7 +82,7 @@ const InterestItem = ({post, user}) => {
                 </ThumbnailArea>
                 <Title>{post.post_title}</Title>
                 <AuthorArea>
-                    <ProfileImage src={author ? author.profile_image_url : "/assets/BG/defaultImage.png"}/>
+                    <ProfileImage src={author ? author.profile_image_url : "/assets/BG/defaultImage_m.png"}/>
                     <AuthorName>{post.post_user_name}</AuthorName>
                 </AuthorArea>
             </Wrapper>

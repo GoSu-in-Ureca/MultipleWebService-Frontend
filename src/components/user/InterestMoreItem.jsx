@@ -26,7 +26,7 @@ const InterestMoreItem = ({post}) => {
     return (
         <>
             <Wrapper onClick={handlePostClick}>
-            <ProfileImage src={post.post_images[0] || "/assets/BG/defaultImage.png"}/>
+            <ProfileImage src={post.post_images[0] || "/assets/BG/defaultImage_m.png"}/>
                 <MainArea>
                     <TextArea>
                         {post.post_title}

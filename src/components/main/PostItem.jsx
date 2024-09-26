@@ -45,7 +45,7 @@ const PostItem = ({post}) => {
 
     // 게시글 대표 사진 불러오기
     const fetchPostThumbnail = () => {
-        const thumbnail = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage.png";
+        const thumbnail = post.post_images && post.post_images.length > 0 ? post.post_images[0] : "/assets/BG/defaultImage_m.png";
         setThumbnailUrl(thumbnail);
     };
 
@@ -99,7 +99,7 @@ const PostItem = ({post}) => {
     return (
         <>
             <Wrapper onClick={handlePostClick}>
-                <Image src={thumbnailUrl ? thumbnailUrl : "/assets/BG/defaultImage.png"}/>
+                <Image src={thumbnailUrl ? thumbnailUrl : "/assets/BG/defaultImage_m.png"}/>
                 <TextArea>
                     <Top>
                         <InfoWrapper>

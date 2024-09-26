@@ -31,7 +31,7 @@ const UploadMoreItem = ({post}) => {
 
     return (
         <Wrapper onClick={handlePostClick}>
-            <PresentImage src={post.post_images[0] || "/assets/BG/defaultImage.png"} alt="Post Image" />
+            <PresentImage src={post.post_images[0] || "/assets/BG/defaultImage_m.png"} alt="Post Image" />
             <MainArea>
                 <TitleArea>
                     <Title>{post.post_title}</Title>

@@ -324,7 +324,7 @@ const Post = () => {
                     <ImageInner>
                         {post.post_images.length > 0 ? post.post_images.map((image, index) => (
                             <Image src={image} key={index}/>
-                        )) : <Image src={"/assets/BG/defaultImage.png"} />}
+                        )) : <Image src={"/assets/BG/defaultImage_m.png"} />}
 
                     </ImageInner>
                 </ImageSlider>

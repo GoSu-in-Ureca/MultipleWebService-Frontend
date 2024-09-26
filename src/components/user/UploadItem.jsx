@@ -51,7 +51,7 @@ const UploadItem = ({post, user}) => {
     return (
         <>
             <Wrapper onClick={handlePostClick}>
-                <ThumbnailArea $thumbnailurl={post.post_images[0] || "/assets/BG/defaultImage.png"}>
+                <ThumbnailArea $thumbnailurl={post.post_images[0] || "/assets/BG/defaultImage_m.png"}>
                     <Dday>{leftDays === "마감" ? `마감` : `D-${leftDays}`}</Dday>
                     <InterestArea>
                         <HeartIcon src={heart}/>
