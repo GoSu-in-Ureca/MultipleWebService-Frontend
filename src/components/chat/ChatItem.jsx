@@ -1,16 +1,21 @@
 import styled from "styled-components";
 import more from "/assets/Icon/More.svg";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
+import ChatListModal from "../../components/main/ChatListModal.jsx";
 
 const ChatItem = ({chatroom}) => {
     const navigate = useNavigate();
     const [post, setPost] = useState(null);
     const [leftDays, setLeftDays] = useState(null);
-    
+    const [isOpen, setIsOpen] = useState(false); // 모달 창
+    const [modalPosition, setModalPosition] = useState({top:0, left:0}); // 모달 위치
+
+    const modalButtonRef = useRef(null); // 미트볼 아이콘 위치 참조
+
     // 게시글 불러오기
     useEffect(() => {
         const fetchPost = async () => {
@@ -57,9 +62,22 @@ const ChatItem = ({chatroom}) => {
         navigate(`/chats/${chatroom.room_id}`);
     }
 
+    // 모달 위치 설정
+    const handleModalClick = () => {
+        const rect = modalButtonRef.current.getBoundingClientRect();
+        setModalPosition({top: rect.top, left: rect.left+window.scrollX}); // 모달 위치
+        setIsOpen(true); // 모달 열기
+        console.log('modal: '+isOpen);
+        document.body.style.overflow = 'hidden';
+    }
+
+    
+
     return (
         <>
-            <Wrapper onClick={handleChatRoomNavigate}>
+            <Wrapper onClick={()=>handleChatRoomNavigate()
+
+            }>
                 <ThumbnailImage src={chatroom.room_thumbnail}/>
                 <MainArea>
                     <TextArea>
@@ -69,8 +87,22 @@ const ChatItem = ({chatroom}) => {
                     <ChatContent>{chatroom.room_lastMessage}</ChatContent>
                 </MainArea>
                 <InfoArea>
-                    <MoreIconLayout>
-                        <MoreIcon />
+                    <MoreIconLayout
+                        onClick={(e)=>{e.stopPropagation()}}
+                    >
+                        <MoreIcon 
+                            ref={modalButtonRef}
+                            onClick={handleModalClick} // 클릭 시 모달 열기
+                        />
+                        <ChatListModal 
+                            post={post}
+                            isOpen={isOpen} 
+                            onClose={()=>{
+                                setIsOpen(false);
+                                document.body.style.overflow = 'unset';
+                            }}
+                            modalPosition={modalPosition} // 모달 위치 props 전달
+                        />
                     </MoreIconLayout>
                     <LatestTime>{getTimeDifference(chatroom.room_lastMessagedat)}</LatestTime>
                 </InfoArea>
@@ -85,7 +117,7 @@ export default ChatItem;
 // styled components
 
 const Wrapper = styled.div`
-    display:  flex;
+    display: flex;
     flex-direction: row;
     justify-content: flex-start;
     width: 100%;

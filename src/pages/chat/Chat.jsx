@@ -259,7 +259,7 @@ const Chat = () => {
                     <Header>
                         <BackButton onClick={handleIntroNavigate} />
                         <Title>채팅</Title>
-                        <LeaveButton onClick={handleLeaveChatRoom}>파티 나가기</LeaveButton>
+                        <LeaveButton onClick={handleLeaveChatRoom}>나가기</LeaveButton>
                     </Header>
                     <PostInfoArea onClick={() => handlePostNavigate(post.id)}>
                         <Tag isexpired={post && new Date(post.post_deadline) >= new Date() ? "모집중" : "마감"}>
@@ -464,7 +464,7 @@ const LeaveButton = styled.button`
     background-color: transparent;
     border: none;
     color: #7f52ff;
-    font-size: 9px;
+    font-size: 10px;
     cursor: pointer;
 
     &:hover {
