@@ -25,7 +25,7 @@ const ChatItem = ({chatroom}) => {
 
                 if(!postSnapshot.empty) {
                     const postData = postSnapshot.docs[0].data();
-                    setPost(postData);
+                    setPost({ ...postData, id: postSnapshot.docs[0].id });
 
                     // 마감일 계산
                     const deadline = new Date(postData.post_deadline);
@@ -96,6 +96,7 @@ const ChatItem = ({chatroom}) => {
                         />
                         <ChatListModal 
                             post={post}
+                            chatId={chatroom.room_id}
                             isOpen={isOpen} 
                             onClose={()=>{
                                 setIsOpen(false);

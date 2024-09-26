@@ -1,9 +1,9 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { deleteDoc, doc, updateDoc, arrayRemove, collection, getDocs, increment, query, where } from 'firebase/firestore';
+import { doc, updateDoc, arrayRemove, collection, getDocs, increment, query, where } from 'firebase/firestore';
 import { auth, database, db } from '../../firebase';
-import { ref, remove, get, onValue, update } from 'firebase/database';
+import { ref, get, update } from 'firebase/database';
 import { ref as databaseRef, push, set } from 'firebase/database';
 import { useEffect, useRef, useState } from 'react';
 
@@ -11,18 +11,9 @@ import { useEffect, useRef, useState } from 'react';
 // onClose : 모달 닫기
 // children : 모달 안에 들어갈 내용
 
-const ChatListModal = ({isOpen, onClose, modalPosition, post}) => {
+const ChatListModal = ({isOpen, onClose, modalPosition, post, chatId}) => {
   const navigate = useNavigate();
-  const { chatId } = useParams();
-  const messageEndRef = useRef(null);
-  const chatRoomRef = ref(database, `/chatRoom/${chatId}`);
-  const [chatRoomName, setChatRoomName] = useState("");
-  const reference = ref(database, `/chatRoom/${chatId}/messages`);
-  const [messageList, setMessageList] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
   const [user, setUser] = useState(null);
-  const [currentTime, setCurrentTime] = useState(new Date().getDate());
-  const isFirstRender = useRef(true);
   const currentUser = auth.currentUser;
 
   // 현재 사용자 불러오기
@@ -66,7 +57,6 @@ const ChatListModal = ({isOpen, onClose, modalPosition, post}) => {
         await update(chatRoomRef, {
             room_parti: participants,
         });
-
         // Firestore의 posts 컬렉션에서도 제거하기
         if (post && post.id) {
             const postDocRef = doc(db, "posts", post.id);
