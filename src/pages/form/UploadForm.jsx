@@ -134,7 +134,7 @@ const UploadForm = () => {
                 room_parti: [currentUser.user_id],
                 room_lastMessage: "최근 대화 내역이 존재하지 않습니다",
                 room_lastMessagedat: new Date().toISOString(),
-                room_thumbnail: uploadedImageUrls[0] || "/assets/BG/defaultImage.png",
+                room_thumbnail: uploadedImageUrls[0] || "/assets/BG/defaultImage_m.png",
                 messages: {},
             });
 
