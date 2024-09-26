@@ -561,6 +561,7 @@ const ContentMiddle = styled.div`
     color: #676767;
     font-size: 12px;
     overflow-y: scroll;
+    white-space: pre-line;
 `;
 
 const TitleAndImg =styled.div`
