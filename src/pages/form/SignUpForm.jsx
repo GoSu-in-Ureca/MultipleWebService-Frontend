@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import backbutton from "/assets/Icon/navigate_before.svg";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { addDoc, collection } from "firebase/firestore";
 import { db, auth, storage } from "../../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
 
 const SignUpForm = () => {
     const navigate = useNavigate();
     const [profileImage, setProfileImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
-    const [email, setEmail] = useState("");
+    const location = useLocation();
+    const emailFromState = location.state?.email || "";
+    const [isGoogleUser, setIsGoogleUser] = useState(false);
+    const [email, setEmail] = useState(emailFromState);
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [rePassword, setRePassword] = useState("");
@@ -25,6 +28,18 @@ const SignUpForm = () => {
     const [signupError, setSignupError] = useState("");
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
+
+    // 구글 로그인 여부 체크
+    useEffect(() => {
+        const user = auth.currentUser;
+        if (user && user.providerData.some((provider) => provider.providerId === "google.com")) {
+          // User is authenticated via Google
+          setIsGoogleUser(true);
+          setEmail(user.email); // Ensure email is set from authenticated user
+        } else {
+          setIsGoogleUser(false);
+        }
+      }, []);
 
     // 파일 확장자 검사
     const validateFile = (file) => {
@@ -46,71 +61,125 @@ const SignUpForm = () => {
     // 회원가입 제출 시 이벤트 발생
     async function handleSignUp(event) {
         event.preventDefault();
-
-        // 입력 필드 검사
-        if (!email || !name || !password || !rePassword) {
+      
+        if (isGoogleUser) {
+          // User is authenticated via Google
+          try {
+            // Validate name field
+            if (!name) {
+              setSignupError("이름을 입력해주세요.");
+              return;
+            }
+      
+            const user = auth.currentUser;
+      
+            // Upload profile image if provided
+            let profileImageUrl = user.photoURL || "/assets/BG/defaultProfile.png";
+            if (profileImage) {
+              const imageRef = ref(storage, `profileImages/${user.uid}`);
+              await uploadBytes(imageRef, profileImage);
+              profileImageUrl = await getDownloadURL(imageRef);
+            }
+      
+            // Update user's display name and photo URL
+            await updateProfile(user, {
+              displayName: name,
+              photoURL: profileImageUrl,
+            });
+      
+            // Save user profile to Firestore
+            await setDoc(doc(db, "users", user.uid), {
+              user_id: user.uid,
+              user_name: name,
+              user_department: selectDepartment,
+              user_onoffline: selectOnOff,
+              profile_image_url: profileImageUrl,
+              user_level: 1,
+              user_exp: 0,
+              user_createdAt: new Date(),
+              user_recruit: 0,
+              user_join: 0,
+            });
+      
+            navigate("/main");
+            setSignupError("");
+          } catch (error) {
+            console.error(error);
+            setSignupError("회원가입 제출 양식이 올바르지 않습니다.");
+          }
+        } else {
+          // User is not authenticated, proceed with email/password signup
+          // Validate input fields
+          if (!email || !name || !password || !rePassword) {
             setSignupError("모든 필드를 입력해주세요.");
             return;
-        }
-
-        // 이메일 형식 검사
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(email)) {
+          }
+      
+          // 이메일 형식 검사
+          const emailPattern =
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!emailPattern.test(email)) {
             setSignupError("유효한 이메일 형식을 입력해주세요.");
             return;
-        }
-
-        // 비밀번호 길이 및 일치 검사
-        if (password.length < 8 || password.length > 20) {
+          }
+      
+          // 비밀번호 길이 및 일치 검사
+          if (password.length < 8 || password.length > 20) {
             setSignupError("비밀번호는 8-20자 이내로 설정해주세요.");
             return;
-        }
-
-        // 비밀번호 확인 필드 일치 검사
-        if (password !== rePassword) {
+          }
+      
+          // 비밀번호 확인 필드 일치 검사
+          if (password !== rePassword) {
             setSignupError("비밀번호가 일치하지 않습니다.");
             return;
-        }
-
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          }
+      
+          try {
+            const userCredential = await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
             const user = userCredential.user;
-
+      
             // 프로필 이미지 업로드
             let profileImageUrl = "/assets/BG/defaultProfile.png";
             if (profileImage) {
-                const imageRef = ref(storage, `profileImages/${user.uid}`);
-                await uploadBytes(imageRef, profileImage);
-                profileImageUrl = await getDownloadURL(imageRef);
+              const imageRef = ref(storage, `profileImages/${user.uid}`);
+              await uploadBytes(imageRef, profileImage);
+              profileImageUrl = await getDownloadURL(imageRef);
             }
-
+      
             // 사용자 프로필 업데이트
             await updateProfile(user, {
-                displayName: name,
-                photoURL: profileImageUrl, // 사진 URL을 사용자의 프로필에도 설정
+              displayName: name,
+              photoURL: profileImageUrl,
             });
-
+      
             // Firestore에 사용자 정보 저장
-            await addDoc(collection(db, "users"), {
-                user_id: user.uid,
-                user_name: user.displayName,
-                user_department: selectDepartment,
-                user_onoffline: selectOnOff,
-                profile_image_url: profileImageUrl,
-                user_level: 1,
-                user_exp: 0,
-                user_createdAt: new Date(),
-                user_recruit: 0,
-                user_join: 0,
+            await setDoc(doc(db, "users", user.uid), {
+              user_id: user.uid,
+              user_name: user.displayName,
+              user_department: selectDepartment,
+              user_onoffline: selectOnOff,
+              profile_image_url: profileImageUrl,
+              user_level: 1,
+              user_exp: 0,
+              user_createdAt: new Date(),
+              user_recruit: 0,
+              user_join: 0,
             });
-
-            navigate('/main');
+      
+            navigate("/main");
             setSignupError("");
-        } catch (error) {
+          } catch (error) {
             console.log(error);
             setSignupError("회원가입 제출 양식이 올바르지 않습니다.");
+          }
         }
-    }
+      }
+      
 
     // 프로필 사진 핸들러
     const handleProfileImageChange = (event) => {
@@ -215,22 +284,24 @@ const SignUpForm = () => {
                     </InputGuideText>
                     <InputEmail 
                         value={email} 
-                        onChange={handleEmailChange} 
+                        onChange={handleEmailChange}
+                        readOnly={!!emailFromState}
                     />
                     <InputGuideText>이름</InputGuideText>
                     <InputName value={name} onChange={(e) => setName(e.target.value)}/>
-                    <InputGuideText>
+                    <InputGuideText style={{color: emailFromState ? "#e8e8e8" : ""}}>
                         비밀번호
                         {passwordError && <PasswordValidation>{passwordError}</PasswordValidation>}
                     </InputGuideText>
                     <InputPassword
                         value={password}
                         onChange={handlePasswordChange}
-                    />
-                    <InputGuideText>
+                        readOnly={!!emailFromState}
+                        />
+                    <InputGuideText style={{color: emailFromState ? "#e8e8e8" : ""}}>
                         비밀번호 확인
                         {rePasswordError && (
-                        <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
+                            <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
                             {rePasswordError}
                         </RePasswordValidation>
                     )}
@@ -238,6 +309,7 @@ const SignUpForm = () => {
                     <InputRePassword
                         value={rePassword}
                         onChange={handleRePasswordChange}
+                        readOnly={!!emailFromState}
                     />
                     <InputDepartmentArea>
                         <InputGuideText>소속</InputGuideText>
@@ -419,12 +491,12 @@ const InputPassword = styled.input.attrs({
     width: 330px;
     height: 40px;
     border: none;
-    border-bottom: 1px #BCBEC0 solid;
+    border-bottom: 1px ${({readOnly}) => (readOnly ? "#e8e8e8" : "#BCBEC0")} solid;
     outline: none;
     margin-bottom: 21px;
 
     &:focus {
-        border-bottom: 1px solid #7F52FF;
+        border-bottom: 1px solid ${({readOnly}) => (readOnly ? "#e8e8e8" : "#7F52FF")};
     }
 `;
 
@@ -441,12 +513,12 @@ const InputRePassword = styled.input.attrs({
     width: 330px;
     height: 40px;
     border: none;
-    border-bottom: 1px #BCBEC0 solid;
+    border-bottom: 1px ${({readOnly}) => (readOnly ? "#e8e8e8" : "#BCBEC0")} solid;
     outline: none;
     margin-bottom: 21px;
 
     &:focus {
-        border-bottom: 1px solid #7F52FF;
+        border-bottom: 1px solid ${(readOnly) => (readOnly ? "#e8e8e8" : "#7F52FF")};
     }
 `;
 
