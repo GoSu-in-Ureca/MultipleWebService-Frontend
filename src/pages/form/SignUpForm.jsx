@@ -29,6 +29,7 @@ const SignUpForm = () => {
 
     const allowedExtensions = ["jpg", "jpeg", "png"];
 
+    // 구글 로그인 여부 체크
     useEffect(() => {
         const user = auth.currentUser;
         if (user && user.providerData.some((provider) => provider.providerId === "google.com")) {
@@ -288,18 +289,19 @@ const SignUpForm = () => {
                     />
                     <InputGuideText>이름</InputGuideText>
                     <InputName value={name} onChange={(e) => setName(e.target.value)}/>
-                    <InputGuideText>
+                    <InputGuideText style={{color: emailFromState ? "#e8e8e8" : ""}}>
                         비밀번호
                         {passwordError && <PasswordValidation>{passwordError}</PasswordValidation>}
                     </InputGuideText>
                     <InputPassword
                         value={password}
                         onChange={handlePasswordChange}
-                    />
-                    <InputGuideText>
+                        readOnly={!!emailFromState}
+                        />
+                    <InputGuideText style={{color: emailFromState ? "#e8e8e8" : ""}}>
                         비밀번호 확인
                         {rePasswordError && (
-                        <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
+                            <RePasswordValidation $isMatch={rePasswordError === "비밀번호가 일치합니다"}>
                             {rePasswordError}
                         </RePasswordValidation>
                     )}
@@ -307,6 +309,7 @@ const SignUpForm = () => {
                     <InputRePassword
                         value={rePassword}
                         onChange={handleRePasswordChange}
+                        readOnly={!!emailFromState}
                     />
                     <InputDepartmentArea>
                         <InputGuideText>소속</InputGuideText>
@@ -488,12 +491,12 @@ const InputPassword = styled.input.attrs({
     width: 330px;
     height: 40px;
     border: none;
-    border-bottom: 1px #BCBEC0 solid;
+    border-bottom: 1px ${({readOnly}) => (readOnly ? "#e8e8e8" : "#BCBEC0")} solid;
     outline: none;
     margin-bottom: 21px;
 
     &:focus {
-        border-bottom: 1px solid #7F52FF;
+        border-bottom: 1px solid ${({readOnly}) => (readOnly ? "#e8e8e8" : "#7F52FF")};
     }
 `;
 
@@ -510,12 +513,12 @@ const InputRePassword = styled.input.attrs({
     width: 330px;
     height: 40px;
     border: none;
-    border-bottom: 1px #BCBEC0 solid;
+    border-bottom: 1px ${({readOnly}) => (readOnly ? "#e8e8e8" : "#BCBEC0")} solid;
     outline: none;
     margin-bottom: 21px;
 
     &:focus {
-        border-bottom: 1px solid #7F52FF;
+        border-bottom: 1px solid ${(readOnly) => (readOnly ? "#e8e8e8" : "#7F52FF")};
     }
 `;
 
