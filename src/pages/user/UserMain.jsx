@@ -238,8 +238,8 @@ const UserMain = () => {
                     <ModalContent>
                         <ModalTitle>정말로 회원탈퇴를 진행하시겠습니까?</ModalTitle>
                         <ButtonGroup>
-                            <ConfirmButton onClick={handleSecessionClick}>확인</ConfirmButton>
-                            <CancelButton onClick={handleSecessionCancel}>취소</CancelButton>
+                            <ConfirmButton onClick={handleSecessionClick}>네</ConfirmButton>
+                            <CancelButton onClick={handleSecessionCancel}>아니요</CancelButton>
                         </ButtonGroup>
                     </ModalContent>
                 </ModalOverlay>
@@ -395,37 +395,63 @@ const ModalOverlay = styled.div`
 const ModalContent = styled.div`
   background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 15px;
   text-align: center;
-  max-width: 350px;
   width: 100%;
+  max-width: 280px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const ModalTitle = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 500;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 16px;
 `;
 
 const ConfirmButton = styled.button`
-  background-color: red;
-  color: white;
+  background-color: #f3f3f3;
+  color: #242424;
   border: none;
   padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 4px;
+  border-radius: 8px;
+  width: 80px;
+  height: 40px;
+
+  &:hover{
+        cursor: pointer;
+        background-color: #FFDBDB;
+        color: #F33C3C;
+        border: 1px solid #F33C3C;
+        transition: 0.1s;
+    }
 `;
 
 const CancelButton = styled.button`
-  background-color: gray;
-  color: white;
+  background-color: #f3f3f3;
+  color: #242424;
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 8px;
+  width: 80px;
+  height: 40px;
+
+  &:hover{
+        cursor: pointer;
+        background-color: #FFDBDB;
+        color: #F33C3C;
+        border: 1px solid #F33C3C;
+        transition: 0.1s;
+    }
 `;
 
 const Input = styled.input`
