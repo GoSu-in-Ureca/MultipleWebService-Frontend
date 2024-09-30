@@ -73,7 +73,7 @@ const InterestList = () => {
     return (
         <Wrapper>
             <HeartPost>
-                <HeartPostTitle>{user ? (user.user_id === auth.currentUser.uid ? "내가 찜한 게시글" : `${user.user_name}님이 찜한 게시글`) : `님이 찜한 게시글`}</HeartPostTitle>
+                <HeartPostTitle>{user ? (user.user_id === auth.currentUser.uid ? "찜한 게시글" : `${user.user_name}님이 찜한 게시글`) : `님이 찜한 게시글`}</HeartPostTitle>
                 <WholeView onClick={handleHeartPostListNavigate}>전체보기</WholeView>
             </HeartPost>
             <HeartPostContent>

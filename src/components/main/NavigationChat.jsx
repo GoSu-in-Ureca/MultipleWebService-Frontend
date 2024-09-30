@@ -61,7 +61,7 @@ const NavigationChat = () => {
 
         <NavItem onClick={() => handleNavigation("user")}>
           <NavIcon src={notUser} alt="User Icon" />
-          <PlainText>내 정보</PlainText>
+          <PlainText>마이</PlainText>
         </NavItem>
       </Wrapper>
     </>

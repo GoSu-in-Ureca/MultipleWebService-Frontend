@@ -74,7 +74,7 @@ const UploadList = () => {
     return (
         <Wrapper>
             <UploadPost>
-                <UploadPostTitle>{user ? (user.user_id === auth.currentUser.uid ? "내가 작성한 게시글" : `${user.user_name}님이 작성한 게시글`) : `님이 작성한 게시글`}</UploadPostTitle>
+                <UploadPostTitle>{user ? (user.user_id === auth.currentUser.uid ? "작성한 게시글" : `${user.user_name}님이 작성한 게시글`) : `님이 작성한 게시글`}</UploadPostTitle>
                 <WholeView onClick={handleUploadPostListNavigate}>전체보기</WholeView>
             </UploadPost>
             <UploadPostContent>
