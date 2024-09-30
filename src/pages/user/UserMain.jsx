@@ -253,7 +253,7 @@ const UserMain = () => {
                                 value={password}
                                 onChange= {handlePasswordChange}/>
                         <ButtonGroup>
-                            <ConfirmButton onClick={handlePasswordSubmit}>확인</ConfirmButton>
+                            <ConfirmButton onClick={handlePasswordSubmit}>입력</ConfirmButton>
                             <CancelButton onClick={() => {setShowPasswordModal(false)}}>취소</CancelButton>
                         </ButtonGroup>
                     </ModalContent>
@@ -406,7 +406,7 @@ const ModalContent = styled.div`
 `;
 
 const ModalTitle = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 13px;
   font-weight: 500;
 `;
@@ -415,6 +415,7 @@ const ButtonGroup = styled.div`
   display: flex;
   justify-content: center;
   gap: 16px;
+  margin-top: 10px;
 `;
 
 const ConfirmButton = styled.button`
@@ -462,6 +463,7 @@ const Input = styled.input`
     height: 30px;
     width: 200px;
     text-align: center;
+    margin: 0 auto;
 `;
 
 const GoogleLinkButton = styled.div`
