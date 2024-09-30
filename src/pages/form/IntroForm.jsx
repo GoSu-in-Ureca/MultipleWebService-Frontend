@@ -22,7 +22,7 @@ const IntroForm = () => {
         try {
             // 구글 로그인 시도
             const result = await signInWithPopup(auth, provider);
-            navigate("/main"); // 로그인 성공 후 메인 페이지로 이동
+            navigate("/auth-google"); // 로그인 성공 후 신규 유저인지 체크하고 리다이렉트
         } catch (error) {
             console.error(error);
         }

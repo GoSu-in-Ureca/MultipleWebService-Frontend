@@ -40,6 +40,10 @@ export const RouterList = () => [
         path: "signup",
         element: <SignUpForm />,
       },
+      {
+        path: "auth-google",
+        element: <GoogleLoginHandler />,
+      },
     ],
   },
   {
