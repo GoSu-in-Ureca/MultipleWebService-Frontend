@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, firestore } from "../firebase";
+import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 const GoogleLoginHandler = () => {
@@ -11,7 +11,7 @@ const GoogleLoginHandler = () => {
       const user = auth.currentUser;
 
       if (user) {
-        const userDocRef = doc(firestore, "users", user.uid);
+        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
@@ -19,7 +19,7 @@ const GoogleLoginHandler = () => {
           navigate("/main");
         } else {
           // New user
-          navigate("/signup");
+          navigate("/signup", {state: {email: user.email}});
         }
       } else {
         // User is not signed in
@@ -30,7 +30,7 @@ const GoogleLoginHandler = () => {
     checkUserExists();
   }, [navigate]);
 
-  return null; // Optionally, add a loading spinner here
+  return null;
 };
 
 export default GoogleLoginHandler;
