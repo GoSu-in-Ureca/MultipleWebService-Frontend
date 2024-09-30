@@ -358,19 +358,19 @@ const ProfileAreaRight = styled.div`
 `;
 
 const Secession = styled.div`
-    font-size: 12px;
+    font-size: 10px;
     color: #ff7474;
     font-weight: 400;
     
-    width: 180px;
-    height: 40px;
+    width: 118px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: white;
     box-shadow: 0px 1px 4px rgba(116, 116, 116, 0.2);
     border-radius: 39px;
-    margin-top: 13px;
+    margin-top: 10px;
     margin-bottom: 20px;
 
     &:hover{
@@ -439,8 +439,8 @@ const Input = styled.input`
 `;
 
 const GoogleLinkButton = styled.div`
-    width: 180px;
-    height: 40px;
+    width: 118px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -448,7 +448,7 @@ const GoogleLinkButton = styled.div`
     box-shadow: 0px 1px 4px rgba(116, 116, 116, 0.2);
     border-radius: 39px;
     margin-top: 13px;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 400;
     color: #404041;
 
