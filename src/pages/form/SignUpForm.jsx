@@ -184,7 +184,7 @@ const SignUpForm = () => {
     // 프로필 사진 핸들러
     const handleProfileImageChange = (event) => {
         const file = event.target.files[0];
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 5 * 1024 * 1024; // 5MB
 
         if (file && file.size > maxSize) {
             setFileSizeAlert("파일 용량은 2MB를 초과할 수 없습니다");
