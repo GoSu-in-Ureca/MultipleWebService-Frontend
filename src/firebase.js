@@ -5,6 +5,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
+import { OAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,6 +18,7 @@ const firebaseConfig = {
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
+
 // 파이어베이스 인스턴스 생성
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
@@ -24,5 +26,6 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 const database = getDatabase(app);
+const provider = new OAuthProvider('oidc.kakao');
 
-export {db, auth, storage, database};
+export {db, auth, storage, database, provider};

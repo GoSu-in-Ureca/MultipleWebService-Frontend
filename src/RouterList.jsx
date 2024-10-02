@@ -12,6 +12,7 @@ import IntroForm from "./pages/form/IntroForm.jsx";
 import LoginForm from "./pages/form/LoginForm.jsx";
 import SignUpForm from "./pages/form/SignUpForm.jsx";
 import GoogleLoginHandler from "./function/GoogleLoginHandler.jsx";
+import KakaoLoginHandler from "./function/KakaoLoginHandler.jsx";
 import UpdateForm from "./pages/form/UpdateForm.jsx";
 import UploadForm from "./pages/form/UploadForm.jsx";
 import Main from "./pages/main/Main.jsx";
@@ -44,6 +45,10 @@ export const RouterList = () => [
       {
         path: "auth-google",
         element: <GoogleLoginHandler />,
+      },
+      {
+        path: "auth-kakao",
+        element: <KakaoLoginHandler />,
       },
     ],
   },
