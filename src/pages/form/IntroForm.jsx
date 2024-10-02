@@ -18,7 +18,7 @@ const IntroForm = () => {
             success: async function (authObj) {
                 try {
                     // Firebase Functions로 액세스 토큰 전달
-                    const response = await fetch('', {
+                    const response = await fetch('https://us-central1-multiplewebservice-bdff9.cloudfunctions.net/createCustomToken', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ const IntroForm = () => {
                         body: JSON.stringify({ token: authObj.access_token }),
                     });
     
-                    const data = await response.json();
+                    const data = await response.json(); 
                     const firebaseToken = data.token;
     
                     // Firebase Custom Token으로 로그인
