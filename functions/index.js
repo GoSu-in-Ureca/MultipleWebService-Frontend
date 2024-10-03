@@ -9,7 +9,7 @@ admin.initializeApp();
 // CORS 미들웨어 설정
 const corsHandler = cors({ origin: true });
 
-export const createCustomToken = functions.https.onRequest((req, res) => {
+export const createCustomToken = functions.region('asia-northeast3').https.onRequest((req, res) => {
   // CORS 미들웨어 처리
   corsHandler(req, res, async () => {
     if (req.method === 'OPTIONS') {
