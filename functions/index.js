@@ -1,4 +1,3 @@
-// functions/index.js
 import functions from 'firebase-functions';
 import admin from 'firebase-admin';
 import axios from 'axios';
@@ -11,11 +10,11 @@ admin.initializeApp();
 const corsHandler = cors({ origin: true });
 
 export const createCustomToken = functions.https.onRequest((req, res) => {
+  // CORS 미들웨어 처리
   corsHandler(req, res, async () => {
-    // OPTIONS 요청을 처리하고 CORS 헤더 반환
     if (req.method === 'OPTIONS') {
       res.set('Access-Control-Allow-Origin', '*');
-      res.set('Access-Control-Allow-Methods', 'GET, POST');
+      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
       res.set('Access-Control-Allow-Headers', 'Content-Type');
       res.set('Access-Control-Max-Age', '3600');
       return res.status(204).send('');  // Preflight 요청 성공 처리
@@ -58,15 +57,11 @@ export const createCustomToken = functions.https.onRequest((req, res) => {
       const customToken = await admin.auth().createCustomToken(uid);
 
       // 클라이언트로 Custom Token 반환
+      res.set('Access-Control-Allow-Origin', '*');  // 모든 도메인 허용
       return res.status(200).json({ token: customToken });
     } catch (error) {
       console.error('Error creating custom token:', error);
-
-      // 에러 발생 시에도 CORS 헤더 설정
-      res.set('Access-Control-Allow-Origin', '*');
-      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.set('Access-Control-Allow-Headers', 'Content-Type');
-
+      res.set('Access-Control-Allow-Origin', '*');  // 모든 도메인 허용
       return res.status(500).send('Internal Server Error');
     }
   });

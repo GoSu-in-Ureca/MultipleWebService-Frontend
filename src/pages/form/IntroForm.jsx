@@ -8,17 +8,11 @@ import { auth } from "../../firebase";
 const IntroForm = () => {
     const navigate = useNavigate();
     const redirect = import.meta.env.VITE_KAKAO_REDIRECT_URL;
+    const clientid = import.meta.env.VITE_KAKAO_CLIENT_ID;
 
     const handleLoginNavigate = () => {
         navigate('/login');
     }
-
-    const handleKakaoLogin = () => {
-        window.Kakao.Auth.authorize({
-        redirectUri: redirect,
-        });
-    };
-    
 
     const handleSignUpNavigate = () => {
         navigate('/signup');
@@ -41,9 +35,12 @@ const IntroForm = () => {
             <Wrapper>
                 <Logo />
                 <SubTitle>파티원 모집 플랫폼 서비스</SubTitle>
-                <KakaoSignUpButton onClick={handleKakaoLogin}>
-                    카카오로 시작하기
-                </KakaoSignUpButton>
+                <a style={{textDecorationLine: "none", color: "black"}}
+                  href={`https://kauth.kakao.com/oauth/authorize?client_id=${clientid}&redirect_uri=${redirect}&response_type=code`}>
+                  <KakaoSignUpButton>
+                      카카오로 시작하기
+                  </KakaoSignUpButton>
+                </a>
                 <GoogleSignUpButton onClick={handleGoogleNavigate}>
                     구글로 시작하기
                 </GoogleSignUpButton>
