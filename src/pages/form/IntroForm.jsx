@@ -7,39 +7,15 @@ import { auth } from "../../firebase";
 
 const IntroForm = () => {
     const navigate = useNavigate();
+    const redirect = import.meta.env.VITE_KAKAO_REDIRECT_URL;
 
     const handleLoginNavigate = () => {
         navigate('/login');
     }
 
-    // Kakao Login handler
     const handleKakaoLogin = () => {
-        Kakao.Auth.login({
-            success: async function (authObj) {
-                try {
-                    // Firebase Functions로 액세스 토큰 전달
-                    const response = await fetch('https://us-central1-multiplewebservice-bdff9.cloudfunctions.net/createCustomToken', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ token: authObj.access_token }),
-                    });
-    
-                    const data = await response.json(); 
-                    const firebaseToken = data.token;
-    
-                    // Firebase Custom Token으로 로그인
-                    await auth.signInWithCustomToken(firebaseToken);
-    
-                    navigate('/main'); // 로그인 후 메인 페이지로 이동
-                } catch (error) {
-                    console.error('Firebase Custom Token 오류:', error);
-                }
-            },
-            fail: function (error) {
-                console.log('카카오 로그인 실패:', error);
-            },
+        window.Kakao.Auth.authorize({
+        redirectUri: redirect,
         });
     };
     
